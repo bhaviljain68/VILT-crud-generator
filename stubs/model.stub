@@ -1,1 +1,30 @@
-// Model stub content
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class {{ modelName }} extends Model
+{
+    // * Config
+    protected $table = '{{ tableName }}';
+    protected $primaryKey = "id";
+
+    // * Mass Assignment
+    protected $fillable = {{ fillable }};
+
+    // * Data Protection
+    protected $hidden = [];
+
+    // * Data Formatting
+    protected $casts = [];
+
+    // * Accessors
+
+    // * Mutators
+
+    // * Relationships
+    protected $with = [];
+    
+    // * Methods
+}
