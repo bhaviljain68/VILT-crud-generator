@@ -1,1 +1,114 @@
-// Controller stub content
+<?php
+
+namespace {{ namespace }};
+
+use {{ modelClass }};
+use {{ resourceName }};
+use {{ resourceCollectionName }};
+@if(useFormRequest)
+use App\Http\Requests\Store{{ modelName }}Request;
+use App\Http\Requests\Update{{ modelName }}Request;
+@endif
+use Inertia\Inertia;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+@if(hasExportTrait)
+use VendorName\InertiaCrudGenerator\Traits\HasExport;
+@endif
+
+class {{ controllerClass }} extends Controller
+{
+    @if(hasExportTrait)
+    use HasExport;
+    protected string $modelClass = {{ modelClass }}::class;
+    @endif
+
+    public function index()
+    {
+        $query = {{ modelName }}::query();
+        // You can add filtering or sorting logic here
+        ${{ Str::camel(modelName) }}s = $query->latest()->paginate(10);
+
+        return Inertia::render('{{ modelPlural }}/Index', [
+            '{{ modelPluralLower }}' => new {{ resourceCollectionName }}(${{ Str::camel(modelName) }}s)
+        ]);
+    }
+
+    public function create()
+    {
+        return Inertia::render('{{ modelPlural }}/Create');
+    }
+
+    public function store(@if(useFormRequest)Store{{ modelName }}Request $request@else Request $request@endif)
+    {
+        try {
+            $data = @if(useFormRequest)$request->validated()@else $request->validate({{ validationRules }});@endif
+            ${{ modelVar }} = {{ modelName }}::create($data);
+
+            return redirect()
+                ->route('{{ routeName }}.index')
+                ->with('success', __('{{ modelName }} created successfully.'));
+        } catch (\Exception $e) {
+            Log::error("Failed to create {{ modelName }}: {$e->getMessage()}", ['exception' => $e]);
+
+            return redirect()
+                ->route('{{ routeName }}.create')
+                ->with('error', __('Failed to create {{ modelName }}. Please try again.'));
+        }
+    }
+
+    public function show({{ modelName }} ${{ modelVar }})
+    {
+        return Inertia::render('{{ modelPlural }}/Show', [
+            '{{ modelVar }}' => new {{ resourceName }}(${{ modelVar }})
+        ]);
+    }
+
+    public function edit({{ modelName }} ${{ modelVar }})
+    {
+        return Inertia::render('{{ modelPlural }}/Edit', [
+            '{{ modelVar }}' => new {{ resourceName }}(${{ modelVar }})
+        ]);
+    }
+
+    public function update(@if(useFormRequest)Update{{ modelName }}Request $request@else Request $request@endif, {{ modelName }} ${{ modelVar }})
+    {
+        try {
+            $data = @if(useFormRequest)$request->validated()@else $request->validate({{ validationRules }});@endif
+            ${{ modelVar }}->update($data);
+
+            return redirect()
+                ->route('{{ routeName }}.index')
+                ->with('success', __('{{ modelName }} updated successfully.'));
+        } catch (\Exception $e) {
+            Log::error("Failed to update {{ modelName }} [ID: {{$modelVar}}]: {$e->getMessage()}", ['exception' => $e]);
+
+            return redirect()
+                ->route('{{ routeName }}.edit', ${{ modelVar }})
+                ->with('error', __('Failed to update {{ modelName }}. Please try again.'));
+        }
+    }
+
+    public function destroy({{ modelName }} ${{ modelVar }})
+    {
+        try {
+            ${{ modelVar }}->delete();
+
+            return redirect()
+                ->route('{{ routeName }}.index')
+                ->with('success', __('{{ modelName }} deleted successfully.'));
+        } catch (\Exception $e) {
+            Log::error("Failed to delete {{ modelName }} [ID: {{$modelVar}}]: {$e->getMessage()}", ['exception' => $e]);
+
+            return redirect()
+                ->route('{{ routeName }}.index')
+                ->with('error', __('Failed to delete {{ modelName }}. Please try again.'));
+        }
+    }
+
+    @if(hasExportTrait)
+    // export method is provided by HasExport trait (CSV, XLSX, PDF)
+    @endif
+}
+
