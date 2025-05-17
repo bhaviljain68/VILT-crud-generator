@@ -1,1 +1,28 @@
-// Form request stub content
+<?php
+
+namespace {{ namespace }};
+
+use Illuminate\Foundation\Http\FormRequest;
+
+class {{ className }} extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    public function rules(): array
+    {
+        return {{ rules }};
+    }
+
+    public function messages(): array
+    {
+        return {{ messages }};
+    }
+    
+    public function attributes(): array
+    {
+        return {{ attributes }};
+    }
+}
