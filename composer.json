@@ -1,31 +1,31 @@
 {
-    "name": "artisanal-byte/inertia-crud-generator",
-    "version": "0.1.0",
+    "name": "artisanalbyte/inertia-crud-generator",
     "description": "Laravel Inertia CRUD Generator Package",
     "type": "library",
     "require": {
         "php": "^8.1",
         "laravel/framework": "^10.0",
         "inertiajs/inertia-laravel": "^0.6",
-        "doctrine/dbal": "^3.2",
         "maatwebsite/excel": "^3.1",
-        "barryvdh/laravel-dompdf": "^2.0"
+        "barryvdh/laravel-dompdf": "^2.0",
+        "doctrine/dbal": "^3.9",
+        "carbonphp/carbon-doctrine-types": "^2.1"
     },
     "autoload": {
         "psr-4": {
-            "VendorName\\InertiaCrudGenerator\\": "src/"
+            "artisanalbyte\\InertiaCrudGenerator\\": "src/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "VendorName\\InertiaCrudGenerator\\InertiaCrudGeneratorServiceProvider"
+                "artisanalbyte\\InertiaCrudGenerator\\InertiaCrudGeneratorServiceProvider"
             ]
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "VendorName\\InertiaCrudGenerator\\Tests\\": "tests/"
+            "artisanalbyte\\InertiaCrudGenerator\\Tests\\": "tests/"
         }
     },
     "require-dev": {
