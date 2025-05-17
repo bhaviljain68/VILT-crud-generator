@@ -8,8 +8,6 @@ use Illuminate\Support\Str;
 use Doctrine\DBAL\Schema\Column;
 use Illuminate\Filesystem\Filesystem;
 use Doctrine\DBAL\DriverManager;
-use Doctrine\DBAL\Types\Type;
-use Doctrine\DBAL\Types\TypeRegistry;
 
 class CrudGeneratorCommand extends Command
 {
@@ -169,7 +167,7 @@ class CrudGeneratorCommand extends Command
                 $className = $requestClasses[$action];
                 $path = ($action === 'store') ? $requestPathStore : $requestPathUpdate;
                 $stub = $loadStub('form-request' . ($action === 'update' ? '-update' : ''));
-                $rulesArray = $this->generateValidationRules($fields, $modelName, $action);
+                $rulesArray = $this->generateValidationRules($fields, $tableName, $modelName, $action);
                 $stub = str_replace(
                     ['{{ namespace }}', '{{ className }}', '{{ rules }}', '{{ attributes }}'],
                     ['App\\Http\\Requests', $className, $rulesArray['rules'], $rulesArray['attributes']],
@@ -246,7 +244,7 @@ class CrudGeneratorCommand extends Command
     /**
      * Generate validation rules string and attributes array for the form request stub.
      */
-    protected function generateValidationRules(array $fields, string $modelName, string $action): array
+    protected function generateValidationRules(array $fields, string $tableName, string $modelName, string $action): array
     {
         $rules = [];
         $attrs = [];
@@ -271,7 +269,14 @@ class CrudGeneratorCommand extends Command
                 }
             }
             // Example: unique constraint handling
-            // if ($name === 'email') { ... $ruleLine[] = 'unique:'.$tableName }
+            if ($name === 'email') {
+                if ($action === 'update') {
+                    $ruleLine[] = 'unique:' . $tableName . ',email,' . $modelName . '->id';
+                } else {
+                    $ruleLine[] = 'unique:' . $tableName;
+                }
+                $ruleLine[] = 'unique:' . $tableName;
+            }
             $rules[$name] = implode('|', $ruleLine);
             // Prepare a human-friendly attribute name (Title Case for label)
             $attrs[$name] = Str::headline($name);
@@ -289,5 +294,67 @@ class CrudGeneratorCommand extends Command
             'rules' => "[\n$rulesStr        ]",
             'attributes' => "[\n$attrStr        ]"
         ];
+    }
+
+    /**
+     * Generate custom validation messages for FormRequest stub.
+     *
+     * @param  array   $fields     Array of field metadata (type, length, required).
+     * @param  string  $modelName  The model name, e.g. "Post".
+     * @param  string  $action     Either 'store' or 'update'.
+     * @return string  PHP code for the messages array.
+     */
+    protected function generateValidationMessages(array $fields, string $modelName, string $action): string
+    {
+        $messages = [];
+
+        foreach ($fields as $name => $meta) {
+            // Required vs nullable
+            $displayName = Str::headline($name);
+            if ($meta['required']) {
+                $messages[] = "'{$name}.required' => __('The {$displayName} field is required.'),";
+            }
+
+            // Type-specific messages
+            switch ($meta['type']) {
+                case 'integer':
+                case 'bigint':
+                    $messages[] = "'{$name}.integer' => __('The {$displayName} must be an integer.'),";
+                    break;
+
+                case 'boolean':
+                    $messages[] = "'{$name}.boolean' => __('The {$displayName} field must be true or false.'),";
+                    break;
+
+                case 'datetime':
+                case 'datetimetz':
+                case 'date':
+                    $messages[] = "'{$name}.date' => __('The {$displayName} is not a valid date.'),";
+                    break;
+
+                case 'string':
+                    if (! empty($meta['length'])) {
+                        $max = $meta['length'];
+                        $messages[] = "'{$name}.max' => __('The {$displayName} may not be greater than {$max} characters.'),";
+                    }
+                    break;
+
+                    // Add more DBAL types here if you extend generateValidationRules()
+            }
+
+            if ($name === 'email') {
+                $messages[] = "'{$displayName}.unique' => __('The email has already been taken.'),";
+                $messages[] = "'{$displayName}.email' => __('Please enter a valid email.'),";
+            }
+        }
+
+        // Build the final array code string
+        $out = "[\n";
+        foreach ($messages as $line) {
+            $out .= "            {$line}\n";
+        }
+        $out .= "        ]";
+
+        return $out;
     }
 }
