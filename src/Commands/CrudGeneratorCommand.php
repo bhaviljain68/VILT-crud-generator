@@ -8,6 +8,8 @@ use Illuminate\Support\Str;
 use Doctrine\DBAL\Schema\Column;
 use Illuminate\Filesystem\Filesystem;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeRegistry;
 
 class CrudGeneratorCommand extends Command
 {
@@ -42,7 +44,11 @@ class CrudGeneratorCommand extends Command
             if (in_array($name, ['id', 'created_at', 'updated_at', 'deleted_at'])) {
                 continue; // skip primary key and timestamp fields
             }
-            $typeName = $columnObj->getType()->getName();      // e.g. string, integer
+            // Get the Doctrine SchemaManager and its platform
+            $typeName = Schema::getConnection()
+                ->getDatabasePlatform()
+                ->getTypeRegistry()
+                ->lookupName($columnObj->getType());     // e.g. string, integer
             $length   = $columnObj->getLength();
             $required = !$columnObj->getNotnull() ? false : true;  // true if NOT NULL
             $fields[$name] = [
@@ -74,6 +80,7 @@ class CrudGeneratorCommand extends Command
         $indexVuePath    = $pagesDir . "/Index.vue";
         $createVuePath   = $pagesDir . "/Create.vue";
         $editVuePath     = $pagesDir . "/Edit.vue";
+        $showVuePath     = $pagesDir . "/Show.vue";
         // (Optional: Show.vue could be generated similarly if needed)
 
         // Check for file collisions unless --force is used
@@ -85,15 +92,16 @@ class CrudGeneratorCommand extends Command
             $collectionPath,
             $indexVuePath,
             $createVuePath,
-            $editVuePath
+            $editVuePath,
+            $showVuePath
         ];
         if ($useFormRequest) {
             $outputs[] = $requestPathStore;
             $outputs[] = $requestPathUpdate;
         }
-        foreach ($outputs as $out) {
-            if ($fs->exists($out) && !$this->option('force')) {
-                $this->warn("Skipped existing file: " . $fs->basename($out) . " (use --force to overwrite)");
+        foreach ($outputs as $output) {
+            if ($fs->exists($output) && !$this->option('force')) {
+                $this->warn("Skipped existing file: " . $fs->basename($output) . " (use --force to overwrite)");
             }
         }
 
