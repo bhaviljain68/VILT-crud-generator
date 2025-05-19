@@ -288,6 +288,23 @@ class CrudGeneratorCommand extends Command
         $fs->put("{$paths['vueDir']}/Show.vue", $showContent);
         $this->info("✔ Vue page created: {$modelPlural}/Show.vue");
 
+        // --------------------------------------------------
+        // 11. Auto-register the resource route
+        // --------------------------------------------------
+        $routesPath       = base_path('routes/web.php');
+        $routeDefinition  = "Route::resource('{$routeName}', {$controllerClass}::class);";
+
+        // Read the file once
+        $routesContents = $fs->get($routesPath);
+
+        // If it isn’t already there, append it
+        if (! str_contains($routesContents, $routeDefinition)) {
+            $fs->append($routesPath, "\n{$routeDefinition}\n");
+            $this->info("✔ Route added to routes/web.php: {$routeDefinition}");
+        } else {
+            $this->info("ℹ Route already exists in routes/web.php, skipping.");
+        }
+
         $this->info("🎉 All done! Next, run php artisan inertia-crud:install to publish stubs and components.");
         return Command::SUCCESS;
     }
