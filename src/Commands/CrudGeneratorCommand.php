@@ -148,7 +148,7 @@ class CrudGeneratorCommand extends Command
             // NEW: export‐flag placeholders
             '{{ hasExportTrait }}'       => $includeExport ? 'true' : 'false',
             '{{ exportTraitUse }}'       => $includeExport
-                ? 'use VendorName\\InertiaCrudGenerator\\Traits\\HasExport;'
+                ? 'use artisanalbyte\\InertiaCrudGenerator\\Traits\\HasExport;'
                 : '',
             '{{ exportModelProperty }}'  => $includeExport
                 ? "protected string \$modelClass = {$modelClass}::class;"

@@ -1,6 +1,6 @@
 <?php
 
-namespace VendorName\InertiaCrudGenerator\Tests\Feature;
+namespace artisanalbyte\InertiaCrudGenerator\Tests\Feature;
 
 use Illuminate\Support\Facades\File;
 

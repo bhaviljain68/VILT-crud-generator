@@ -1,11 +1,11 @@
 <?php
 
-namespace VendorName\InertiaCrudGenerator\Tests\Feature;
+namespace artisanalbyte\InertiaCrudGenerator\Tests\Feature;
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 use App\Http\Controllers\PostController;
-use VendorName\InertiaCrudGenerator\Utils\ModelCollectionExport;
+use artisanalbyte\InertiaCrudGenerator\Utils\ModelCollectionExport;
 
 uses(\Illuminate\Foundation\Testing\LazilyRefreshDatabase::class);
 
