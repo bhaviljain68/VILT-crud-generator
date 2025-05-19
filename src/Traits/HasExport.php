@@ -1,2 +1,47 @@
 <?php
-// ...existing code...
+
+namespace artisanalbyte\InertiaCrudGenerator\Traits;
+
+use Illuminate\Support\Str;  
+use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
+
+trait HasExport
+{
+    public function export(Request $request)
+    {
+        $format = $request->query('format', 'xlsx');
+        $fileName = Str::slug(class_basename($this->modelClass)) . "_export.{$format}";
+
+        $collection = ($this->modelClass)::all();
+
+        if ($format === 'pdf') {
+            // Generate a simple HTML table on the fly
+            $html = '<table border="1" cellpadding="5"><tr>';
+            foreach (array_keys($collection->first()->toArray()) as $col) {
+                $html .= "<th>{$col}</th>";
+            }
+            $html .= '</tr>';
+            foreach ($collection as $item) {
+                $html .= '<tr>';
+                foreach ($item->toArray() as $val) {
+                    $html .= "<td>{$val}</td>";
+                }
+                $html .= '</tr>';
+            }
+            $html .= '</table>';
+
+            return Pdf::loadHTML($html)->download($fileName);
+        }
+
+        // For CSV and XLSX, use a generic export
+        return Excel::download(
+            new \artisanalbyte\InertiaCrudGenerator\Utils\ModelCollectionExport($collection),
+            $fileName,
+            $format === 'csv'
+                ? \Maatwebsite\Excel\Excel::CSV
+                : \Maatwebsite\Excel\Excel::XLSX
+        );
+    }
+}

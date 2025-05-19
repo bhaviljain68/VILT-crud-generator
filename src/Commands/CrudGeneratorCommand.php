@@ -19,7 +19,8 @@ class CrudGeneratorCommand extends Command
                             {Model           : The Eloquent model name (singular, StudlyCase)}
                             {Table?          : Optional table name (plural, snake_case). Defaults to plural(model).}
                             {--form-request  : Generate FormRequest classes for validation}
-                            {--force         : Overwrite existing files}';
+                            {--force         : Overwrite existing files}
+                            {--export        : Include CSV/XLSX/PDF export functionality}';
 
     /** @var string The Artisan command description. */
     protected $description = 'Generate Inertia CRUD (model, controller, form requests, resources, Vue pages, routes)';
@@ -30,7 +31,7 @@ class CrudGeneratorCommand extends Command
     public function handle()
     {
         // --------------------------------------------------
-        // 1. Prepare names & flags
+        // * 1. Prepare names & flags
         // --------------------------------------------------
         $modelName        = Str::studly($this->argument('Model'));
         $tableName        = $this->argument('Table') ?: Str::plural(Str::snake($modelName));
@@ -41,11 +42,12 @@ class CrudGeneratorCommand extends Command
         $useFormRequest   = $this->option('form-request')
             ?: config('inertia-crud-generator.generate_form_requests_by_default', false);
         $force            = $this->option('force');
+        $includeExport    = $this->option('export');
 
         $this->info("🛠  Generating CRUD for {$modelName} (table: {$tableName})");
 
         // --------------------------------------------------
-        // 2. Ensure Doctrine DBAL is available
+        // * 2. Ensure Doctrine DBAL is available
         // --------------------------------------------------
         if (! class_exists(DriverManager::class)) {
             $this->error("Please require doctrine/dbal: composer require doctrine/dbal");
@@ -53,7 +55,7 @@ class CrudGeneratorCommand extends Command
         }
 
         // --------------------------------------------------
-        // 3. Introspect table schema via DBAL
+        // * 3. Introspect table schema via DBAL
         // --------------------------------------------------
         Schema::requireTable($tableName);
         $columns = Schema::getConnection()
@@ -81,7 +83,7 @@ class CrudGeneratorCommand extends Command
         }
 
         // --------------------------------------------------
-        // 4. Prepare class names & paths
+        // * 4. Prepare class names & paths
         // --------------------------------------------------
         $modelClass        = "App\\Models\\{$modelName}";
         $controllerClass   = "{$modelName}Controller";
@@ -107,7 +109,7 @@ class CrudGeneratorCommand extends Command
         (new Filesystem)->ensureDirectoryExists($paths['vueDir']);
 
         // --------------------------------------------------
-        // 5. Stub loader helper
+        // * 5. Stub loader helper
         // --------------------------------------------------
         $fs   = new Filesystem;
         $load = function (string $stubName) use ($fs): string {
@@ -117,7 +119,7 @@ class CrudGeneratorCommand extends Command
         };
 
         // --------------------------------------------------
-        // 6. Generate Model
+        // * 6. Generate Model
         // --------------------------------------------------
         if ($force || ! $fs->exists($paths['model'])) {
             $stub = $load('model');
@@ -132,33 +134,31 @@ class CrudGeneratorCommand extends Command
         }
 
         // --------------------------------------------------
-        // 7. Generate Controller
+        // * 7. Generate Controller
         // --------------------------------------------------
+        $stubVariables = [
+            // existing placeholders…
+            '{{ namespace }}'            => 'App\\Http\\Controllers',
+            '{{ modelName }}'            => $modelName,
+            '{{ modelClass }}'           => $modelClass,
+            '{{ controllerClass }}'      => $controllerClass,
+            '{{ routeName }}'            => $routeName,
+            '{{ useFormRequest }}'       => $useFormRequest ? 'true' : 'false',
+
+            // NEW: export‐flag placeholders
+            '{{ hasExportTrait }}'       => $includeExport ? 'true' : 'false',
+            '{{ exportTraitUse }}'       => $includeExport
+                ? 'use VendorName\\InertiaCrudGenerator\\Traits\\HasExport;'
+                : '',
+            '{{ exportModelProperty }}'  => $includeExport
+                ? "protected string \$modelClass = {$modelClass}::class;"
+                : '',
+        ];
         if ($force || ! $fs->exists($paths['controller'])) {
             $stub = $load('controller');
             $stub = str_replace(
-                [
-                    '{{ namespace }}',
-                    '{{ modelName }}',
-                    '{{ modelVar }}',
-                    '{{ modelClass }}',
-                    '{{ resourceName }}',
-                    '{{ resourceCollectionName }}',
-                    '{{ controllerClass }}',
-                    '{{ routeName }}',
-                    '{{ useFormRequest }}'
-                ],
-                [
-                    'App\\Http\\Controllers',
-                    $modelName,
-                    $modelVar,
-                    $modelClass,
-                    $resourceClass,
-                    $collectionClass,
-                    $controllerClass,
-                    $routeName,
-                    $useFormRequest ? 'true' : 'false',
-                ],
+                array_keys($stubVariables),
+                array_values($stubVariables),
                 $stub
             );
             $fs->ensureDirectoryExists(dirname($paths['controller']));
@@ -167,7 +167,7 @@ class CrudGeneratorCommand extends Command
         }
 
         // --------------------------------------------------
-        // 8. Generate Form Requests
+        // * 8. Generate Form Requests
         // --------------------------------------------------
         if ($useFormRequest) {
             foreach (['store', 'update'] as $action) {
@@ -197,7 +197,7 @@ class CrudGeneratorCommand extends Command
         }
 
         // --------------------------------------------------
-        // 9. Generate API Resource & Collection
+        // * 9. Generate API Resource & Collection
         // --------------------------------------------------
         if ($force || ! $fs->exists($paths['resource'])) {
             $stub = $load('resource');
@@ -224,7 +224,7 @@ class CrudGeneratorCommand extends Command
         }
 
         // --------------------------------------------------
-        // 10. Generate Inertia/Vue Pages
+        // * 10. Generate Inertia/Vue Pages
         // --------------------------------------------------
         // Build dynamic bits:
         [$tableHeaders, $tableCells]         = $this->buildTableColumns($columns);
@@ -289,7 +289,7 @@ class CrudGeneratorCommand extends Command
         $this->info("✔ Vue page created: {$modelPlural}/Show.vue");
 
         // --------------------------------------------------
-        // 11. Auto-register the resource route
+        // * 11. Auto-register the resource route
         // --------------------------------------------------
         $routesPath       = base_path('routes/web.php');
         $routeDefinition  = "Route::resource('{$routeName}', {$controllerClass}::class);";
@@ -304,6 +304,22 @@ class CrudGeneratorCommand extends Command
         } else {
             $this->info("ℹ Route already exists in routes/web.php, skipping.");
         }
+
+        // --------------------------------------------------
+        // * 12. Auto-register the export route if requested
+        // --------------------------------------------------
+        if ($includeExport) {
+            // Append to routes/web.php
+            $routeLine = "Route::get('{$tableName}/export', [{$controllerClass}::class, 'export'])->name('{$routeName}.export');";
+            file_put_contents(
+                base_path('routes/web.php'),
+                "\n" . $routeLine,
+                FILE_APPEND
+            );
+            $this->info("Added export route: GET /{$tableName}/export");
+        }
+
+
 
         $this->info("🎉 All done! Next, run php artisan inertia-crud:install to publish stubs and components.");
         return Command::SUCCESS;
