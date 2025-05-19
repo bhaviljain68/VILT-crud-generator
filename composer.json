@@ -29,10 +29,10 @@
         }
     },
     "require-dev": {
-        "orchestra/testbench": "^8.0",
-        "pestphp/pest": "^2.0",
-        "pestphp/pest-plugin-laravel": "^2.0",
-        "phpunit/phpunit": "^10.0"
+        "orchestra/testbench": "^8.36",
+        "pestphp/pest": "^2.36",
+        "pestphp/pest-plugin-laravel": "^2.4",
+        "phpunit/phpunit": "^10.5"
     },
     "config": {
         "allow-plugins": {
