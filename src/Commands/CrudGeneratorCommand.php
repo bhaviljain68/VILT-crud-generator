@@ -57,7 +57,11 @@ class CrudGeneratorCommand extends Command
         // --------------------------------------------------
         // * 3. Introspect table schema via DBAL
         // --------------------------------------------------
-        Schema::requireTable($tableName);
+        // Schema::requireTable($tableName);
+        if (! Schema::hasTable($tableName)) {
+            $this->error("Table '{$tableName}' does not exist.");
+            return Command::FAILURE;
+        }
         $columns = Schema::getConnection()
             ->getDoctrineSchemaManager()
             ->listTableColumns($tableName);
