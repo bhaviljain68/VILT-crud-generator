@@ -4,6 +4,9 @@ import { Head, Link } from '@inertiajs/vue3'
 import { route } from 'ziggy'
 import AppLayout from '@/Layouts/AppLayout.vue'
 
+// ← Dynamically injected imports:
+{{ componentImports }}
+
 const props = defineProps<{
   {{ modelVar }}: Record<string, any>
 }>()

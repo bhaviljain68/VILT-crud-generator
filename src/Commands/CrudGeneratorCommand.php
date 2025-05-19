@@ -232,6 +232,7 @@ class CrudGeneratorCommand extends Command
         $formFields                          = $this->buildFormFields($columns);
         $formDataWithValues                  = $this->buildFormDataWithValues($columns, $modelVar);
         $showFieldsMarkup                    = $this->buildShowFields($columns, $modelVar);
+        $componentImports = $this->buildComponentImports($columns);
 
         // -- Index.vue --
         $indexContent = $load('index.vue');
@@ -260,8 +261,8 @@ class CrudGeneratorCommand extends Command
         // -- Create.vue --
         $createContent = $load('create.vue');
         $createContent = str_replace(
-            ['{{ modelName }}', '{{ routeName }}', '{{ formDataDefaults }}', '{{ formFields }}'],
-            [$modelName, $routeName, $formDataDefaults, $formFields],
+            ['{{ componentImports }}', '{{ modelName }}', '{{ routeName }}', '{{ formDataDefaults }}', '{{ formFields }}'],
+            [$componentImports, $modelName, $routeName, $formDataDefaults, $formFields],
             $createContent
         );
         $fs->put("{$paths['vueDir']}/Create.vue", $createContent);
@@ -270,8 +271,8 @@ class CrudGeneratorCommand extends Command
         // -- Edit.vue --
         $editContent = $load('edit.vue');
         $editContent = str_replace(
-            ['{{ modelName }}', '{{ modelVar }}', '{{ routeName }}', '{{ formDataDefaultsWithValues }}', '{{ formFields }}'],
-            [$modelName, $modelVar, $routeName, $formDataWithValues, $formFields],
+            ['{{ componentImports }}', '{{ modelName }}', '{{ modelVar }}', '{{ routeName }}', '{{ formDataDefaultsWithValues }}', '{{ formFields }}'],
+            [$componentImports, $modelName, $modelVar, $routeName, $formDataWithValues, $formFields],
             $editContent
         );
         $fs->put("{$paths['vueDir']}/Edit.vue", $editContent);
@@ -513,5 +514,41 @@ class CrudGeneratorCommand extends Command
                     HTML;
         }
         return $out;
+    }
+
+    /**
+     * Given the columns, determine which components we need and return TS import lines.
+     */
+    protected function buildComponentImports(array $columns): string
+    {
+        $map = [
+            'boolean'          => 'Checkbox',
+            'integer'          => 'NumberInput',
+            'bigint'           => 'NumberInput',
+            'float'            => 'NumberInput',
+            'decimal'          => 'NumberInput',
+            'date'             => 'DateInput',
+            'datetime'         => 'DateInput',
+            'datetimetz'       => 'DateInput',
+            'time'             => 'DateInput',
+            'string'           => 'Input',
+            'text'             => 'Input',
+            // add more type⇒component mappings as needed
+        ];
+
+        $needed = [];
+        foreach ($columns as $col) {
+            $type = $col->getType()->getName();
+            if (isset($map[$type])) {
+                $needed[$map[$type]] = true;
+            }
+        }
+
+        $imports = [];
+        foreach (array_keys($needed) as $component) {
+            $imports[] = "import {$component} from '@/components/ui/input/{$component}.vue'";
+        }
+
+        return implode("\n", $imports);
     }
 }
