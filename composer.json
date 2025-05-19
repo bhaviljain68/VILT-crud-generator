@@ -13,7 +13,8 @@
     },
     "autoload": {
         "psr-4": {
-            "artisanalbyte\\InertiaCrudGenerator\\": "src/"
+            "artisanalbyte\\InertiaCrudGenerator\\": "src/",
+            "App\\": "app/" 
         }
     },
     "extra": {
