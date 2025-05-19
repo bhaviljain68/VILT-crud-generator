@@ -11,19 +11,12 @@ class InstallInertiaCrudCommand extends Command
 
     public function handle()
     {
+        // Single publish call
         $this->call('vendor:publish', [
-            '--tag'   => 'inertia-crud-generator-config',
-            '--force' => true,
-        ]);
-        $this->call('vendor:publish', [
-            '--tag'   => 'inertia-crud-generator-stubs',
-            '--force' => true,
-        ]);
-        $this->call('vendor:publish', [
-            '--tag'   => 'inertia-crud-generator-components',
+            '--tag'   => 'inertia-crud-generator',
             '--force' => true,
         ]);
 
-        $this->info('✅ Inertia CRUD Generator installed! Config, stubs & components published.');
+        $this->info('✅ Inertia CRUD Generator installed! All assets published.');
     }
 }

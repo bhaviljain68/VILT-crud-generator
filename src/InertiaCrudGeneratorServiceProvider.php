@@ -28,23 +28,17 @@ class InertiaCrudGeneratorServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // Publish the config file to the application's config directory
         $this->publishes([
+            // Publish the config file to the application's config directory
             __DIR__ . '/../config/inertia-crud-generator.php' => config_path('inertia-crud-generator.php'),
-        ], 'inertia-crud-generator-config');
-
-        // Publish stub templates to allow user customization
-        $this->publishes([
+            // Publish stub templates to allow user customization
             __DIR__ . '/../stubs' => resource_path('stubs/inertia-crud-generator'),
-        ], 'inertia-crud-generator-stubs');
-        // Publish our wrapper Vue components:
-        $this->publishes([
+            // Publish our wrapper Vue components:
             __DIR__ . '/../vue-components/ui/input/NumberInput.vue'
             => resource_path('js/components/ui/input/NumberInput.vue'),
             __DIR__ . '/../vue-components/ui/input/DateInput.vue'
             => resource_path('js/components/ui/input/DateInput.vue'),
-        ], 'inertia-crud-generator-components');
-
+        ], 'inertia-crud-generator');
         // (Optional) Publish a lang file stub if provided
         // $this->publishes([...], 'inertia-crud-generator-lang');
     }
