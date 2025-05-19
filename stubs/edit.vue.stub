@@ -1,1 +1,39 @@
-// Edit Vue stub content
+<script setup lang="ts">
+import { useForm } from '@inertiajs/vue3'
+import { Head, Link } from '@inertiajs/vue3'
+import { route } from 'ziggy'
+import AppLayout from '@/Layouts/AppLayout.vue'
+
+const props = defineProps<{
+  {{ modelVar }}: Record<string, any>
+}>()
+
+const form = useForm({
+    {{ formDataDefaultsWithValues }}
+})
+
+function submit() {
+  form.put(route('{{ routeName }}.update', props.{{ modelVar }}.id))
+}
+</script>
+
+
+<template>
+  <AppLayout>
+    <Head title="{{ __('Edit {{ modelName }}') }}" />
+
+    <div class="p-4 max-w-lg mx-auto">
+      <form @submit.prevent="submit">
+        {{ formFields }}
+        <div class="mt-4">
+          <button
+            type="submit"
+            class="bg-green-600 text-white px-4 py-2 rounded"
+          >
+            {{ __('Update {{ modelName }}') }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </AppLayout>
+</template>

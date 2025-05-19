@@ -1,1 +1,78 @@
-// Index Vue stub content
+<script setup lang="ts">
+import { Head, Link } from '@inertiajs/vue3'
+import { route } from 'ziggy'
+import AppLayout from '@/Layouts/AppLayout.vue'
+import { Inertia } from '@inertiajs/inertia'
+
+const props = defineProps<{
+  {{ modelPluralLower }}: { data: any[] }
+}>()
+
+function destroy(id: number) {
+  if (confirm('{{ __("Are you sure you want to delete this?") }}')) {
+    Inertia.delete(route('{{ routeName }}.destroy', id))
+  }
+}
+</script>
+
+<template>
+  <AppLayout>
+    <Head title="{{ modelPlural }}" />
+
+    <div class="p-4">
+      <div class="flex justify-between mb-4">
+        <h1 class="text-2xl font-semibold">{{ __('{{ modelPlural }}') }}</h1>
+        <Link
+          :href="route('{{ routeName }}.create')"
+          class="inline-block bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          {{ __('New {{ modelName }}') }}
+        </Link>
+      </div>
+
+      <div v-if="$page.props.flash.success" class="mb-4 p-2 bg-green-100 text-green-800 rounded">
+        {{ $page.props.flash.success }}
+      </div>
+
+      <table class="min-w-full bg-white">
+        <thead class="bg-gray-100">
+          <tr>
+            {{ tableHeaders }}
+            <th class="px-4 py-2">{{ __('Actions') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="item in {{ modelPluralLower }}.data"
+            :key="item.id"
+            class="border-t"
+          >
+            {{ tableCells }}
+            <td class="px-4 py-2 space-x-2">
+              <Link
+                :href="route('{{ routeName }}.edit', item.id)"
+                class="text-blue-600"
+              >
+                {{ __('Edit') }}
+              </Link>
+              <Link
+                :href="route('{{ routeName }}.show', item.id)"
+                class="text-gray-600"
+              >
+                {{ __('View') }}
+              </Link>
+              <button
+                @click="destroy(item.id)"
+                class="text-red-600"
+              >
+                {{ __('Delete') }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </AppLayout>
+</template>
+
+

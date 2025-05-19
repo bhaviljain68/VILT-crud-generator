@@ -1,0 +1,27 @@
+<script setup lang="ts">
+import { Head, Link } from '@inertiajs/vue3'
+import { route } from 'ziggy'
+import AppLayout from '@/Layouts/AppLayout.vue'
+
+const props = defineProps<{
+  {{ modelVar }}: Record<string, any>
+}>()
+</script>
+
+<template>
+  <AppLayout>
+    <Head title="{{ __('{{ modelName }} Details') }}" />
+
+    <div class="p-4 max-w-lg mx-auto space-y-4">
+    {{ showFields }}
+      <div class="mt-4 flex space-x-2">
+        <Link :href="route('{{ routeName }}.edit', {{ modelVar }}.id)" class="btn-secondary">
+          {{ __('Edit') }}
+        </Link>
+        <Link :href="route('{{ routeName }}.index')" class="btn-secondary">
+          {{ __('Back') }}
+        </Link>
+      </div>
+    </div>
+  </AppLayout>
+</template>
