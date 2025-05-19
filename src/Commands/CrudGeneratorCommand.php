@@ -180,10 +180,11 @@ class CrudGeneratorCommand extends Command
         }
 
         // 3.d. Generate API Resource and ResourceCollection
+        $resourceFields = $this->generateResourceFields($columns);
         $stub = $loadStub('resource');
         $stub = str_replace(
-            ['{{ namespace }}', '{{ resourceClass }}', '{{ modelClass }}', '{{ modelVar }}'],
-            ['App\\Http\\Resources', $resourceClass, $modelClass, Str::camel($modelName)],
+            ['{{ namespace }}', '{{ resourceClass }}', '{{ modelClass }}', '{{ modelVar }}', '{{ resourceFields }}'],
+            ['App\\Http\\Resources', $resourceClass, $modelClass, Str::camel($modelName), $resourceFields],
             $stub
         );
         $fs->ensureDirectoryExists(dirname($resourcePath));
@@ -356,5 +357,53 @@ class CrudGeneratorCommand extends Command
         $out .= "        ]";
 
         return $out;
+    }
+
+    /**
+     * Build the PHP code lines for each resource field,
+     * including id, timestamps, etc., but skipping sensitive columns.
+     *
+     * @param  Column[]  $columns  Array of Doctrine Column objects.
+     * @return string              A PHP array literal snippet.
+     */
+    protected function generateResourceFields(array $columns): string
+    {
+        // Any columns you NEVER want exposed:
+        $sensitive = [
+            'password',
+            'remember_token',
+            'api_token',
+            'secret',
+            'token',
+            'client_secret',
+            'key',
+            'api_key'
+        ];
+
+        $lines = '';
+
+        foreach ($columns as $columnObj) {
+            /** @var Column $columnObj */
+            $name = $columnObj->getName();
+
+            // Skip sensitive ones only
+            if (in_array($name, $sensitive, true)) {
+                continue;
+            }
+
+            // Handle datetime-ish columns with ISO formatting
+            $typeName = $columnObj->getType()->getName();
+            if (
+                in_array($typeName, ['date', 'datetime', 'datetimetz', 'time'], true)
+                || in_array($name, ['created_at', 'updated_at', 'deleted_at'], true)
+            ) {
+                $lines .= "            '{$name}' => \$model->{$name}?->toIso8601String(),\n";
+            } else {
+                // Everything else just dumps the attribute
+                $lines .= "            '{$name}' => \$model->{$name},\n";
+            }
+        }
+
+        return $lines;
     }
 }
