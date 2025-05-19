@@ -4,6 +4,7 @@ namespace artisanalbyte\InertiaCrudGenerator;
 
 use Illuminate\Support\ServiceProvider;
 use artisanalbyte\InertiaCrudGenerator\Commands\CrudGeneratorCommand;
+use artisanalbyte\InertiaCrudGenerator\Commands\InstallInertiaCrudCommand;
 
 class InertiaCrudGeneratorServiceProvider extends ServiceProvider
 {
@@ -17,7 +18,8 @@ class InertiaCrudGeneratorServiceProvider extends ServiceProvider
 
         // Register the console command for Artisan
         $this->commands([
-            CrudGeneratorCommand::class,
+            CrudGeneratorCommand::class, // Generate Command
+            InstallInertiaCrudCommand::class, // install command
         ]);
     }
 
@@ -35,6 +37,13 @@ class InertiaCrudGeneratorServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/../stubs' => resource_path('stubs/inertia-crud-generator'),
         ], 'inertia-crud-generator-stubs');
+        // Publish our wrapper Vue components:
+        $this->publishes([
+            __DIR__ . '/../vue-components/ui/input/NumberInput.vue'
+            => resource_path('js/components/ui/input/NumberInput.vue'),
+            __DIR__ . '/../vue-components/ui/input/DateInput.vue'
+            => resource_path('js/components/ui/input/DateInput.vue'),
+        ], 'inertia-crud-generator-components');
 
         // (Optional) Publish a lang file stub if provided
         // $this->publishes([...], 'inertia-crud-generator-lang');
