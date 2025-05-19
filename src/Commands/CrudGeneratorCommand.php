@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 use Doctrine\DBAL\Schema\Column;
 use Illuminate\Filesystem\Filesystem;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Types\Type;
 
 /**
  * Artisan command to scaffold a full Inertia/Vue CRUD for a given model and table.
@@ -75,10 +76,13 @@ class CrudGeneratorCommand extends Command
             if ($name === 'deleted_at') {
                 continue;
             }
-            $typeName  = Schema::getConnection()
-                ->getDatabasePlatform()
-                ->getTypeRegistry()
-                ->lookupName($col->getType());
+            // $typeName  = Schema::getConnection()
+            //     ->getDatabasePlatform()
+            //     ->getTypeRegistry()
+            //     ->lookupName($col->getType());
+            $typeName = Type::getTypeRegistry()->lookupName(
+                $col->getType()
+            );
             $fields[$name] = [
                 'type'     => $typeName,
                 'length'   => $col->getLength(),
