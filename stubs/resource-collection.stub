@@ -1,1 +1,21 @@
-// Resource collection stub content
+<?php
+
+namespace {{ namespace }};
+
+use Illuminate\Http\Resources\Json\ResourceCollection;
+
+class {{ collectionClass }} extends ResourceCollection
+{
+    public $collects = {{ resourceClass }}::class;
+
+    public function toArray($request): array
+    {
+        return [
+            'data' => $this->collection->map(function($model) use ($request) {
+                // delegate to your resource, which already filters out sensitive fields
+                return (new {{ resourceClass }}($model))->toArray($request);
+            })->all(),
+        ];
+    }
+}
+

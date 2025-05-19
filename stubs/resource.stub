@@ -1,1 +1,13 @@
-// Resource stub content
+class {{ resourceClass }} extends JsonResource
+{
+    public function toArray($request): array
+    {
+        $model = $this->resource;
+        return [
+            'id' => $model->id,
+            {{ resourceFields }}
+            'created_at' => $model->created_at?->toIso8601String(),
+            'updated_at' => $model->updated_at?->toIso8601String(),
+        ];
+    }
+}
