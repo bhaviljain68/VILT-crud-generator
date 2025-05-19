@@ -10,17 +10,24 @@ use artisanalbyte\InertiaCrudGenerator\Utils\ModelCollectionExport;
 uses(\Illuminate\Foundation\Testing\LazilyRefreshDatabase::class);
 
 beforeEach(function () {
-    // Create a dummy posts table
-    \Schema::create('posts', function ($table) {
-        $table->id();
-        $table->string('title');
-        $table->timestamps();
+    // 1) Create the posts table
+    \Schema::create('posts', function ($t) {
+        $t->id();
+        $t->string('title');
+        $t->timestamps();
     });
 
-    // Insert sample data
+    // 2) Insert sample data
     \DB::table('posts')->insert([
         ['title' => 'Foo', 'created_at' => now(), 'updated_at' => now()],
     ]);
+
+    // 3) Generate the Post CRUD with export enabled
+    $this->artisan('inertia-crud:generate', [
+        'Model' => 'Post',
+        'Table' => 'posts',
+        '--export' => true,
+    ])->assertExitCode(0);
 });
 
 it('downloads CSV when hitting export route', function () {
