@@ -17,10 +17,10 @@ class InertiaCrudGeneratorServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__ . '/../config/inertia-crud-generator.php', 'inertia-crud-generator');
 
         // Register the console command for Artisan
-        $this->commands([
-            CrudGeneratorCommand::class, // Generate Command
-            InstallInertiaCrudCommand::class, // install command
-        ]);
+        // $this->commands([
+        //     CrudGeneratorCommand::class, // Generate Command
+        //     InstallInertiaCrudCommand::class, // install command
+        // ]);
     }
 
     /**
@@ -28,6 +28,12 @@ class InertiaCrudGeneratorServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                CrudGeneratorCommand::class,
+                InstallInertiaCrudCommand::class,  // ensure this is present
+            ]);
+        }
         $this->publishes([
             // Publish the config file to the application's config directory
             __DIR__ . '/../config/inertia-crud-generator.php' => config_path('inertia-crud-generator.php'),
