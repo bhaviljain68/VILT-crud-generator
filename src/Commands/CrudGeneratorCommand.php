@@ -15,7 +15,7 @@ use Doctrine\DBAL\DriverManager;
 class CrudGeneratorCommand extends Command
 {
     /** @var string The Artisan command signature. */
-    protected $signature = 'inertia:crud
+    protected $signature = 'inertia-crud:generate 
                             {Model           : The Eloquent model name (singular, StudlyCase)}
                             {Table?          : Optional table name (plural, snake_case). Defaults to plural(model).}
                             {--form-request  : Generate FormRequest classes for validation}
