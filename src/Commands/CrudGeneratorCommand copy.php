@@ -52,7 +52,7 @@ class CrudGeneratorCommand extends Command
         $schema = Schema::getConnection();
 
         // If the table doesn't exist, bail (except in tests, where we still want to scaffold stubs)
-        if (! $schema->hasTable($tableName)) {
+        if (! Schema::hasTable($tableName)) {
             if (! App::runningUnitTests()) {
                 $this->error("Table '{$tableName}' does not exist.");
                 return Command::FAILURE;
@@ -60,7 +60,7 @@ class CrudGeneratorCommand extends Command
             $columns = []; // tests: still generate, just no fields
         } else {
             // Try to grab a Doctrine Connection via Laravel's macro
-            $conn = $schema;
+            $conn = Schema::getConnection();
             if (method_exists($conn, 'getDoctrineConnection')) {
                 $doctrineConn = $conn->getDoctrineConnection();
             } else {
