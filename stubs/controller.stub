@@ -5,22 +5,17 @@ namespace {{ namespace }};
 use {{ modelClass }};
 use {{ resourceName }};
 use {{ resourceCollectionName }};
-@if(useFormRequest)
-use App\Http\Requests\Store{{ modelName }}Request;
-use App\Http\Requests\Update{{ modelName }}Request;
-@endif
+{{useFormRequest}}
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
-+ {{ exportTraitUse }}
+{{ exportTraitUse }}
 
 class {{ controllerClass }} extends Controller
 {
-    @if(hasExportTrait)
-    use HasExport;
+    {{ exportTraitApply }}
     {{ exportModelProperty }}
-    @endif
 
     public function index()
     {
@@ -38,7 +33,7 @@ class {{ controllerClass }} extends Controller
         return Inertia::render('{{ modelPlural }}/Create');
     }
 
-    public function store(@if(useFormRequest)Store{{ modelName }}Request $request@else Request $request@endif)
+    public function store(@if(useFormRequest)Store{{ modelName }}Request $request @else Request $request @endif)
     {
         try {
             $data = @if(useFormRequest)$request->validated()@else $request->validate({{ validationRules }});@endif
@@ -70,7 +65,7 @@ class {{ controllerClass }} extends Controller
         ]);
     }
 
-    public function update(@if(useFormRequest)Update{{ modelName }}Request $request@else Request $request@endif, {{ modelName }} ${{ modelVar }})
+    public function update(@if(useFormRequest)Update{{ modelName }}Request $request @else Request $request @endif, {{ modelName }} ${{ modelVar }})
     {
         try {
             $data = @if(useFormRequest)$request->validated()@else $request->validate({{ validationRules }});@endif
