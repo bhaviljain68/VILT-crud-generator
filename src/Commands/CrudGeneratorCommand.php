@@ -57,38 +57,18 @@ class CrudGeneratorCommand extends Command
                 $this->error("Table '{$tableName}' does not exist.");
                 return Command::FAILURE;
             }
-            $columns = []; // tests: still generate, just no fields
+            // tests: still generate stubs with no fields
+            $columns = [];
         } else {
-            // Try to grab a Doctrine Connection via Laravel's macro
+            // Laravel >=10 with doctrine/dbal provides this macro:
             $conn = Schema::getConnection();
-            if (method_exists($conn, 'getDoctrineConnection')) {
-                $doctrineConn = $conn->getDoctrineConnection();
-            } else {
-                // Fallback: manually wrap the PDO
-                $pdo = $conn->getPdo();
-                $drv = $conn->getDriverName(); // e.g. 'mysql', 'pgsql', 'sqlite', 'sqlsrv'
-                $map = [
-                    'mysql'  => 'pdo_mysql',
-                    'pgsql'  => 'pdo_pgsql',
-                    'sqlite' => 'pdo_sqlite',
-                    'sqlsrv' => 'pdo_sqlsrv',
-                ];
-                $driver = $map[$drv] ?? $drv;
-
-                // DBAL 4.x: static getConnection()
-                $doctrineConn = DriverManager::getConnection([
-                    'pdo'    => $pdo,
-                    'driver' => $driver,
-                ]);
+            if (! method_exists($conn, 'getDoctrineConnection')) {
+                $this->error('Please require doctrine/dbal (composer require doctrine/dbal)');
+                return Command::FAILURE;
             }
-
-            // DBAL 4.x: use createSchemaManager(), else fallback to getSchemaManager()
-            if (method_exists($doctrineConn, 'createSchemaManager')) {
-                $sm = $doctrineConn->createSchemaManager();
-            } else {
-                $sm = $doctrineConn->getSchemaManager();
-            }
-
+            $doctrineConn = $conn->getDoctrineConnection();
+            // DBAL4+:
+            $sm = $doctrineConn->createSchemaManager();
             $columns = $sm->listTableColumns($tableName);
         }
 
