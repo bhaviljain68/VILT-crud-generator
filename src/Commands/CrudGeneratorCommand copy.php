@@ -49,27 +49,25 @@ class CrudGeneratorCommand extends Command
         //
         // 3. Introspect the table via DBAL 4's new API.
         //
-        $schema = Schema::getFacadeRoot();
+        $schema = Schema::getConnection();
+
+        // If the table doesn't exist, bail (except in tests, where we still want to scaffold stubs)
         if (! $schema->hasTable($tableName)) {
             if (! App::runningUnitTests()) {
                 $this->error("Table '{$tableName}' does not exist.");
                 return Command::FAILURE;
             }
-            // In tests: proceed with an empty column list so stubs still generate
-            $columns = [];
+            $columns = []; // tests: still generate, just no fields
         } else {
-            // Grab the underlying Connection
-            $conn = Schema::getConnection();
-
-            // Try Laravel’s built-in macro to get the Doctrine Connection
+            // Try to grab a Doctrine Connection via Laravel's macro
+            $conn = $schema;
             if (method_exists($conn, 'getDoctrineConnection')) {
                 $doctrineConn = $conn->getDoctrineConnection();
             } else {
-                // Fallback: wrap the PDO manually
-                // Fallback for when the macro isn't registered
-                $pdo    = $conn->getPdo();
-                $drv    = $conn->getDriverName(); // e.g. 'mysql', 'pgsql', 'sqlite', 'sqlsrv'
-                $map    = [
+                // Fallback: manually wrap the PDO
+                $pdo = $conn->getPdo();
+                $drv = $conn->getDriverName(); // e.g. 'mysql', 'pgsql', 'sqlite', 'sqlsrv'
+                $map = [
                     'mysql'  => 'pdo_mysql',
                     'pgsql'  => 'pdo_pgsql',
                     'sqlite' => 'pdo_sqlite',
@@ -77,18 +75,17 @@ class CrudGeneratorCommand extends Command
                 ];
                 $driver = $map[$drv] ?? $drv;
 
-                // DBAL 4.x uses static getConnection()
+                // DBAL 4.x: static getConnection()
                 $doctrineConn = DriverManager::getConnection([
                     'pdo'    => $pdo,
                     'driver' => $driver,
                 ]);
             }
 
-            // Now, in DBAL4 the SchemaManager is created via createSchemaManager()
+            // DBAL 4.x: use createSchemaManager(), else fallback to getSchemaManager()
             if (method_exists($doctrineConn, 'createSchemaManager')) {
                 $sm = $doctrineConn->createSchemaManager();
             } else {
-                // Should not happen in DBAL4, but just in case:
                 $sm = $doctrineConn->getSchemaManager();
             }
 
