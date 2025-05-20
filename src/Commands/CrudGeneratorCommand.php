@@ -3,6 +3,7 @@
 namespace artisanalbyte\InertiaCrudGenerator\Commands;
 
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\App;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
@@ -10,6 +11,7 @@ use Doctrine\DBAL\Schema\Column;
 use Illuminate\Filesystem\Filesystem;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Types\Type;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Route;
 
 /**
@@ -258,6 +260,7 @@ class CrudGeneratorCommand extends Command
         );
         $fs->put("{$paths['vueDir']}/Show.vue", $show);
         $this->info("✔ Vue page created: {$modelPlural}/Show.vue");
+
 
         // 12) REGISTER ROUTES IN-MEMORY FOR TESTS
         $fqController = "App\\Http\\Controllers\\{$controllerClass}";

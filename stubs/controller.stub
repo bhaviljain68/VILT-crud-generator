@@ -14,6 +14,7 @@ use App\Http\Controllers\Controller;
 class {{ controllerClass }} extends Controller
 {
     {{ exportTraitApply }}
+    {{ exportTraitApply }}
     {{ exportModelProperty }}
 
     public function index()
