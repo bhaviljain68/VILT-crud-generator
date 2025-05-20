@@ -5,15 +5,14 @@ namespace {{ namespace }};
 use {{ modelClass }};
 use {{ resourceName }};
 use {{ resourceCollectionName }};
-{{ useFormRequestsImports }}
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+{{ useFormRequestsImports }}
 {{ exportTraitUse }}
 
 class {{ controllerClass }} extends Controller
 {
-    {{ exportTraitApply }}
     {{ exportTraitApply }}
     {{ exportModelProperty }}
 
@@ -33,10 +32,10 @@ class {{ controllerClass }} extends Controller
         return Inertia::render('{{ modelPlural }}/Create');
     }
 
-    public function store({{ useFormRequestsImports ? Str::after(useFormRequestsImports, "\n") : 'Request $request' }})
+    public function store({{ storeRequestParam }})
     {
         try {
-            $data = {{ useFormRequestsImports ? '$request->validated()' : '$request->validate(' . validationRules . ')' }};
+            $data = {{ dataFetch }};
             ${{ modelVar }} = {{ modelName }}::create($data);
 
             return redirect()
@@ -65,10 +64,10 @@ class {{ controllerClass }} extends Controller
         ]);
     }
 
-    public function update({{ useFormRequestsImports ? Str::after(useFormRequestsImports, "\n") : 'Request $request' }}, {{ modelName }} ${{ modelVar }})
+     public function update({{ updateRequestParam }}, {{ modelName }} ${{ modelVar }})
     {
         try {
-            $data = {{ useFormRequestsImports ? '$request->validated()' : '$request->validate(' . validationRules . ')' }};
+            $data = {{ dataFetch }};
             ${{ modelVar }}->update($data);
 
             return redirect()

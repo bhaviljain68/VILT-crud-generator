@@ -8,9 +8,10 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Doctrine\DBAL\Schema\Column;
 use Illuminate\Filesystem\Filesystem;
-use Doctrine\DBAL\DriverManager;
-use Doctrine\DBAL\Types\Type;
 use Illuminate\Support\Facades\Route;
+use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Types\TypeRegistry;
+use Doctrine\DBAL\Types\Type;
 
 /**
  * Artisan command to scaffold a full Inertia/Vue CRUD for a given model and table.
@@ -50,26 +51,31 @@ class CrudGeneratorCommand extends Command
 
         // 3) Try to read the table schema; if it fails and we're _not_ in tests, abort
         try {
-            $columns = Schema::getConnection()
-                ->getDoctrineSchemaManager()
-                ->listTableColumns($tableName);
+            $conn          = Schema::getConnection()->getDoctrineConnection();
+            $schemaManager = $conn->createSchemaManager();
+            $columns       = $schemaManager->listTableColumns($tableName);
         } catch (\Throwable $e) {
             if (! App::runningUnitTests()) {
                 $this->error("Table '{$tableName}' does not exist.");
                 return Command::FAILURE;
             }
+            // In tests we proceed with empty schema
             $columns = [];
         }
 
         // 4) Build a simplified fields array
         $fields = [];
+        // pull down the registry instance once
+        $registry = Type::getTypeRegistry();
         foreach ($columns as $col) {
             /** @var Column $col */
             $name = $col->getName();
             if ($name === 'deleted_at') {
                 continue;
             }
-            $typeName = Type::getTypeRegistry()->lookupName($col->getType());
+            // 4. Determine the Doctrine type name (DBAL 4’s TypeRegistry or fallback to getName())
+
+            $typeName = $registry->lookupName($col->getType());
             $fields[$name] = [
                 'type'     => $typeName,
                 'length'   => $col->getLength(),
@@ -131,6 +137,29 @@ class CrudGeneratorCommand extends Command
             '{{ resourceName }}'            => $resourceClass,
             '{{ resourceCollectionName }}'  => $collectionClass,
             '{{ routeName }}'               => $routeName,
+            // resource + collection
+            '{{ resourceName }}'            => $resourceClass,
+            '{{ resourceCollectionName }}'  => $collectionClass,
+
+            // plural form for Inertia pages
+            '{{ modelPlural }}'        => $modelPlural,
+            '{{ modelPluralLower }}'   => $modelPluralVar,
+
+            // the single‐instance var
+            '{{ modelVar }}'           => $modelVar,
+            // For the method signatures:
+            '{{ storeRequestParam }}'  => $useFormRequest ? "Store{$modelName}Request \$request" : "Request \$request",
+            '{{ updateRequestParam }}' => $useFormRequest ? "Update{$modelName}Request \$request" : "Request \$request",
+
+            // the new data‐fetch placeholder:
+            '{{ dataFetch }}' => $useFormRequest
+                // validated() for form‐requests
+                ? '$request->validated()'
+                // inline validate(...) for controllers
+                : '$request->validate('
+                . $this->generateValidationRules($fields, $tableName, $modelName, 'store')['rules']
+                . ')',
+
             // a single placeholder for both imports or empty
             '{{ useFormRequestsImports }}'  => $useFormRequest
                 ? "use App\\Http\\Requests\\{$requestStoreClass};\nuse App\\Http\\Requests\\{$requestUpdateClass};"
@@ -159,10 +188,8 @@ class CrudGeneratorCommand extends Command
             $this->info("✔ Controller created: {$controllerClass}");
 
             // *** in tests, force PHP to load that class *** 
-            if (App::runningUnitTests()) {
-                require_once $paths['controller'];
-            }
         }
+
 
         // 9) FormRequest classes
         if ($useFormRequest) {
@@ -176,7 +203,7 @@ class CrudGeneratorCommand extends Command
                     $msgsArr    = $this->generateValidationMessages($fields, $modelName, $action);
 
                     $stub = str_replace(
-                        ['{{ namespace }}','{{ className }}','{{ rules }}','{{ messages }}','{{ attributes }}'],
+                        ['{{ namespace }}', '{{ className }}', '{{ rules }}', '{{ messages }}', '{{ attributes }}'],
                         ['App\\Http\\Requests', $class, $rulesArr['rules'], $msgsArr, $rulesArr['attributes']],
                         $stub
                     );
@@ -187,13 +214,17 @@ class CrudGeneratorCommand extends Command
             }
         }
 
+        if (App::runningUnitTests()) {
+            require_once $paths['controller'];
+        }
+
         // 10) API Resource & Collection
         if ($force || ! $fs->exists($paths['resource'])) {
             $stub       = $load('resource');
             $fieldsCode = $this->generateResourceFields($columns);
             $stub = str_replace(
-                ['{{ namespace }}','{{ resourceClass }}','{{ modelVar }}','{{ resourceFields }}'],
-                ['App\\Http\\Resources',$resourceClass,$modelVar,$fieldsCode],
+                ['{{ namespace }}', '{{ resourceClass }}', '{{ modelVar }}', '{{ resourceFields }}'],
+                ['App\\Http\\Resources', $resourceClass, $modelVar, $fieldsCode],
                 $stub
             );
             $fs->ensureDirectoryExists(dirname($paths['resource']));
@@ -203,8 +234,8 @@ class CrudGeneratorCommand extends Command
         if ($force || ! $fs->exists($paths['collection'])) {
             $stub = $load('resource-collection');
             $stub = str_replace(
-                ['{{ namespace }}','{{ collectionClass }}','{{ resourceClass }}'],
-                ['App\\Http\\Resources',$collectionClass,$resourceClass],
+                ['{{ namespace }}', '{{ collectionClass }}', '{{ resourceClass }}'],
+                ['App\\Http\\Resources', $collectionClass, $resourceClass],
                 $stub
             );
             $fs->put($paths['collection'], $stub);
@@ -222,8 +253,8 @@ class CrudGeneratorCommand extends Command
         // Index.vue
         $index = $load('index.vue');
         $index = str_replace(
-            ['{{ modelPlural }}','{{ modelPluralLower }}','{{ routeName }}','{{ modelName }}','{{ tableHeaders }}','{{ tableCells }}'],
-            [$modelPlural,$modelPluralVar,$routeName,$modelName,$headers,$cells],
+            ['{{ modelPlural }}', '{{ modelPluralLower }}', '{{ routeName }}', '{{ modelName }}', '{{ tableHeaders }}', '{{ tableCells }}'],
+            [$modelPlural, $modelPluralVar, $routeName, $modelName, $headers, $cells],
             $index
         );
         $fs->put("{$paths['vueDir']}/Index.vue", $index);
@@ -232,8 +263,8 @@ class CrudGeneratorCommand extends Command
         // Create.vue
         $create = $load('create.vue');
         $create = str_replace(
-            ['{{ componentImports }}','{{ modelName }}','{{ routeName }}','{{ formDataDefaults }}','{{ formFields }}'],
-            [$componentImports,$modelName,$routeName,$defaults,$formFields],
+            ['{{ componentImports }}', '{{ modelName }}', '{{ routeName }}', '{{ formDataDefaults }}', '{{ formFields }}'],
+            [$componentImports, $modelName, $routeName, $defaults, $formFields],
             $create
         );
         $fs->put("{$paths['vueDir']}/Create.vue", $create);
@@ -242,8 +273,8 @@ class CrudGeneratorCommand extends Command
         // Edit.vue
         $edit = $load('edit.vue');
         $edit = str_replace(
-            ['{{ componentImports }}','{{ modelName }}','{{ modelVar }}','{{ routeName }}','{{ formDataDefaultsWithValues }}','{{ formFields }}'],
-            [$componentImports,$modelName,$modelVar,$routeName,$withValues,$formFields],
+            ['{{ componentImports }}', '{{ modelName }}', '{{ modelVar }}', '{{ routeName }}', '{{ formDataDefaultsWithValues }}', '{{ formFields }}'],
+            [$componentImports, $modelName, $modelVar, $routeName, $withValues, $formFields],
             $edit
         );
         $fs->put("{$paths['vueDir']}/Edit.vue", $edit);
@@ -252,8 +283,8 @@ class CrudGeneratorCommand extends Command
         // Show.vue
         $show = $load('show.vue');
         $show = str_replace(
-            ['{{ modelName }}','{{ modelVar }}','{{ routeName }}','{{ showFields }}'],
-            [$modelName,$modelVar,$routeName,$showMarkup],
+            ['{{ modelName }}', '{{ modelVar }}', '{{ routeName }}', '{{ showFields }}'],
+            [$modelName, $modelVar, $routeName, $showMarkup],
             $show
         );
         $fs->put("{$paths['vueDir']}/Show.vue", $show);
@@ -265,7 +296,7 @@ class CrudGeneratorCommand extends Command
         Route::resource($routeName, $fqController);
         if ($includeExport) {
             Route::get("{$tableName}/export", [$fqController, 'export'])
-                 ->name("{$routeName}.export");
+                ->name("{$routeName}.export");
         }
 
         // 13) INJECT into routes/web.php (only in real apps)
