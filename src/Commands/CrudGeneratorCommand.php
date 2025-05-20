@@ -50,18 +50,28 @@ class CrudGeneratorCommand extends Command
         }
 
         // 3) Try to read the table schema; if it fails and we're _not_ in tests, abort
-        try {
-            $conn          = Schema::getConnection()->getDoctrineConnection();
-            $schemaManager = $conn->createSchemaManager();
-            $columns       = $schemaManager->listTableColumns($tableName);
-        } catch (\Throwable $e) {
-            if (! App::runningUnitTests()) {
-                $this->error("Table '{$tableName}' does not exist.");
-                return Command::FAILURE;
-            }
-            // In tests we proceed with empty schema
-            $columns = [];
+        // try {
+        //     $conn          = Schema::getConnection()->getDoctrineConnection();
+        //     $schemaManager = $conn->createSchemaManager();
+        //     $columns       = $schemaManager->listTableColumns($tableName);
+        // } catch (\Throwable $e) {
+        //     if (! App::runningUnitTests()) {
+        //         $this->error("Table '{$tableName}' does not exist.");
+        //         return Command::FAILURE;
+        //     }
+        //     // In tests we proceed with empty schema
+        //     $columns = [];
+        // }
+
+        // make sure the table actually exists first
+        if (! Schema::hasTable($tableName)) {
+            $this->error("Table '{$tableName}' does not exist. Have you run your migrations?");
+            return Command::FAILURE;
         }
+        // now we can safely ask DBAL for the columns
+        $columns = Schema::getConnection()
+            ->getDoctrineSchemaManager()
+            ->listTableColumns($tableName);
 
         // 4) Build a simplified fields array
         $fields = [];
