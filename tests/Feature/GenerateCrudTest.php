@@ -18,6 +18,7 @@ it('generates CRUD files without export by default', function () {
     $this->artisan('inertia-crud:generate', [
         'Model' => 'Post',
         'Table' => 'posts',
+        '--form-request'=> true,
     ])->assertExitCode(0);
 
     // Assert Model created

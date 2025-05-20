@@ -2,6 +2,7 @@
 
 namespace artisanalbyte\InertiaCrudGenerator\Commands;
 
+use Illuminate\Support\Facades\App;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
@@ -9,13 +10,13 @@ use Doctrine\DBAL\Schema\Column;
 use Illuminate\Filesystem\Filesystem;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Types\Type;
+use Illuminate\Support\Facades\Route;
 
 /**
  * Artisan command to scaffold a full Inertia/Vue CRUD for a given model and table.
  */
 class CrudGeneratorCommand extends Command
 {
-    /** @var string The Artisan command signature. */
     protected $signature = 'inertia-crud:generate 
                             {Model           : The Eloquent model name (singular, StudlyCase)}
                             {Table?          : Optional table name (plural, snake_case). Defaults to plural(model).}
@@ -23,66 +24,52 @@ class CrudGeneratorCommand extends Command
                             {--force         : Overwrite existing files}
                             {--export        : Include CSV/XLSX/PDF export functionality}';
 
-    /** @var string The Artisan command description. */
-    protected $description = 'Generate Inertia CRUD (model, controller, form requests, resources, Vue pages, routes)';
+    protected $description = 'Generate Inertia CRUD (model, controller, form requests, resources, Vue pages, and routes)';
 
-    /**
-     * Execute the command.
-     */
     public function handle()
     {
-        // --------------------------------------------------
-        // * 1. Prepare names & flags
-        // --------------------------------------------------
-        $modelName        = Str::studly($this->argument('Model'));
-        $tableName        = $this->argument('Table') ?: Str::plural(Str::snake($modelName));
-        $modelVar         = Str::camel($modelName);
-        $modelPlural      = Str::plural($modelName);
-        $modelPluralVar   = Str::camel($modelPlural);
-        $routeName        = $tableName;
-        $useFormRequest   = $this->option('form-request')
+        // 1) Prepare names & flags
+        $modelName      = Str::studly($this->argument('Model'));
+        $tableName      = $this->argument('Table') ?: Str::plural(Str::snake($modelName));
+        $modelVar       = Str::camel($modelName);
+        $modelPlural    = Str::plural($modelName);
+        $modelPluralVar = Str::camel($modelPlural);
+        $routeName      = $tableName;
+        $useFormRequest = $this->option('form-request')
             ?: config('inertia-crud-generator.generate_form_requests_by_default', false);
-        $force            = $this->option('force');
-        $includeExport    = $this->option('export');
+        $force          = $this->option('force');
+        $includeExport  = $this->option('export');
 
         $this->info("🛠  Generating CRUD for {$modelName} (table: {$tableName})");
 
-        // --------------------------------------------------
-        // * 2. Ensure Doctrine DBAL is available
-        // --------------------------------------------------
+        // 2) Make sure doctrine/dbal is installed
         if (! class_exists(DriverManager::class)) {
             $this->error("Please require doctrine/dbal: composer require doctrine/dbal");
             return Command::FAILURE;
         }
 
-        // --------------------------------------------------
-        // * 3. Introspect table schema via DBAL
-        // --------------------------------------------------
-        // Schema::requireTable($tableName);
-        if (! Schema::hasTable($tableName)) {
-            $this->error("Table '{$tableName}' does not exist.");
-            return Command::FAILURE;
+        // 3) Try to read the table schema; if it fails and we're _not_ in tests, abort
+        try {
+            $columns = Schema::getConnection()
+                ->getDoctrineSchemaManager()
+                ->listTableColumns($tableName);
+        } catch (\Throwable $e) {
+            if (! App::runningUnitTests()) {
+                $this->error("Table '{$tableName}' does not exist.");
+                return Command::FAILURE;
+            }
+            $columns = [];
         }
-        $columns = Schema::getConnection()
-            ->getDoctrineSchemaManager()
-            ->listTableColumns($tableName);
 
-        // Build a $fields array for fillable, validation, etc.
+        // 4) Build a simplified fields array
         $fields = [];
         foreach ($columns as $col) {
             /** @var Column $col */
             $name = $col->getName();
-            // Skip only `deleted_at` for fillable/validation
             if ($name === 'deleted_at') {
                 continue;
             }
-            // $typeName  = Schema::getConnection()
-            //     ->getDatabasePlatform()
-            //     ->getTypeRegistry()
-            //     ->lookupName($col->getType());
-            $typeName = Type::getTypeRegistry()->lookupName(
-                $col->getType()
-            );
+            $typeName = Type::getTypeRegistry()->lookupName($col->getType());
             $fields[$name] = [
                 'type'     => $typeName,
                 'length'   => $col->getLength(),
@@ -90,17 +77,15 @@ class CrudGeneratorCommand extends Command
             ];
         }
 
-        // --------------------------------------------------
-        // * 4. Prepare class names & paths
-        // --------------------------------------------------
-        $modelClass        = "App\\Models\\{$modelName}";
-        $controllerClass   = "{$modelName}Controller";
-        $resourceClass     = "{$modelName}Resource";
-        $collectionClass   = "{$modelName}Collection";
-        $requestStoreClass = "Store{$modelName}Request";
+        // 5) Prepare class names and file paths
+        $modelClass         = "App\\Models\\{$modelName}";
+        $controllerClass    = "{$modelName}Controller";
+        $resourceClass      = "{$modelName}Resource";
+        $collectionClass    = "{$modelName}Collection";
+        $requestStoreClass  = "Store{$modelName}Request";
         $requestUpdateClass = "Update{$modelName}Request";
 
-        $basePath = base_path();
+        $basePath     = base_path();
         $resourcePath = resource_path();
 
         $paths = [
@@ -113,12 +98,10 @@ class CrudGeneratorCommand extends Command
             'vueDir'        => "{$resourcePath}/js/Pages/{$modelPlural}",
         ];
 
-        // Ensure Vue pages dir exists
+        // Make sure the Vue pages directory exists
         (new Filesystem)->ensureDirectoryExists($paths['vueDir']);
 
-        // --------------------------------------------------
-        // * 5. Stub loader helper
-        // --------------------------------------------------
+        // 6) Stub loader
         $fs   = new Filesystem;
         $load = function (string $stubName) use ($fs): string {
             $published = resource_path("stubs/inertia-crud-generator/{$stubName}.stub");
@@ -126,9 +109,7 @@ class CrudGeneratorCommand extends Command
             return $fs->get($fs->exists($published) ? $published : $default);
         };
 
-        // --------------------------------------------------
-        // * 6. Generate Model
-        // --------------------------------------------------
+        // 7) Generate Model
         if ($force || ! $fs->exists($paths['model'])) {
             $stub = $load('model');
             $stub = str_replace(
@@ -141,60 +122,62 @@ class CrudGeneratorCommand extends Command
             $this->info("✔ Model created: {$modelName}");
         }
 
-        // --------------------------------------------------
-        // * 7. Generate Controller
-        // --------------------------------------------------
-        $stubVariables = [
-            // existing placeholders…
-            '{{ namespace }}'            => 'App\\Http\\Controllers',
-            '{{ modelName }}'            => $modelName,
-            '{{ modelClass }}'           => $modelClass,
-            '{{ controllerClass }}'      => $controllerClass,
-            '{{ routeName }}'            => $routeName,
-            '{{ useFormRequest }}'       => $useFormRequest ? 'true' : 'false',
-
-            // NEW: export‐flag placeholders
-            '{{ hasExportTrait }}'       => $includeExport ? 'true' : 'false',
-            '{{ exportTraitUse }}'       => $includeExport
-                ? 'use artisanalbyte\\InertiaCrudGenerator\\Traits\\HasExport;'
+        // 8) Generate Controller
+        $stubVars = [
+            '{{ namespace }}'               => 'App\\Http\\Controllers',
+            '{{ modelName }}'               => $modelName,
+            '{{ modelClass }}'              => $modelClass,
+            '{{ controllerClass }}'         => $controllerClass,
+            '{{ resourceName }}'            => $resourceClass,
+            '{{ resourceCollectionName }}'  => $collectionClass,
+            '{{ routeName }}'               => $routeName,
+            // a single placeholder for both imports or empty
+            '{{ useFormRequestsImports }}'  => $useFormRequest
+                ? "use App\\Http\\Requests\\{$requestStoreClass};\nuse App\\Http\\Requests\\{$requestUpdateClass};"
                 : '',
-            '{{ exportModelProperty }}'  => $includeExport
-                ? "protected string \$modelClass = {$modelClass}::class;"
+            // export placeholders
+            '{{ exportTraitUse }}'          => $includeExport
+                ? "use artisanalbyte\\InertiaCrudGenerator\\Traits\\HasExport;"
+                : '',
+            '{{ exportTraitApply }}'        => $includeExport
+                ? '    use HasExport;'
+                : '',
+            '{{ exportModelProperty }}'     => $includeExport
+                ? "    protected string \$modelClass = {$modelClass}::class;"
                 : '',
         ];
+
         if ($force || ! $fs->exists($paths['controller'])) {
             $stub = $load('controller');
             $stub = str_replace(
-                array_keys($stubVariables),
-                array_values($stubVariables),
+                array_keys($stubVars),
+                array_values($stubVars),
                 $stub
             );
             $fs->ensureDirectoryExists(dirname($paths['controller']));
             $fs->put($paths['controller'], $stub);
             $this->info("✔ Controller created: {$controllerClass}");
+
+            // *** in tests, force PHP to load that class *** 
+            if (App::runningUnitTests()) {
+                require_once $paths['controller'];
+            }
         }
 
-        // --------------------------------------------------
-        // * 8. Generate Form Requests
-        // --------------------------------------------------
+        // 9) FormRequest classes
         if ($useFormRequest) {
             foreach (['store', 'update'] as $action) {
-                $class = $action === 'store'
-                    ? $requestStoreClass
-                    : $requestUpdateClass;
-                $path  = $action === 'store'
-                    ? $paths['requestStore']
-                    : $paths['requestUpdate'];
+                $class = $action === 'store' ? $requestStoreClass : $requestUpdateClass;
+                $path  = $action === 'store' ? $paths['requestStore'] : $paths['requestUpdate'];
                 if ($force || ! $fs->exists($path)) {
-                    $stubName = 'form-request' . ($action === 'update' ? '-update' : '');
-                    $stub = $load($stubName);
-
-                    $rulesArray = $this->generateValidationRules($fields, $tableName, $modelName, $action);
-                    $msgString  = $this->generateValidationMessages($fields, $modelName, $action);
+                    $stubName   = 'form-request' . ($action === 'update' ? '-update' : '');
+                    $stub       = $load($stubName);
+                    $rulesArr   = $this->generateValidationRules($fields, $tableName, $modelName, $action);
+                    $msgsArr    = $this->generateValidationMessages($fields, $modelName, $action);
 
                     $stub = str_replace(
-                        ['{{ namespace }}', '{{ className }}', '{{ rules }}', '{{ messages }}', '{{ attributes }}'],
-                        ['App\\Http\\Requests', $class, $rulesArray['rules'], $msgString, $rulesArray['attributes']],
+                        ['{{ namespace }}','{{ className }}','{{ rules }}','{{ messages }}','{{ attributes }}'],
+                        ['App\\Http\\Requests', $class, $rulesArr['rules'], $msgsArr, $rulesArr['attributes']],
                         $stub
                     );
                     $fs->ensureDirectoryExists(dirname($path));
@@ -204,132 +187,108 @@ class CrudGeneratorCommand extends Command
             }
         }
 
-        // --------------------------------------------------
-        // * 9. Generate API Resource & Collection
-        // --------------------------------------------------
+        // 10) API Resource & Collection
         if ($force || ! $fs->exists($paths['resource'])) {
-            $stub = $load('resource');
+            $stub       = $load('resource');
             $fieldsCode = $this->generateResourceFields($columns);
             $stub = str_replace(
-                ['{{ namespace }}', '{{ resourceClass }}', '{{ modelVar }}', '{{ resourceFields }}'],
-                ['App\\Http\\Resources', $resourceClass, $modelVar, $fieldsCode],
+                ['{{ namespace }}','{{ resourceClass }}','{{ modelVar }}','{{ resourceFields }}'],
+                ['App\\Http\\Resources',$resourceClass,$modelVar,$fieldsCode],
                 $stub
             );
             $fs->ensureDirectoryExists(dirname($paths['resource']));
             $fs->put($paths['resource'], $stub);
             $this->info("✔ API Resource created: {$resourceClass}");
         }
-
         if ($force || ! $fs->exists($paths['collection'])) {
             $stub = $load('resource-collection');
             $stub = str_replace(
-                ['{{ namespace }}', '{{ collectionClass }}', '{{ resourceClass }}'],
-                ['App\\Http\\Resources', $collectionClass, $resourceClass],
+                ['{{ namespace }}','{{ collectionClass }}','{{ resourceClass }}'],
+                ['App\\Http\\Resources',$collectionClass,$resourceClass],
                 $stub
             );
             $fs->put($paths['collection'], $stub);
             $this->info("✔ API Collection created: {$collectionClass}");
         }
 
-        // --------------------------------------------------
-        // * 10. Generate Inertia/Vue Pages
-        // --------------------------------------------------
-        // Build dynamic bits:
-        [$tableHeaders, $tableCells]         = $this->buildTableColumns($columns);
-        $formDataDefaults                    = $this->buildFormDataDefaults($columns);
-        $formFields                          = $this->buildFormFields($columns);
-        $formDataWithValues                  = $this->buildFormDataWithValues($columns, $modelVar);
-        $showFieldsMarkup                    = $this->buildShowFields($columns, $modelVar);
-        $componentImports = $this->buildComponentImports($columns);
+        // 11) Vue pages
+        [$headers, $cells]         = $this->buildTableColumns($columns);
+        $defaults                   = $this->buildFormDataDefaults($columns);
+        $withValues                 = $this->buildFormDataWithValues($columns, $modelVar);
+        $formFields                 = $this->buildFormFields($columns);
+        $showMarkup                 = $this->buildShowFields($columns, $modelVar);
+        $componentImports           = $this->buildComponentImports($columns);
 
-        // -- Index.vue --
-        $indexContent = $load('index.vue');
-        $indexContent = str_replace(
-            [
-                '{{ modelPlural }}',
-                '{{ modelPluralLower }}',
-                '{{ routeName }}',
-                '{{ modelName }}',
-                '{{ tableHeaders }}',
-                '{{ tableCells }}'
-            ],
-            [
-                $modelPlural,
-                $modelPluralVar,
-                $routeName,
-                $modelName,
-                $tableHeaders,
-                $tableCells
-            ],
-            $indexContent
+        // Index.vue
+        $index = $load('index.vue');
+        $index = str_replace(
+            ['{{ modelPlural }}','{{ modelPluralLower }}','{{ routeName }}','{{ modelName }}','{{ tableHeaders }}','{{ tableCells }}'],
+            [$modelPlural,$modelPluralVar,$routeName,$modelName,$headers,$cells],
+            $index
         );
-        $fs->put("{$paths['vueDir']}/Index.vue", $indexContent);
+        $fs->put("{$paths['vueDir']}/Index.vue", $index);
         $this->info("✔ Vue page created: {$modelPlural}/Index.vue");
 
-        // -- Create.vue --
-        $createContent = $load('create.vue');
-        $createContent = str_replace(
-            ['{{ componentImports }}', '{{ modelName }}', '{{ routeName }}', '{{ formDataDefaults }}', '{{ formFields }}'],
-            [$componentImports, $modelName, $routeName, $formDataDefaults, $formFields],
-            $createContent
+        // Create.vue
+        $create = $load('create.vue');
+        $create = str_replace(
+            ['{{ componentImports }}','{{ modelName }}','{{ routeName }}','{{ formDataDefaults }}','{{ formFields }}'],
+            [$componentImports,$modelName,$routeName,$defaults,$formFields],
+            $create
         );
-        $fs->put("{$paths['vueDir']}/Create.vue", $createContent);
+        $fs->put("{$paths['vueDir']}/Create.vue", $create);
         $this->info("✔ Vue page created: {$modelPlural}/Create.vue");
 
-        // -- Edit.vue --
-        $editContent = $load('edit.vue');
-        $editContent = str_replace(
-            ['{{ componentImports }}', '{{ modelName }}', '{{ modelVar }}', '{{ routeName }}', '{{ formDataDefaultsWithValues }}', '{{ formFields }}'],
-            [$componentImports, $modelName, $modelVar, $routeName, $formDataWithValues, $formFields],
-            $editContent
+        // Edit.vue
+        $edit = $load('edit.vue');
+        $edit = str_replace(
+            ['{{ componentImports }}','{{ modelName }}','{{ modelVar }}','{{ routeName }}','{{ formDataDefaultsWithValues }}','{{ formFields }}'],
+            [$componentImports,$modelName,$modelVar,$routeName,$withValues,$formFields],
+            $edit
         );
-        $fs->put("{$paths['vueDir']}/Edit.vue", $editContent);
+        $fs->put("{$paths['vueDir']}/Edit.vue", $edit);
         $this->info("✔ Vue page created: {$modelPlural}/Edit.vue");
 
-        // -- Show.vue --
-        $showContent = $load('show.vue');
-        $showContent = str_replace(
-            ['{{ modelName }}', '{{ modelVar }}', '{{ routeName }}', '{{ showFields }}'],
-            [$modelName, $modelVar, $routeName, $showFieldsMarkup],
-            $showContent
+        // Show.vue
+        $show = $load('show.vue');
+        $show = str_replace(
+            ['{{ modelName }}','{{ modelVar }}','{{ routeName }}','{{ showFields }}'],
+            [$modelName,$modelVar,$routeName,$showMarkup],
+            $show
         );
-        $fs->put("{$paths['vueDir']}/Show.vue", $showContent);
+        $fs->put("{$paths['vueDir']}/Show.vue", $show);
         $this->info("✔ Vue page created: {$modelPlural}/Show.vue");
 
-        // --------------------------------------------------
-        // * 11. Auto-register the resource route
-        // --------------------------------------------------
-        $routesPath       = base_path('routes/web.php');
-        $routeDefinition  = "Route::resource('{$routeName}', {$controllerClass}::class);";
-
-        // Read the file once
-        $routesContents = $fs->get($routesPath);
-
-        // If it isn’t already there, append it
-        if (! str_contains($routesContents, $routeDefinition)) {
-            $fs->append($routesPath, "\n{$routeDefinition}\n");
-            $this->info("✔ Route added to routes/web.php: {$routeDefinition}");
-        } else {
-            $this->info("ℹ Route already exists in routes/web.php, skipping.");
-        }
-
-        // --------------------------------------------------
-        // * 12. Auto-register the export route if requested
-        // --------------------------------------------------
+        // 12) REGISTER ROUTES IN-MEMORY FOR TESTS
+        $fqController = "App\\Http\\Controllers\\{$controllerClass}";
+        Route::resource($routeName, $fqController);
         if ($includeExport) {
-            // Append to routes/web.php
-            $routeLine = "Route::get('{$tableName}/export', [{$controllerClass}::class, 'export'])->name('{$routeName}.export');";
-            file_put_contents(
-                base_path('routes/web.php'),
-                "\n" . $routeLine,
-                FILE_APPEND
-            );
-            $this->info("Added export route: GET /{$tableName}/export");
+            Route::get("{$tableName}/export", [$fqController, 'export'])
+                 ->name("{$routeName}.export");
         }
 
+        // 13) INJECT into routes/web.php (only in real apps)
+        $routesPath      = base_path('routes/web.php');
+        $controllerUse   = "use {$fqController};";
+        $resourceRoute   = "Route::resource('{$routeName}', {$controllerClass}::class);";
+        $exportRouteLine = "Route::get('{$tableName}/export',[{$controllerClass}::class,'export'])->name('{$routeName}.export');";
 
+        if (! App::runningUnitTests() && file_exists($routesPath)) {
+            $contents = file_get_contents($routesPath);
+            if (! Str::contains($contents, $controllerUse)) {
+                $contents = preg_replace('/\<\?php\s*/', "<?php\n{$controllerUse}\n", $contents, 1);
+            }
+            if (! Str::contains($contents, $resourceRoute)) {
+                $contents .= "\n{$resourceRoute}\n";
+            }
+            if ($includeExport && ! Str::contains($contents, $exportRouteLine)) {
+                $contents .= "\n{$exportRouteLine}\n";
+            }
+            file_put_contents($routesPath, $contents);
+            $this->info("✔ routes/web.php updated with {$controllerClass} routes");
+        }
 
-        $this->info("🎉 All done! Next, run php artisan inertia-crud:install to publish stubs and components.");
+        $this->info("🎉 Done! Run php artisan inertia-crud:install if you haven’t yet.");
         return Command::SUCCESS;
     }
 

@@ -10,6 +10,7 @@ use artisanalbyte\InertiaCrudGenerator\Utils\ModelCollectionExport;
 uses(\Illuminate\Foundation\Testing\LazilyRefreshDatabase::class);
 
 beforeEach(function () {
+    $this->withoutExceptionHandling();
     // 1) Create the posts table
     \Schema::create('posts', function ($t) {
         $t->id();

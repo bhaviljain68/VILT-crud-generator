@@ -2,10 +2,11 @@
 
 namespace artisanalbyte\InertiaCrudGenerator\Traits;
 
-use Illuminate\Support\Str;  
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use Barryvdh\DomPDF\Facade\Pdf;
+use artisanalbyte\InertiaCrudGenerator\Utils\ModelCollectionExport;
 
 trait HasExport
 {
@@ -37,7 +38,7 @@ trait HasExport
 
         // For CSV and XLSX, use a generic export
         return Excel::download(
-            new \artisanalbyte\InertiaCrudGenerator\Utils\ModelCollectionExport($collection),
+            new ModelCollectionExport($collection),
             $fileName,
             $format === 'csv'
                 ? \Maatwebsite\Excel\Excel::CSV
