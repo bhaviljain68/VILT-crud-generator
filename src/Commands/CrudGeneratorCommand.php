@@ -193,7 +193,7 @@ class CrudGeneratorCommand extends Command
             '{{ exportTraitUse }}'             => $includeExport ? 'use artisanalbyte\\InertiaCrudGenerator\\Traits\\HasExport;' : '',
             '{{ controllerClass }}'            => $controllerClass,
             '{{ exportTraitApply }}'           => $includeExport ? 'use HasExport;' : '',
-            '{{ exportModelProperty }}'        => $includeExport ? "protected string \$modelClass = {$modelClass}::class;" : '',
+            '{{ exportModelProperty }}'        => $includeExport ? "protected string \$modelClass = {$modelName}::class;" : '',
             '{{ modelName }}'                  => $modelName,
             '{{ modelVar }}'                   => $modelVar,
             '{{ modelPlural }}'                => $modelPlural,
