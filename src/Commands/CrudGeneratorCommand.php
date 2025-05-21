@@ -23,12 +23,15 @@ class CrudGeneratorCommand extends Command
                             {--export        : Include CSV/XLSX/PDF export functionality}';
 
     protected $description = 'Generate Inertia CRUD (model, controller, resources, Vue pages, routes, and optional export)';
+    /** @var string The table we’re introspecting (so our builders can lookup column types). */
+    protected string $tableName;
 
     public function handle()
     {
         // 1. Prepare names & flags
         $modelName      = Str::studly($this->argument('Model'));
         $tableName      = $this->argument('Table') ?: Str::plural(Str::snake($modelName));
+        $this->tableName = $tableName;
         $modelVar       = Str::camel($modelName);
         $modelPlural    = Str::plural($modelName);
         $modelPluralVar = Str::camel($modelPlural);
@@ -103,8 +106,7 @@ class CrudGeneratorCommand extends Command
             if ($name === 'deleted_at') {
                 continue;
             }
-            // $type     = $col->getType();
-            // $typeName = $type::getName();
+
             $typeName = Schema::getColumnType($tableName, $name);
             $fields[$name] = [
                 'type'     => $typeName,
@@ -390,12 +392,10 @@ class CrudGeneratorCommand extends Command
     {
         $sensitive = ['password', 'remember_token', 'api_token', 'secret', 'token', 'client_secret'];
         $lines = '';
-        var_dump($columns);
         foreach ($columns as $col) {
-
             $name = $col->getName();
             if (in_array($name, $sensitive, true)) continue;
-            $type = $col->getType()->getName();
+            $type = Schema::getColumnType($this->tableName, $name);
             if (
                 in_array($type, ['date', 'datetime', 'datetimetz', 'time'], true)
                 || in_array($name, ['created_at', 'updated_at', 'deleted_at'], true)
@@ -437,7 +437,7 @@ class CrudGeneratorCommand extends Command
         foreach ($columns as $col) {
             $name = $col->getName();
             if (in_array($name, $sensitive, true)) continue;
-            $default = $col->getType()->getName() === 'boolean' ? 'false' : "''";
+            $default = Schema::getColumnType($this->tableName, $name) === 'boolean' ? 'false' : "''";
             $out   .= "    {$name}: {$default},\n";
         }
         return $out;
@@ -469,7 +469,7 @@ class CrudGeneratorCommand extends Command
             $name  = $col->getName();
             if (in_array($name, $sensitive, true)) continue;
             $label = Str::headline($name);
-            $type  = $col->getType()->getName();
+            $type  = Schema::getColumnType($this->tableName, $name);
             $component = match ($type) {
                 'boolean'                              => 'Checkbox',
                 'integer', 'bigint', 'float', 'decimal'   => 'NumberInput',
