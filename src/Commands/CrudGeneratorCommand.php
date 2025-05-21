@@ -390,7 +390,9 @@ class CrudGeneratorCommand extends Command
     {
         $sensitive = ['password', 'remember_token', 'api_token', 'secret', 'token', 'client_secret'];
         $lines = '';
+        var_dump($columns);
         foreach ($columns as $col) {
+
             $name = $col->getName();
             if (in_array($name, $sensitive, true)) continue;
             $type = $col->getType()->getName();
