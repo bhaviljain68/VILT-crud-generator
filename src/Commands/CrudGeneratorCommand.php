@@ -296,10 +296,19 @@ class CrudGeneratorCommand extends Command
      */
     protected function generateFillableArray(array $fields): string
     {
-        if (empty($fields)) {
+        // columns we never want in $fillable
+        $exclude = ['id', 'created_at', 'updated_at', 'deleted_at'];
+
+        // take all the keys, drop the excluded ones
+        $fillable = array_filter(
+            array_keys($fields),
+            fn(string $col) => ! in_array($col, $exclude, true)
+        );
+
+        if (empty($fillable)) {
             return '[]';
         }
-        $quoted = array_map(fn($f) => "'{$f}'", array_keys($fields));
+        $quoted = array_map(fn($f) => "'{$f}'", array_keys($fillable));
         return '[ ' . implode(', ', $quoted) . ' ]';
     }
 
