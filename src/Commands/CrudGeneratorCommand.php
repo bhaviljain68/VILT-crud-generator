@@ -190,7 +190,7 @@ class CrudGeneratorCommand extends Command
             '{{ resourceName }}'               => $resourceClass,
             '{{ resourceCollectionName }}'     => $collectionClass,
             '{{ useFormRequestsImports }}'     => $useFormRequest ? "use App\\Http\\Requests\\Store{$modelName}Request;\n" . "use App\\Http\\Requests\\Update{$modelName}Request;" : '',
-            '{{ exportTraitUse }}'             => $includeExport ? 'use artisanalbyte\\InertiaCrudGenerator\\Traits\\HasExport;' : '',
+            '{{ exportTraitUse }}'             => $includeExport ? 'use App\\Http\\Traits\\HasExport;' : '',
             '{{ controllerClass }}'            => $controllerClass,
             '{{ exportTraitApply }}'           => $includeExport ? 'use HasExport;' : '',
             '{{ exportModelProperty }}'        => $includeExport ? "protected string \$modelClass = {$modelName}::class;" : '',
