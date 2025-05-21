@@ -114,6 +114,7 @@ class CrudGeneratorCommand extends Command
                 'required' => $col->getNotnull(),
             ];
         }
+        var_dump($fields); // Debugging: dump the fields array
 
         //
         // 5. Prepare class names & paths
