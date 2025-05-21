@@ -3,8 +3,8 @@
 namespace {{ namespace }};
 
 use {{ modelClass }};
-use {{ resourceName }};
-use {{ resourceCollectionName }};
+use App\Http\Resources\{{ resourceName }};
+use App\Http\Resources\{{ resourceCollectionName }};
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
