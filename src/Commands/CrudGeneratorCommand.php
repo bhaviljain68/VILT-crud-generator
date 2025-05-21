@@ -164,22 +164,41 @@ class CrudGeneratorCommand extends Command
         //
         // 8. Generate Controller
         //
+        $storeParam  = $useFormRequest
+            ? "Store{$modelName}Request \$request"
+            : "Request \$request";
+
+        $updateParam = $useFormRequest
+            ? "Update{$modelName}Request \$request"
+            : "Request \$request";
+
+        $validateStoreData = $useFormRequest
+            ? '$request->validated()'
+            : '$request->validate(' . $this->generateValidationRules($fields, $tableName, $modelName, 'store') . ')';
+
+        $validateUpdateData = $useFormRequest
+            ? '$request->validated()'
+            : '$request->validate(' . $this->generateValidationRules($fields, $tableName, $modelName, 'update') . ')';
+
         $vars = [
-            '{{ namespace }}'            => 'App\\Http\\Controllers',
-            '{{ modelClass }}'           => $modelClass,
-            '{{ controllerClass }}'      => $controllerClass,
-            '{{ routeName }}'            => $routeName,
-            '{{ useFormRequest }}'       => $useFormRequest
-                ? "use App\\Http\\Requests\\{$requestStoreClass};\nuse App\\Http\\Requests\\{$requestUpdateClass};"
-                : '',
-            '{{ hasExportTrait }}'       => $includeExport ? 'true' : 'false',
-            '{{ exportTraitUse }}'       => $includeExport
-                ? 'use artisanalbyte\\InertiaCrudGenerator\\Traits\\HasExport;'
-                : '',
-            '{{ exportTraitApply }}'     => $includeExport ? 'use HasExport;' : '',
-            '{{ exportModelProperty }}'  => $includeExport
-                ? "protected string \$modelClass = {$modelClass}::class;"
-                : '',
+            '{{ namespace }}'                  => 'App\\Http\\Controllers',
+            '{{ modelClass }}'                 => $modelClass,
+            '{{ resourceName }}'               => $resourceClass,
+            '{{ resourceCollectionName }}'     => $collectionClass,
+            '{{ useFormRequestsImports }}'     => $useFormRequest ? "use App\\Http\\Requests\\Store{$modelName}Request;\n" . "use App\\Http\\Requests\\Update{$modelName}Request;" : '',
+            '{{ exportTraitUse }}'             => $includeExport ? 'use artisanalbyte\\InertiaCrudGenerator\\Traits\\HasExport;' : '',
+            '{{ controllerClass }}'            => $controllerClass,
+            '{{ exportTraitApply }}'           => $includeExport ? 'use HasExport;' : '',
+            '{{ exportModelProperty }}'        => $includeExport ? "protected string \$modelClass = {$modelClass}::class;" : '',
+            '{{ modelName }}'                  => $modelName,
+            '{{ modelVar }}'                   => $modelVar,
+            '{{ modelPlural }}'                => $modelPlural,
+            '{{ modelPluralLower }}'           => $modelPluralVar,
+            '{{ routeName }}'                  => $routeName,
+            '{{ storeRequestParam }}'          => $storeParam,
+            '{{ updateRequestParam }}'         => $updateParam,
+            '{{ validateStoreData }}'          => $validateStoreData,
+            '{{ validateUpdateData }}'         => $validateUpdateData,
         ];
         if ($force || ! $fs->exists($paths['controller'])) {
             $stub = str_replace(
@@ -223,7 +242,7 @@ class CrudGeneratorCommand extends Command
         // 10. API Resource & Collection
         //
         if ($force || ! $fs->exists($paths['resource'])) {
-            
+
             $fieldsCode = $this->generateResourceFields($columns);
             $stub = str_replace(
                 ['{{ namespace }}', '{{ resourceClass }}', '{{ modelVar }}', '{{ resourceFields }}'],

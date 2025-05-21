@@ -35,8 +35,8 @@ class {{ controllerClass }} extends Controller
     public function store({{ storeRequestParam }})
     {
         try {
-            $data = {{ dataFetch }};
-            ${{ modelVar }} = {{ modelName }}::create($data);
+            $validatedData = {{ validateStoreData }};
+            ${{ modelVar }} = {{ modelName }}::create($validatedData);
 
             return redirect()
                 ->route('{{ routeName }}.index')
@@ -67,8 +67,8 @@ class {{ controllerClass }} extends Controller
      public function update({{ updateRequestParam }}, {{ modelName }} ${{ modelVar }})
     {
         try {
-            $data = {{ dataFetch }};
-            ${{ modelVar }}->update($data);
+            $validatedData = {{ validateUpdateData }};
+            ${{ modelVar }}->update($validatedData);
 
             return redirect()
                 ->route('{{ routeName }}.index')
