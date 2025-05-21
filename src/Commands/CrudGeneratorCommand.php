@@ -121,8 +121,8 @@ class CrudGeneratorCommand extends Command
         //
         $modelClass         = "App\\Models\\{$modelName}";
         $controllerClass    = "{$modelName}Controller";
-        $resourceClass      = "{$modelName}Resource";
-        $collectionClass    = "{$modelName}Collection";
+        $resourceClass      = "App\\Resources\\{$modelName}Resource";
+        $collectionClass    = "App\\Resources\\{$modelName}Collection";
         $requestStoreClass  = "Store{$modelName}Request";
         $requestUpdateClass = "Update{$modelName}Request";
 
