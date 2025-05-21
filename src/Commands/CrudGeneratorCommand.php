@@ -173,8 +173,8 @@ class CrudGeneratorCommand extends Command
             : "Request \$request";
 
 
-        $storeRules  = $this->generateValidationRules($fields, $tableName, $modelName, 'store');
-        $updateRules = $this->generateValidationRules($fields, $tableName, $modelName, 'update');
+        $storeRules  = $this->generateValidationRules($fields, $tableName, $modelVar, $useFormRequest, 'store');
+        $updateRules = $this->generateValidationRules($fields, $tableName, $modelVar, $useFormRequest, 'update');
         $validateStoreData = $useFormRequest
             ? '$request->validated()'
             : '$request->validate(' . $storeRules['rules'] . ')';
@@ -228,7 +228,7 @@ class CrudGeneratorCommand extends Command
                 $path = $act === 'store' ? $paths['requestStore'] : $paths['requestUpdate'];
                 if ($force || ! $fs->exists($path)) {
                     $stub = $load('form-request' . ($act === 'update' ? '-update' : ''));
-                    $r    = $this->generateValidationRules($fields, $tableName, $modelName, $act);
+                    $r    = $this->generateValidationRules($fields, $tableName, $modelVar, $useFormRequest, $act);
                     $m    = $this->generateValidationMessages($fields, $modelName, $act);
                     $stub = str_replace(
                         ['{{ namespace }}', '{{ className }}', '{{ rules }}', '{{ messages }}', '{{ attributes }}'],
@@ -332,7 +332,7 @@ class CrudGeneratorCommand extends Command
     /**
      * Generate validation rules & attributes arrays.
      */
-    protected function generateValidationRules(array $fields, string $table, string $model, string $action): array
+    protected function generateValidationRules(array $fields, string $table, string $modelVar, bool $useFormRequest, string $action): array
     {
         $rules = [];
         $attrs = [];
@@ -352,11 +352,14 @@ class CrudGeneratorCommand extends Command
             };
 
             // unique email example
-            if ($name === 'email') {
-                $uniqueRule = $action === 'update'
-                    ? "unique:{$table},email,'.\$this->id.'"
-                    : "unique:{$table},email";
-                $line[] = $uniqueRule;
+            if ($action === 'update' && $name === 'email') {
+                if ($useFormRequest) {
+                    $line[] = "unique:{$table},email,'.\$this->id.'";
+                } else {
+                    $line[] = "unique:{$table},email,'.\$modelVar.'->id";
+                }
+            } elseif ($action === 'store' && $name === 'email') {
+                $line[] = "unique:{$table},email";
             }
 
             $rules[$name] = implode('|', array_filter($line));
