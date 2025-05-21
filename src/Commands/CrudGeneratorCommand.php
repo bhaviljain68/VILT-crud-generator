@@ -299,7 +299,6 @@ class CrudGeneratorCommand extends Command
     protected function generateFillableArray(array $fields): string
     {
         // columns we never want in $fillable
-        var_dump($fields);
         if (empty($fields)) {
             return '[]';
         }
