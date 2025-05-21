@@ -103,7 +103,7 @@ class CrudGeneratorCommand extends Command
         /** @var Column $col */
         foreach ($columns as $col) {
             $name = $col->getName();
-            if ($name === 'deleted_at') {
+            if (in_array($name, ['id', 'created_at', 'updated_at', 'deleted_at'], true)) {
                 continue;
             }
 
@@ -114,7 +114,7 @@ class CrudGeneratorCommand extends Command
                 'required' => $col->getNotnull(),
             ];
         }
-        var_dump($fields); // Debugging: dump the fields array
+
 
         //
         // 5. Prepare class names & paths
@@ -298,18 +298,11 @@ class CrudGeneratorCommand extends Command
     protected function generateFillableArray(array $fields): string
     {
         // columns we never want in $fillable
-        $exclude = ['id', 'created_at', 'updated_at', 'deleted_at'];
-
-        // take all the keys, drop the excluded ones
-        $fillable = array_filter(
-            array_keys($fields),
-            fn(string $col) => ! in_array($col, $exclude, true)
-        );
-
-        if (empty($fillable)) {
+        var_dump($fields);
+        if (empty($fields)) {
             return '[]';
         }
-        $quoted = array_map(fn($f) => "'{$f}'", array_keys($fillable));
+        $quoted = array_map(fn($f) => "'{$f}'", array_keys($fields));
         return '[ ' . implode(', ', $quoted) . ' ]';
     }
 
