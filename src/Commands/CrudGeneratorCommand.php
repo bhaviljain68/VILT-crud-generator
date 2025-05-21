@@ -91,22 +91,22 @@ class CrudGeneratorCommand extends Command
 
             // DBAL4+: always use createSchemaManager()
             $sm = $doctrineConn->createSchemaManager();
+            // $columns = $sm->listTableColumns($tableName);
             $columns = $sm->listTableColumns($tableName);
         }
 
-        //
         // 4. Build a $fields array (for fillable, rules, etc.)
-        //
-        $fields    = [];
-        $registry  = new TypeRegistry();
+        $fields = [];
         /** @var Column $col */
         foreach ($columns as $col) {
             $name = $col->getName();
             if ($name === 'deleted_at') {
                 continue;
             }
+            $type     = $col->getType();
+            $typeName = $type::getName();
             $fields[$name] = [
-                'type'     => $registry->lookupName($col->getType()),
+                'type'     => $typeName,
                 'length'   => $col->getLength(),
                 'required' => $col->getNotnull(),
             ];
