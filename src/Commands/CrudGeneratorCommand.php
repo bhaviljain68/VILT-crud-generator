@@ -103,8 +103,9 @@ class CrudGeneratorCommand extends Command
             if ($name === 'deleted_at') {
                 continue;
             }
-            $type     = $col->getType();
-            $typeName = $type::getName();
+            // $type     = $col->getType();
+            // $typeName = $type::getName();
+            $typeName = Schema::getColumnType($tableName, $name);
             $fields[$name] = [
                 'type'     => $typeName,
                 'length'   => $col->getLength(),
