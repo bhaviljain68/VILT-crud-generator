@@ -172,13 +172,17 @@ class CrudGeneratorCommand extends Command
             ? "Update{$modelName}Request \$request"
             : "Request \$request";
 
+
+        $storeRules  = $this->generateValidationRules($fields, $tableName, $modelName, 'store');
+        $updateRules = $this->generateValidationRules($fields, $tableName, $modelName, 'update');
         $validateStoreData = $useFormRequest
             ? '$request->validated()'
-            : '$request->validate(' . $this->generateValidationRules($fields, $tableName, $modelName, 'store') . ')';
+            : '$request->validate(' . $storeRules['rules'] . ')';
 
         $validateUpdateData = $useFormRequest
             ? '$request->validated()'
-            : '$request->validate(' . $this->generateValidationRules($fields, $tableName, $modelName, 'update') . ')';
+            : '$request->validate(' . $updateRules['rules'] . ')';
+
 
         $vars = [
             '{{ namespace }}'                  => 'App\\Http\\Controllers',
