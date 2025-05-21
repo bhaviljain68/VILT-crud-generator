@@ -356,7 +356,7 @@ class CrudGeneratorCommand extends Command
                 if ($useFormRequest) {
                     $line[] = "unique:{$table},email,'.\$this->id.'";
                 } else {
-                    $line[] = "unique:{$table},email,$'.{$modelVar}->id.'";
+                    $line[] = "unique:{$table},email,'.\${$modelVar}->id.'";
                 }
             } elseif ($action === 'store' && $name === 'email') {
                 $line[] = "unique:{$table},email";
