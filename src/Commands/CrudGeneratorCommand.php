@@ -62,12 +62,34 @@ class CrudGeneratorCommand extends Command
         } else {
             // Laravel >=10 with doctrine/dbal provides this macro:
             $conn = Schema::getConnection();
-            if (! method_exists($conn, 'getDoctrineConnection')) {
-                $this->error('Please require doctrine/dbal (composer require doctrine/dbal)');
-                return Command::FAILURE;
+
+            if (method_exists($conn, 'getDoctrineConnection')) {
+                // Laravel’s built-in macro (requires doctrine/dbal)
+                $doctrineConn = $conn->getDoctrineConnection();
+            } else {
+                // Fallback: build a DBAL connection from your Laravel config
+                $cfg        = $conn->getConfig();
+                $driverName = $conn->getDriverName(); // e.g. 'mysql','pgsql','sqlite','sqlsrv'
+                $map        = [
+                    'mysql'  => 'pdo_mysql',
+                    'pgsql'  => 'pdo_pgsql',
+                    'sqlite' => 'pdo_sqlite',
+                    'sqlsrv' => 'pdo_sqlsrv',
+                ];
+                $driver = $map[$driverName] ?? $driverName;
+
+                $doctrineConn = \Doctrine\DBAL\DriverManager::getConnection([
+                    'host'     => $cfg['host']     ?? null,
+                    'port'     => $cfg['port']     ?? null,
+                    'user'     => $cfg['username'] ?? null,
+                    'password' => $cfg['password'] ?? null,
+                    'dbname'   => $cfg['database'] ?? null,
+                    'charset'  => $cfg['charset']  ?? null,
+                    'driver'   => $driver,
+                ]);
             }
-            $doctrineConn = $conn->getDoctrineConnection();
-            // DBAL4+:
+
+            // DBAL4+: always use createSchemaManager()
             $sm = $doctrineConn->createSchemaManager();
             $columns = $sm->listTableColumns($tableName);
         }
