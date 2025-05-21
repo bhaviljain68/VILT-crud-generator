@@ -44,6 +44,8 @@ class InertiaCrudGeneratorServiceProvider extends ServiceProvider
             => resource_path('js/components/ui/input/NumberInput.vue'),
             __DIR__ . '/../vue-components/ui/input/DateInput.vue'
             => resource_path('js/components/ui/input/DateInput.vue'),
+            // Publish Export Trait
+            __DIR__ . '/Traits/HasExport.php' => app_path('Http/Traits/HasExport.php'),
         ], 'inertia-crud-generator');
         // (Optional) Publish a lang file stub if provided
         // $this->publishes([...], 'inertia-crud-generator-lang');
