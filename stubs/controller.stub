@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 {{ useFormRequestsImports }}
 {{ exportTraitUse }}
+use Illuminate\Support\Facades\Log;
 
 class {{ controllerClass }} extends Controller
 {
@@ -42,7 +43,7 @@ class {{ controllerClass }} extends Controller
                 ->route('{{ routeName }}.index')
                 ->with('success', __('{{ modelName }} created successfully.'));
         } catch (\Exception $e) {
-            \Log::error("Failed to create {{ modelName }}: {$e->getMessage()}", ['exception' => $e]);
+            Log::error("Failed to create {{ modelName }}: {$e->getMessage()}", ['exception' => $e]);
 
             return redirect()
                 ->route('{{ routeName }}.create')
@@ -74,7 +75,7 @@ class {{ controllerClass }} extends Controller
                 ->route('{{ routeName }}.index')
                 ->with('success', __('{{ modelName }} updated successfully.'));
         } catch (\Exception $e) {
-            \Log::error("Failed to update {{ modelName }} [ID: {{modelVar}}]: {$e->getMessage()}", ['exception' => $e]);
+            Log::error("Failed to update {{ modelName }} [ID: {{modelVar}}]: {$e->getMessage()}", ['exception' => $e]);
 
             return redirect()
                 ->route('{{ routeName }}.edit', ${{ modelVar }})
@@ -91,7 +92,7 @@ class {{ controllerClass }} extends Controller
                 ->route('{{ routeName }}.index')
                 ->with('success', __('{{ modelName }} deleted successfully.'));
         } catch (\Exception $e) {
-            \Log::error("Failed to delete {{ modelName }} [ID: {{modelVar}}]: {$e->getMessage()}", ['exception' => $e]);
+            Log::error("Failed to delete {{ modelName }} [ID: {{modelVar}}]: {$e->getMessage()}", ['exception' => $e]);
 
             return redirect()
                 ->route('{{ routeName }}.index')
