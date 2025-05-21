@@ -223,6 +223,7 @@ class CrudGeneratorCommand extends Command
         // 10. API Resource & Collection
         //
         if ($force || ! $fs->exists($paths['resource'])) {
+            
             $fieldsCode = $this->generateResourceFields($columns);
             $stub = str_replace(
                 ['{{ namespace }}', '{{ resourceClass }}', '{{ modelVar }}', '{{ resourceFields }}'],
