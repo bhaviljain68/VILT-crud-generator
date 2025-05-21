@@ -10,16 +10,16 @@ const props = defineProps<{
 
 <template>
   <AppLayout>
-    <Head title="{{ __('{{ modelName }} Details') }}" />
+    <Head title="{{ modelName }}" />
 
     <div class="p-4 max-w-lg mx-auto space-y-4">
     {{ showFields }}
       <div class="mt-4 flex space-x-2">
         <Link :href="route('{{ routeName }}.edit', {{ modelVar }}.id)" class="btn-secondary">
-          {{ __('Edit') }}
+          Edit
         </Link>
         <Link :href="route('{{ routeName }}.index')" class="btn-secondary">
-          {{ __('Back') }}
+          Back
         </Link>
       </div>
     </div>

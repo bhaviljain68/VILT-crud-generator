@@ -23,7 +23,7 @@ function submit() {
 
 <template>
   <AppLayout>
-    <Head title="{{ __('Edit {{ modelName }}') }}" />
+    <Head title="Edit {{ modelName }}" />
 
     <div class="p-4 max-w-lg mx-auto">
       <form @submit.prevent="submit">
@@ -33,7 +33,7 @@ function submit() {
             type="submit"
             class="bg-green-600 text-white px-4 py-2 rounded"
           >
-            {{ __('Update {{ modelName }}') }}
+            Update {{ modelName }}
           </button>
         </div>
       </form>

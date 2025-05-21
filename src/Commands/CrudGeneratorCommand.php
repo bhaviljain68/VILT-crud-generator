@@ -369,7 +369,7 @@ class CrudGeneratorCommand extends Command
         }
         $attrStr = '';
         foreach ($attrs as $field => $label) {
-            $attrStr .= "            '{$field}' => __('{$label}'),\n";
+            $attrStr .= "            '{$field}' => '{$label}',\n";
         }
 
         return [
@@ -387,20 +387,20 @@ class CrudGeneratorCommand extends Command
         foreach ($fields as $name => $meta) {
             $label = Str::headline($name);
             if ($meta['required']) {
-                $msgs[] = "'{$name}.required' => __('The {$label} field is required.'),";
+                $msgs[] = "'{$name}.required' => 'The {$label} field is required.',";
             }
             match ($meta['type']) {
-                'integer', 'bigint' => $msgs[] = "'{$name}.integer' => __('{$label} must be an integer.'),",
-                'boolean'          => $msgs[] = "'{$name}.boolean' => __('{$label} must be true or false.'),",
-                'date', 'datetime', 'datetimetz' => $msgs[] = "'{$name}.date' => __('{$label} must be a valid date.'),",
+                'integer', 'bigint' => $msgs[] = "'{$name}.integer' => '{$label} must be an integer.',",
+                'boolean'          => $msgs[] = "'{$name}.boolean' => '{$label} must be true or false.',",
+                'date', 'datetime', 'datetimetz' => $msgs[] = "'{$name}.date' => '{$label} must be a valid date.',",
                 'string' => $meta['length']
-                    ? $msgs[] = "'{$name}.max' => __('{$label} may not exceed {$meta['length']} characters.'),"
+                    ? $msgs[] = "'{$name}.max' => '{$label} may not exceed {$meta['length']} characters.',"
                     : null,
                 default => null,
             };
             if ($name === 'email') {
-                $msgs[] = "'{$name}.email' => __('Please enter a valid email.'),";
-                $msgs[] = "'{$name}.unique' => __('The email has already been taken.'),";
+                $msgs[] = "'{$name}.email' => 'Please enter a valid email.',";
+                $msgs[] = "'{$name}.unique' => 'The email has already been taken.',";
             }
         }
         $out = "[\n";
@@ -447,7 +447,7 @@ class CrudGeneratorCommand extends Command
             $name  = $col->getName();
             if (in_array($name, $sensitive, true)) continue;
             $label = Str::headline($name);
-            $headers .= "            <th class=\"px-4 py-2 text-left\">{{ __('{$label}') }}</th>\n";
+            $headers .= "            <th class=\"px-4 py-2 text-left\">{{ '{$label}' }}</th>\n";
             $cells   .= "            <td class=\"px-4 py-2\">{{ item.{$name} }}</td>\n";
         }
         return [$headers, $cells];
@@ -504,7 +504,7 @@ class CrudGeneratorCommand extends Command
             };
             $out .= <<<HTML
                         <div class="mt-4">
-                        <label class="block font-medium">{{ __('{$label}') }}</label>
+                        <label class="block font-medium">{{ '{$label}' }}</label>
                         <{$component}
                             v-model="form.{$name}"
                             name="{$name}"
@@ -529,7 +529,7 @@ class CrudGeneratorCommand extends Command
             $label = Str::headline($name);
             $out .= <<<HTML
                         <div>
-                            <dt class="font-medium">{{ __('{$label}') }}</dt>
+                            <dt class="font-medium">{{ '{$label}' }}</dt>
                             <dd>{{ {$modelVar}.{$name} }}</dd>
                         </div>
                     HTML;

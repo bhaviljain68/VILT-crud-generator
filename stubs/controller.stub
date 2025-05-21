@@ -41,13 +41,13 @@ class {{ controllerClass }} extends Controller
 
             return redirect()
                 ->route('{{ routeName }}.index')
-                ->with('success', __('{{ modelName }} created successfully.'));
+                ->with('success', '{{ modelName }} created successfully.');
         } catch (\Exception $e) {
             Log::error("Failed to create {{ modelName }}: {$e->getMessage()}", ['exception' => $e]);
 
             return redirect()
                 ->route('{{ routeName }}.create')
-                ->with('error', __('Failed to create {{ modelName }}. Please try again.'));
+                ->with('error', 'Failed to create {{ modelName }}. Please try again.');
         }
     }
 
@@ -73,13 +73,13 @@ class {{ controllerClass }} extends Controller
 
             return redirect()
                 ->route('{{ routeName }}.index')
-                ->with('success', __('{{ modelName }} updated successfully.'));
+                ->with('success', '{{ modelName }} updated successfully.');
         } catch (\Exception $e) {
             Log::error("Failed to update {{ modelName }} [ID: {{modelVar}}]: {$e->getMessage()}", ['exception' => $e]);
 
             return redirect()
                 ->route('{{ routeName }}.edit', ${{ modelVar }})
-                ->with('error', __('Failed to update {{ modelName }}. Please try again.'));
+                ->with('error', 'Failed to update {{ modelName }}. Please try again.');
         }
     }
 
@@ -90,13 +90,13 @@ class {{ controllerClass }} extends Controller
 
             return redirect()
                 ->route('{{ routeName }}.index')
-                ->with('success', __('{{ modelName }} deleted successfully.'));
+                ->with('success', '{{ modelName }} deleted successfully.');
         } catch (\Exception $e) {
             Log::error("Failed to delete {{ modelName }} [ID: {{modelVar}}]: {$e->getMessage()}", ['exception' => $e]);
 
             return redirect()
                 ->route('{{ routeName }}.index')
-                ->with('error', __('Failed to delete {{ modelName }}. Please try again.'));
+                ->with('error', 'Failed to delete {{ modelName }}. Please try again.');
         }
     }
 }
