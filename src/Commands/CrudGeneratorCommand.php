@@ -354,7 +354,7 @@ class CrudGeneratorCommand extends Command
             // unique email example
             if ($name === 'email') {
                 $uniqueRule = $action === 'update'
-                    ? "unique:{$table},email,'.\$this->id.''"
+                    ? "unique:{$table},email,'.\$this->id.'"
                     : "unique:{$table},email";
                 $line[] = $uniqueRule;
             }
