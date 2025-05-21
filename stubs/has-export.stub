@@ -1,6 +1,6 @@
 <?php
 
-namespace artisanalbyte\InertiaCrudGenerator\Traits;
+namespace App\Http\Traits;
 
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
