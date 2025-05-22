@@ -547,8 +547,8 @@ class CrudGeneratorCommand extends Command
             $name  = $col->getName();
             if (in_array($name, $sensitive, true)) continue;
             $label = Str::headline($name);
-            $headers .= "            <th class=\"px-4 py-2 text-left\">{{ '{$label}' }}</th>\n";
-            $cells   .= "            <td class=\"px-4 py-2\">{{ item.{$name} }}</td>\n";
+            $headers .= "<th class=\"px-4 py-2 text-left\">{{ '{$label}' }}</th>\n";
+            $cells   .= "<td class=\"px-4 py-2\">{{ item.{$name} }}</td>\n";
         }
         return [$headers, $cells];
     }

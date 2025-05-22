@@ -1,15 +1,25 @@
 <script setup lang="ts">
-import { Head, Link } from '@inertiajs/vue3'
-import { route } from 'ziggy'
-import AppLayout from '@/Layouts/AppLayout.vue'
-import { Inertia } from '@inertiajs/inertia'
+import { Head, Link, usePage } from '@inertiajs/vue3'
+import { route } from 'ziggy-js'
+import AppLayout from '@/layouts/AppLayout.vue'
+import { router } from '@inertiajs/vue3'
+
+interface SharedProps {
+  flash: {
+    success?: string
+    error?: string
+  }
+}
+
 
 const props = defineProps<{
   {{ modelPluralLower }}: { data: any[] }
 }>()
 
+const page = usePage<SharedProps>()
+
 function destroy(id: number) {
-  if (confirm("Are you sure you want to delete this?"')) {
+  if (confirm("Are you sure you want to delete this?")) {
     Inertia.delete(route('{{ routeName }}.destroy', id))
   }
 }
@@ -30,8 +40,8 @@ function destroy(id: number) {
         </Link>
       </div>
 
-      <div v-if="$page.props.flash.success" class="mb-4 p-2 bg-green-100 text-green-800 rounded">
-        {{ $page.props.flash.success }}
+      <div v-if="page?.props?.flash?.success" class="mb-4 p-2 bg-green-100 text-green-800 rounded">
+        {{ page.props.flash.success }}
       </div>
 
       <table class="min-w-full bg-white">
