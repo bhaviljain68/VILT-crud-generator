@@ -659,7 +659,9 @@ class CrudGeneratorCommand extends Command
 
         $needed = [];
         foreach ($columns as $col) {
-            $type = $col->getType()->getName();
+            // $type = $col->getType()->getName();
+            $name  = $col->getName();
+            $type  = Schema::getColumnType($this->tableName, $name);
             if (isset($map[$type])) {
                 $needed[$map[$type]] = true;
             }
