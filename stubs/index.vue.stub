@@ -3,14 +3,6 @@ import { Head, Link, usePage } from '@inertiajs/vue3'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { router } from '@inertiajs/vue3'
 
-interface SharedProps {
-  flash: {
-    success?: string
-    error?: string
-  }
-}
-
-
 const props = defineProps<{
   {{ modelPluralLower }}: { data: any[] }
 }>()
