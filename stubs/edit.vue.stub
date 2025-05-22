@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3'
 import { Head, Link } from '@inertiajs/vue3'
-import { route } from 'ziggy'
-import AppLayout from '@/Layouts/AppLayout.vue'
+import AppLayout from '@/layouts/AppLayout.vue'
 
 // ← Dynamically injected imports:
 {{ componentImports }}

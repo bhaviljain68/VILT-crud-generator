@@ -590,7 +590,7 @@ class CrudGeneratorCommand extends Command
         foreach ($columns as $col) {
             $name = $col->getName();
             if (in_array($name, $sensitive, true)) continue;
-            $out .= "    {$name}: {$modelVar}.{$name} ?? null,\n";
+            $out .= "    {$name}: props.{$modelVar}.{$name} ?? null,\n";
         }
         return $out;
     }
