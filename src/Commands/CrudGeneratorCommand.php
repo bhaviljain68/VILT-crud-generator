@@ -370,9 +370,11 @@ class CrudGeneratorCommand extends Command
         $this->info("✔ Vue page created: {$modelPlural}/Show.vue");
 
         // Generate Inertia Types
-        $fs->ensureDirectoryExists("{$resourcePath}/js/types");
+        $typesDir = resource_path('js/types');
+        $fs->ensureDirectoryExists($typesDir);
         $inertiaTypes = $load('inertia-types.ts');
-        $fs->put("{$resourcePath}/js/types/inertia.d.ts", $inertiaTypes);
+        $fs->put("{$typesDir}/inertia.d.ts", $inertiaTypes);
+        $this->info("✔ Published Inertia TS types");
         //
         // 12. REGISTER ROUTES IN‐MEMORY (so tests pass)
         //
