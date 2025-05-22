@@ -371,7 +371,6 @@ class CrudGeneratorCommand extends Command
 
         // Generate Inertia Types
         $typesDir = "{$resourcePath}/js/types";
-        var_dump($typesDir);
         // 1) make sure the directory exists (no filename here!)
         $fs->ensureDirectoryExists($typesDir);
 
@@ -678,10 +677,14 @@ class CrudGeneratorCommand extends Command
             }
         }
 
+        var_dump("==========================");
+        var_dump($needed);
         $imports = [];
         foreach (array_keys($needed) as $component) {
             $imports[] = "import {$component} from '@/components/ui/input/{$component}.vue'";
         }
+        var_dump($imports);
+        var_dump("==========================");
 
         return implode("\n", $imports);
     }
