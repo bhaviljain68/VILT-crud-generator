@@ -271,6 +271,103 @@ class CrudGeneratorCommand extends Command
         // 11. Inertia/Vue Pages (Index/Create/Edit/Show) – omitted here for brevity,
         //     use your existing methods buildTableColumns, buildFormFields, etc.
         //
+        // Build up all the little dynamic bits
+        [$tableHeaders, $tableCells]         = $this->buildTableColumns($columns);
+        $formDataDefaults                    = $this->buildFormDataDefaults($columns);
+        $formFields                          = $this->buildFormFields($columns);
+        $formDataWithValues                  = $this->buildFormDataWithValues($columns, $modelVar);
+        $showFieldsMarkup                    = $this->buildShowFields($columns, $modelVar);
+        $componentImports                    = $this->buildComponentImports($columns);
+
+        // -- Index.vue --
+        $indexStub = $load('index.vue');
+        $index     = str_replace(
+            [
+                '{{ modelPlural }}',
+                '{{ modelPluralLower }}',
+                '{{ routeName }}',
+                '{{ modelName }}',
+                '{{ tableHeaders }}',
+                '{{ tableCells }}',
+            ],
+            [
+                $modelPlural,
+                $modelPluralVar,
+                $routeName,
+                $modelName,
+                $tableHeaders,
+                $tableCells,
+            ],
+            $indexStub
+        );
+        $fs->put("{$paths['vueDir']}/Index.vue", $index);
+        $this->info("✔ Vue page created: {$modelPlural}/Index.vue");
+
+        // -- Create.vue --
+        $createStub = $load('create.vue');
+        $create     = str_replace(
+            [
+                '{{ componentImports }}',
+                '{{ modelName }}',
+                '{{ routeName }}',
+                '{{ formDataDefaults }}',
+                '{{ formFields }}',
+            ],
+            [
+                $componentImports,
+                $modelName,
+                $routeName,
+                $formDataDefaults,
+                $formFields,
+            ],
+            $createStub
+        );
+        $fs->put("{$paths['vueDir']}/Create.vue", $create);
+        $this->info("✔ Vue page created: {$modelPlural}/Create.vue");
+
+        // -- Edit.vue --
+        $editStub = $load('edit.vue');
+        $edit     = str_replace(
+            [
+                '{{ componentImports }}',
+                '{{ modelName }}',
+                '{{ modelVar }}',
+                '{{ routeName }}',
+                '{{ formDataDefaultsWithValues }}',
+                '{{ formFields }}',
+            ],
+            [
+                $componentImports,
+                $modelName,
+                $modelVar,
+                $routeName,
+                $formDataWithValues,
+                $formFields,
+            ],
+            $editStub
+        );
+        $fs->put("{$paths['vueDir']}/Edit.vue", $edit);
+        $this->info("✔ Vue page created: {$modelPlural}/Edit.vue");
+
+        // -- Show.vue --
+        $showStub = $load('show.vue');
+        $show     = str_replace(
+            [
+                '{{ modelName }}',
+                '{{ modelVar }}',
+                '{{ routeName }}',
+                '{{ showFields }}',
+            ],
+            [
+                $modelName,
+                $modelVar,
+                $routeName,
+                $showFieldsMarkup,
+            ],
+            $showStub
+        );
+        $fs->put("{$paths['vueDir']}/Show.vue", $show);
+        $this->info("✔ Vue page created: {$modelPlural}/Show.vue");
 
         //
         // 12. REGISTER ROUTES IN‐MEMORY (so tests pass)
