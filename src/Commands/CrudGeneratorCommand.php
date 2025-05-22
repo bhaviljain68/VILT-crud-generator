@@ -278,7 +278,7 @@ class CrudGeneratorCommand extends Command
         $formDataWithValues                  = $this->buildFormDataWithValues($columns, $modelVar);
         $showFieldsMarkup                    = $this->buildShowFields($columns, $modelVar);
         $componentImports                    = $this->buildComponentImports($columns);
-
+        $fs->ensureDirectoryExists($paths['vueDir']);
         // -- Index.vue --
         $indexStub = $load('index.vue');
         $index     = str_replace(
