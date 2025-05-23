@@ -1,12 +1,12 @@
 <?php
 
-namespace artisanalbyte\InertiaCrudGenerator;
+namespace artisanalbyte\VILTCrudGenerator;
 
 use Illuminate\Support\ServiceProvider;
-use artisanalbyte\InertiaCrudGenerator\Commands\CrudGeneratorCommand;
-use artisanalbyte\InertiaCrudGenerator\Commands\InstallInertiaCrudCommand;
+use artisanalbyte\VILTCrudGenerator\Commands\CrudGeneratorCommand;
+use artisanalbyte\VILTCrudGenerator\Commands\InstallInertiaCrudCommand;
 
-class InertiaCrudGeneratorServiceProvider extends ServiceProvider
+class VILTCrudGeneratorServiceProvider extends ServiceProvider
 {
     /**
      * Register any application services.

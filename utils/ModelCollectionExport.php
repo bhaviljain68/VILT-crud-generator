@@ -1,6 +1,6 @@
 <?php
 
-namespace artisanalbyte\InertiaCrudGenerator\Utils;
+namespace artisanalbyte\VILTCrudGenerator\Utils;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;

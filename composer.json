@@ -1,5 +1,5 @@
 {
-    "name": "artisanalbyte/inertia-crud-generator",
+    "name": "artisanalbyte/vilt-crud-generator",
     "description": "Laravel Inertia CRUD Generator Package",
     "type": "library",
     "require": {
@@ -12,14 +12,14 @@
     },
     "autoload": {
         "psr-4": {
-            "artisanalbyte\\InertiaCrudGenerator\\": "src/",
+            "artisanalbyte\\VILTCrudGenerator\\": "src/",
             "App\\": "app/" 
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "artisanalbyte\\InertiaCrudGenerator\\InertiaCrudGeneratorServiceProvider"
+                "artisanalbyte\\VILTCrudGenerator\\VILTCrudGeneratorServiceProvider"
             ]
         }
     },

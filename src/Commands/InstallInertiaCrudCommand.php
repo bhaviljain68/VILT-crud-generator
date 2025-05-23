@@ -1,6 +1,6 @@
 <?php
 
-namespace artisanalbyte\InertiaCrudGenerator\Commands;
+namespace artisanalbyte\VILTCrudGenerator\Commands;
 
 use Illuminate\Console\Command;
 
