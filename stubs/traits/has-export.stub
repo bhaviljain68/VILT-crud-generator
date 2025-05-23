@@ -12,7 +12,7 @@ trait HasExport
 {
     public function export(Request $request)
     {
-        $format = $request->query('format', 'xlsx');
+        $format   = $request->query('format', 'xlsx');
         $fileName = Str::slug(class_basename($this->modelClass)) . "_export.{$format}";
 
         $collection = ($this->modelClass)::all();
@@ -36,7 +36,7 @@ trait HasExport
             return Pdf::loadHTML($html)->download($fileName);
         }
 
-        // For CSV and XLSX, use a generic export
+        // CSV / XLSX export
         return Excel::download(
             new ModelCollectionExport($collection),
             $fileName,
