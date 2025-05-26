@@ -28,55 +28,35 @@ class FormRequestGenerator implements GeneratorInterface
             return;
         }
 
-        $path = $context->paths['request_path'];
-        if ($this->files->exists($path) && ! $context->options['force']) {
-            return;
-        }
-
-        // Rules and attributes for store
-        $storeConfig    = ValidationBuilder::buildRules(
-            $context->fields,
-            $context->tableName,
-            $context->modelVar,
-            true,
-            'store'
-        );
-        $storeMessages  = ValidationBuilder::buildMessages(
-            $context->fields,
-            $context->modelName,
-            'store'
-        );
-
-        // Rules and attributes for update
-        $updateConfig   = ValidationBuilder::buildRules(
-            $context->fields,
-            $context->tableName,
-            $context->modelVar,
-            true,
-            'update'
-        );
-        $updateMessages = ValidationBuilder::buildMessages(
-            $context->fields,
-            $context->modelName,
-            'update'
-        );
-
-        $replacements = [
-            'namespace'        => $context->paths['request_namespace'],
-            'class'            => $context->modelName . 'Request',
-        ];
-
         foreach (['store', 'update'] as $action) {
-            if ($action === 'store') {
-                $replacements['rules'] = $storeConfig['rules'];
-                $replacements['attributes'] = $storeConfig['attributes'];
-                $replacements['messagesStore'] = $storeMessages;
-            } else {
-                $replacements['rules'] = $updateConfig['rules'];
-                $replacements['attributes'] = $updateConfig['attributes'];
-                $replacements['messagesStore'] = $updateMessages;
+            $path = $action === 'store' ? $context->paths['storeRequestPath'] : $context->paths['updateRequestPath'];
+            // $path = $context->paths['request_path'];
+            if ($this->files->exists($path) && ! $context->options['force']) {
+                return;
             }
 
+            // Rules and attributes for store
+            $config    = ValidationBuilder::buildRules(
+                $context->fields,
+                $context->tableName,
+                $context->modelVar,
+                true,
+                $action
+            );
+            $messages  = ValidationBuilder::buildMessages(
+                $context->fields,
+                $context->modelName,
+                $action
+            );
+
+            $replacements = [
+                'namespace'        => $context->paths['request_namespace'],
+                'class'            => $context->modelName . 'Request',
+                'rules'            => $config['rules'],
+                'attributes'       => $config['attributes'],
+                'messagesStore'    => $messages,
+            ];
+            
             $stub = $this->renderer->render('form-request.stub', $replacements);
             $this->files->ensureDirectoryExists(dirname($path));
             $this->files->put($path, $stub);
