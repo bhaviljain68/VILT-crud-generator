@@ -2,94 +2,96 @@
 
 namespace artisanalbyte\VILTCrudGenerator\Utils;
 
-use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Schema\Column as DBALColumn;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 /**
- * Inspects the database schema via Doctrine DBAL and returns
- * metadata about table columns for CRUD generation.
+ * Introspects database schema via raw queries for MySQL, Postgres, and SQLite.
  */
 class SchemaIntrospector
 {
     /**
-     * Get column metadata for the given table.
+     * List all table columns with metadata: name, type, nullable, length, comment.
      *
      * @param string $tableName
-     * @return array<int,array<string,mixed>>
+     * @return array<int,array{column:string,type:string,nullable:bool,length:int|null,comment:string|null}>
      */
     public function getFields(string $tableName): array
     {
-        // $sm      = $this->connection->createSchemaManager();
-        $sm      = DB::connection()->getDoctrineConnection()->createSchemaManager();
-        $columns = $sm->listTableColumns($tableName);
-
+        $conn   = DB::connection();
+        $driver = $conn->getDriverName();
         $fields = [];
-        foreach ($columns as $column) {
-            $name = $column->getName();
 
-            // Skip primary key and timestamps
-            if (in_array($name, ['id', 'created_at', 'updated_at', 'deleted_at'], true)) {
-                continue;
+        if ($driver === 'mysql') {
+            $rows = $conn->select("SHOW FULL COLUMNS FROM `{$tableName}`");
+            foreach ($rows as $row) {
+                // parse type, e.g. varchar(255)
+                if (preg_match('/^([a-zA-Z]+)(?:\((\d+)\))?/', $row->Type, $m)) {
+                    $baseType = Str::lower($m[1]);
+                    $length   = isset($m[2]) ? (int) $m[2] : null;
+                } else {
+                    $baseType = Str::lower($row->Type);
+                    $length   = null;
+                }
+                $fields[] = [
+                    'column'   => $row->Field,
+                    'type'     => $baseType,
+                    'nullable' => $row->Null === 'YES',
+                    'length'   => $length,
+                    'comment'  => $row->Comment ?: null,
+                ];
             }
-
-            // Use Laravel Schema facade for consistent column type
-            $type = Schema::getColumnType($tableName, $name);
-
-            // Get DB comment (fallback to migration for SQLite)
-            $comment = $column->getComment();
-            $driver  = Str::lower(DB::connection()->getDriverName());
-            if ($driver === 'sqlite' && empty($comment)) {
-                $comment = $this->extractCommentFromMigration($tableName, $name);
+        } elseif ($driver === 'pgsql') {
+            $sql = <<<'SQL'
+SELECT
+  column_name,
+  data_type,
+  is_nullable,
+  character_maximum_length,
+  pg_catalog.col_description((format('%s.%s', table_schema, table_name))::regclass::oid, ordinal_position) AS comment
+FROM information_schema.columns
+WHERE table_name = ?
+SQL;
+            $rows = $conn->select($sql, [$tableName]);
+            foreach ($rows as $row) {
+                $fields[] = [
+                    'column'   => $row->column_name,
+                    'type'     => Str::lower($row->data_type),
+                    'nullable' => $row->is_nullable === 'YES',
+                    'length'   => $row->character_maximum_length,
+                    'comment'  => $row->comment,
+                ];
             }
-
-            $fields[] = [
-                'column'        => $name,
-                'type'          => $type,
-                'nullable'      => !$column->getNotnull(),
-                'length'        => $column->getLength(),
-                'default'       => $column->getDefault(),
-                'autoincrement' => $column->getAutoincrement(),
-                'comment'       => $comment,
-            ];
+        } elseif ($driver === 'sqlite') {
+            $rows = $conn->select("PRAGMA table_info('{$tableName}')");
+            foreach ($rows as $row) {
+                $fields[] = [
+                    'column'   => $row->name,
+                    'type'     => Str::lower($row->type),
+                    'nullable' => $row->notnull == 0,
+                    'length'   => null,
+                    'comment'  => $this->extractCommentFromMigration($tableName, $row->name),
+                ];
+            }
+        } else {
+            throw new \RuntimeException("Unsupported database driver: {$driver}");
         }
 
         return $fields;
     }
 
     /**
-     * Attempt to read the column comment from the migration file
-     * for the given table and column.
-     *
-     * @param string $tableName
-     * @param string $columnName
-     * @return string|null
+     * Fallback: extract column comment from migration files when DB doesn't support comments.
      */
-    protected function extractCommentFromMigration(string $tableName, string $columnName): ?string
+    public function extractCommentFromMigration(string $table, string $columnName): ?string
     {
-        $migrationsPath = database_path('migrations');
-        if (!File::isDirectory($migrationsPath)) {
-            return null;
-        }
-
-        foreach (File::files($migrationsPath) as $file) {
-            $filename = $file->getFilename();
-            if (!Str::contains($filename, "create_{$tableName}_table")) {
-                continue;
-            }
-
-            $content       = File::get($file->getPathname());
-            $escapedColumn = preg_quote($columnName, '/');
-            // build regex to match literal "$table->('col')->comment('...')"
-            $pattern = '/' . '\$table->' . '[^()]*\(\s*' . $escapedColumn . '\s*\)[^;]*->comment\(\s*\'([^\']+)\'\s*\)/';
+        $pattern = "/\\$table->[^\\(]*\\(\\s*'{$columnName}'\\s*\\)[^;]*->comment\\(\\s*'([^']+)'\\s*\\)/";
+        foreach (glob(database_path('migrations') . '/*.php') as $file) {
+            $content = file_get_contents($file);
             if (preg_match($pattern, $content, $matches)) {
                 return $matches[1];
             }
         }
-
         return null;
     }
 }
