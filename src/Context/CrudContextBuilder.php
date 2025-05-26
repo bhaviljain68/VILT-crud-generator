@@ -40,7 +40,6 @@ class CrudContextBuilder
 
         // Introspect DB schema for fields
         $fields = $this->introspector->getFields($tableName);
-        var_dump($fields); // Debugging line, remove in production
 
         // Resolve file paths for each artifact
         $paths = $this->pathResolver->resolve(

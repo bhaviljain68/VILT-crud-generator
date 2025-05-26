@@ -5,6 +5,7 @@ namespace artisanalbyte\VILTCrudGenerator\Utils;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Str;
 
+
 /**
  * Loads stub files and performs placeholder replacements.
  */
@@ -33,17 +34,12 @@ class StubRenderer
      */
     public function render(string $stubName, array $replacements): string
     {
-        // $path = rtrim($this->stubPath, '/\\') . DIRECTORY_SEPARATOR . $stubName;
-        //
-        // 1) Check for a published override in the app’s stubs folder:
-        //
-        $custom = base_path('stubs/vilt-crud-generator/' . str_replace('\\', '/', $stubName));
-        if ($this->files->exists($custom)) {
-            $path = $custom;
+        // 1) Check for a published override in resources/stubs/vilt-crud-generator
+        $override = resource_path('stubs/vilt-crud-generator/' . str_replace('\\', '/', $stubName));
+        if ($this->files->exists($override)) {
+            $path = $override;
         } else {
-            //
-            // 2) Fall back to the package’s bundled stubs:
-            //
+            // 2) Fall back to the package’s bundled stubs
             $path = rtrim($this->stubPath, '/\\') . DIRECTORY_SEPARATOR . $stubName;
         }
         if (! $this->files->exists($path)) {

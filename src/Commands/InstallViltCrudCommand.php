@@ -6,17 +6,17 @@ use Illuminate\Console\Command;
 
 class InstallViltCrudCommand extends Command
 {
-    protected $signature   = 'inertia-crud:install';
+    protected $signature   = 'vilt-crud:install';
     protected $description = 'Publish config, PHP stubs, and Vue components for Inertia CRUD Generator';
 
     public function handle()
     {
         // Single publish call
         $this->call('vendor:publish', [
-            '--tag'   => 'inertia-crud-generator',
+            '--tag'   => 'vilt-crud-generator',
             '--force' => true,
         ]);
 
-        $this->info('✅ Inertia CRUD Generator installed! All assets published.');
+        $this->info('✅ VILT CRUD Generator installed! All assets published.');
     }
 }

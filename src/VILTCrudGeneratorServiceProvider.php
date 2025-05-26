@@ -35,7 +35,7 @@ class VILTCrudGeneratorServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 CrudGeneratorCommand::class,
-                InstallInertiaCrudCommand::class,  // ensure this is present
+                InstallViltCrudCommand::class,  // ensure this is present
             ]);
         }
         $this->publishes([
