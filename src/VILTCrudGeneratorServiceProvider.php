@@ -14,7 +14,11 @@ class VILTCrudGeneratorServiceProvider extends ServiceProvider
     public function register()
     {
         // Merge package configuration with application config
-        $this->mergeConfigFrom(__DIR__ . '/../config/inertia-crud-generator.php', 'inertia-crud-generator');
+        $this->mergeConfigFrom(__DIR__ . '/../config/vilt-crud-generator.php', 'vilt-crud-generator');
+
+        $this->app->bind(\Doctrine\DBAL\Connection::class, function ($app) {
+            return $app['db']->connection()->getDoctrineConnection();
+        });
 
         // Register the console command for Artisan
         // $this->commands([
@@ -36,7 +40,7 @@ class VILTCrudGeneratorServiceProvider extends ServiceProvider
         }
         $this->publishes([
             // Publish the config file to the application's config directory
-            __DIR__ . '/../config/inertia-crud-generator.php' => config_path('inertia-crud-generator.php'),
+            __DIR__ . '/../config/vilt-crud-generator.php' => config_path('vilt-crud-generator.php'),
             // Publish stub templates to allow user customization
             __DIR__ . '/../stubs' => resource_path('stubs/inertia-crud-generator'),
             // Publish our wrapper Vue components:
@@ -45,7 +49,7 @@ class VILTCrudGeneratorServiceProvider extends ServiceProvider
             __DIR__ . '/../vue-components/ui/input/DateInput.vue'
             => resource_path('js/components/ui/input/DateInput.vue'),
             // Publish Export Trait
-            __DIR__.'/../stubs/traits/has-export.stub' => app_path('Http/Traits/HasExport.php'),
+            __DIR__ . '/../stubs/traits/has-export.stub' => app_path('Http/Traits/HasExport.php'),
         ], 'inertia-crud-generator');
     }
 }
