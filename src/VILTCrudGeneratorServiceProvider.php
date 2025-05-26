@@ -16,9 +16,9 @@ class VILTCrudGeneratorServiceProvider extends ServiceProvider
         // Merge package configuration with application config
         $this->mergeConfigFrom(__DIR__ . '/../config/vilt-crud-generator.php', 'vilt-crud-generator');
 
-        $this->app->bind(\Doctrine\DBAL\Connection::class, function ($app) {
-            return $app['db']->connection()->getDoctrineConnection();
-        });
+        // $this->app->bind(\Doctrine\DBAL\Connection::class, function ($app) {
+        //     return $app['db']->connection()->getDoctrineConnection();
+        // });
 
         // Register the console command for Artisan
         // $this->commands([

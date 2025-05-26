@@ -24,7 +24,7 @@ class SchemaIntrospector
     public function getFields(string $tableName): array
     {
         // $sm      = $this->connection->createSchemaManager();
-        $sm      = DB::connection()->getDoctrineSchemaManager();
+        $sm      = DB::connection()->getDoctrineConnection()->createSchemaManager();
         $columns = $sm->listTableColumns($tableName);
 
         $fields = [];
