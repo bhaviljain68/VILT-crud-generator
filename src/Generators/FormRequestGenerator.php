@@ -64,16 +64,22 @@ class FormRequestGenerator implements GeneratorInterface
         $replacements = [
             'namespace'        => $context->paths['request_namespace'],
             'class'            => $context->modelName . 'Request',
-            'rulesStore'       => $storeConfig['rules'],
-            'attributesStore'  => $storeConfig['attributes'],
-            'messagesStore'    => $storeMessages,
-            'rulesUpdate'      => $updateConfig['rules'],
-            'attributesUpdate' => $updateConfig['attributes'],
-            'messagesUpdate'   => $updateMessages,
         ];
 
-        $stub = $this->renderer->render('form-request.stub', $replacements);
-        $this->files->ensureDirectoryExists(dirname($path));
-        $this->files->put($path, $stub);
+        foreach (['store', 'update'] as $action) {
+            if ($action === 'store') {
+                $replacements['rules'] = $storeConfig['rules'];
+                $replacements['attributes'] = $storeConfig['attributes'];
+                $replacements['messagesStore'] = $storeMessages;
+            } else {
+                $replacements['rules'] = $updateConfig['rules'];
+                $replacements['attributes'] = $updateConfig['attributes'];
+                $replacements['messagesStore'] = $updateMessages;
+            }
+
+            $stub = $this->renderer->render('form-request.stub', $replacements);
+            $this->files->ensureDirectoryExists(dirname($path));
+            $this->files->put($path, $stub);
+        }
     }
 }
