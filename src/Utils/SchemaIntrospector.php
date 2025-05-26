@@ -15,10 +15,6 @@ use Illuminate\Support\Str;
  */
 class SchemaIntrospector
 {
-    public function __construct(
-        protected Connection $connection
-    ) {}
-
     /**
      * Get column metadata for the given table.
      *
@@ -27,11 +23,11 @@ class SchemaIntrospector
      */
     public function getFields(string $tableName): array
     {
-        $sm      = $this->connection->createSchemaManager();
+        // $sm      = $this->connection->createSchemaManager();
+        $sm      = DB::connection()->getDoctrineSchemaManager();
         $columns = $sm->listTableColumns($tableName);
 
         $fields = [];
-        /** @var DBALColumn $column */
         foreach ($columns as $column) {
             $name = $column->getName();
 
