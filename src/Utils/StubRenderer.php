@@ -36,14 +36,14 @@ class StubRenderer
     {
         // 1) Check for a published override in resources/stubs/vilt-crud-generator
         $override = resource_path('stubs/vilt-crud-generator/' . str_replace('\\', '/', $stubName));
-        var_dump($override)
+
         if ($this->files->exists($override)) {
             $path = $override;
         } else {
             // 2) Fall back to the package’s bundled stubs
             $path = rtrim($this->stubPath, '/\\') . DIRECTORY_SEPARATOR . $stubName;
         }
-        var_dump($path);
+
         if (! $this->files->exists($path)) {
             throw new \InvalidArgumentException("Stub file not found: {$path}");
         }

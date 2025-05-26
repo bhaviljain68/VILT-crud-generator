@@ -20,7 +20,7 @@ class RouteGenerator implements GeneratorInterface
     public function generate(CrudContext $context): void
     {
         $routeName        = strtolower($context->modelPluralVar);
-        $controllerClass  = class_basename($context->paths['controller_namespace']);
+        $controllerClass  = class_basename($context->paths['controllerNamespace']);
         $routesFile       = base_path('routes/web.php');
 
         $groupStart = "\nRoute::middleware(['auth','verified'])->group(function () {\n";
