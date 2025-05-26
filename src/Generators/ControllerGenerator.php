@@ -81,8 +81,6 @@ class ControllerGenerator implements GeneratorInterface
             'validationStore'   => $validationStore,
             'validationUpdate'  => $validationUpdate,
             'route'             => $context->modelPluralVar,
-            'resource'          => "", 
-
             'useFormRequestsImports'   => $context->options['formRequest']
                 ? "use {$context->paths['request_namespace']}\\Store{$context->modelName}Request;\n"
                 . "use {$context->paths['request_namespace']}\\Update{$context->modelName}Request;"
