@@ -74,7 +74,7 @@ class ModelGenerator implements GeneratorInterface
                     $casts[$f['column']] = 'datetime';
                     break;
                 default:
-                    continue;
+                    continue 2; // Skip unsupported types
             }
         }
 
