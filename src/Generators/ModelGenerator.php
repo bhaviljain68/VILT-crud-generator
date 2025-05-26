@@ -30,11 +30,12 @@ class ModelGenerator implements GeneratorInterface
         }
 
         $stub = $this->renderer->render('model.stub', [
-            
+
             'model'       => $context->modelName,
             'table'       => $context->tableName,
             'fillable'    => $this->buildFillable($context->fields),
             'casts'       => $this->buildCasts($context->fields),
+            'hidden'      => $this->buildHidden($context->fields),
         ]);
 
         $this->files->ensureDirectoryExists(dirname($path));
@@ -43,13 +44,16 @@ class ModelGenerator implements GeneratorInterface
 
     protected function buildFillable(array $fields): string
     {
-        $cols = array_map(fn($f) => "'{$f['column']}'", $fields);
-        return '[' . implode(', ', $cols) . ']';
+        // Filter out fields that are not fillable
+        $fields = array_filter($fields, fn($f) => !in_array($f['column'], ['id', 'created_at', 'updated_at', 'deleted_at'], true));
+        $cols = array_map(fn($f) => "\n            '{$f['column']}'", $fields);
+        return '[' . implode(', ', $cols) . "\n        ]";
     }
 
     protected function buildCasts(array $fields): string
     {
         $casts = [];
+        $fields = array_filter($fields, fn($f) => !in_array($f['column'], ['id'], true));
         foreach ($fields as $f) {
             switch ($f['type']) {
                 case 'integer':
@@ -78,7 +82,52 @@ class ModelGenerator implements GeneratorInterface
             }
         }
 
-        $pairs = array_map(fn($col, $cast) => "'{$col}' => '{$cast}'", array_keys($casts), $casts);
-        return '[' . implode(', ', $pairs) . ']';
+        $pairs = array_map(fn($col, $cast) => "\n            '{$col}' => '{$cast}'", array_keys($casts), $casts);
+        return '[' . implode(', ', $pairs) . "\n        ]";
+    }
+    /**
+     * Build the $hidden array for the model by filtering out common sensitive fields.
+     *
+     * @param  array  $fields  The array of field metadata from the context.
+     * @return string          PHP array syntax for the $hidden property.
+     */
+    protected function buildHidden(array $fields): string
+    {
+        // List any columns you consider sensitive
+        $sensitive = [
+            'password',
+            'remember_token',
+            'api_token',
+            'api_key',
+            'secret',
+            'credit_card',
+            'card_number',
+            'cvv',
+            'card',
+            'ssn',
+            'social_security_number',
+            // add more as needed…
+        ];
+
+        $hidden = [];
+        foreach ($fields as $f) {
+            if (in_array($f['column'], $sensitive, true)) {
+                $hidden[] = $f['column'];
+            }
+        }
+
+        // If nothing sensitive, return an empty array
+        if (empty($hidden)) {
+            return '[]';
+        }
+
+        // Build a nicely indented PHP array string
+        $out = "[";
+        foreach ($hidden as $column) {
+            $out .= "\n            '{$column}',\n";
+        }
+        $out .= "        ]";
+
+        return $out;
     }
 }

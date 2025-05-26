@@ -14,7 +14,7 @@ class {{ model }} extends Model
     protected $fillable = {{ fillable }};
 
     // * Data Protection
-    protected $hidden = [];
+    protected $hidden = {{ hidden }};
 
     // * Data Formatting
     protected $casts = [
