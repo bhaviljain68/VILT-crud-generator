@@ -47,6 +47,12 @@ class CrudContextBuilder
             modelPlural: $modelPlural
         );
 
+        $namespaces = [
+            'model' => 'App\\Models',
+            'controller' => 'App\\Http\\Controllers',
+            'request' => "App\\Http\\Requests",
+        ];
+
         // Collect options
         $options = [
             'force'       => $force,
@@ -63,6 +69,7 @@ class CrudContextBuilder
             tableName: $tableName,
             fields: $fields,
             paths: $paths,
+            namespaces: $namespaces,
             options: $options,
         );
     }

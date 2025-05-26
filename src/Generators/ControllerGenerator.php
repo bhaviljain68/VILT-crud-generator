@@ -65,20 +65,40 @@ class ControllerGenerator implements GeneratorInterface
             ? 'use App\\Http\\Traits\\HasExport;'
             : '';
         $exportTraitBlock = $context->options['export']
-            ? "    use HasExport;\n    protected string \\\$modelClass = {$context->paths['model_namespace']}::class;\n"
+            ? "    use HasExport;\n    protected string \$modelClass = {$context->namespaces['model']}\\{$context->modelName}::class;\n"
             : '';
 
         $replacements = [
-            'namespace'         => $context->paths['controller_namespace'],
-            'exportImport'      => $exportImport,
-            'exportTraitBlock'  => $exportTraitBlock,
+            'namespace'         => $context->namespaces['controller'],
             'model'             => $context->modelName,
             'model_var'         => $context->modelVar,
-            'model_plural_var'  => $context->modelPluralVar,
-            'request_namespace' => $context->paths['request_namespace'],
+            'modelPlural'       => $context->modelPlural,
+            'modelPluralVar'    => $context->modelPluralVar,
+            'exportImport'      => $exportImport,
+            'exportTraitBlock'  => $exportTraitBlock,
+            'request_namespace' => $context->namespaces['request'],
             'table'             => $context->tableName,
             'validationStore'   => $validationStore,
             'validationUpdate'  => $validationUpdate,
+            'route'             => $context->modelPluralVar,
+            'resource'          => "", 
+
+            'useFormRequestsImports'   => $context->options['formRequest']
+                ? "use {$context->namespaces['request']}\\Store{$context->modelName}Request;\n"
+                . "use {$context->namespaces['request']}\\Update{$context->modelName}Request;"
+                : '',
+            'storeRequestParam'        => $context->options['formRequest']
+                ? "Store{$context->modelName}Request \$request"
+                : "Request \$request",
+            'updateRequestParam'       => $context->options['formRequest']
+                ? "Update{$context->modelName}Request \$request, "
+                : "Request \$request, ",
+            'validateStoreData'        => $context->options['formRequest']
+                ? '$request->validated()'
+                : '$request->validate(' . $storeConfig['rules'] . ',' . $messagesConfig . ');',
+            'validateUpdateData'       => $context->options['formRequest']
+                ? '$request->validated()'
+                : '$request->validate(' . $updateConfig['rules'] . ',' . $messagesConfig . ');',
         ];
 
         $stub = $this->renderer->render('controller.stub', $replacements);

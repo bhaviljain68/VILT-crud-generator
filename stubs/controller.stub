@@ -2,29 +2,28 @@
 
 namespace {{ namespace }};
 
-use {{ modelClass }};
-use App\Http\Resources\{{ resourceName }};
-use App\Http\Resources\{{ resourceCollectionName }};
+use App\Models\{{ model }};
+use App\Http\Resources\{{ model }}Resource;       
+use App\Http\Resources\{{ model }}Collection; 
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-{{ useFormRequestsImports }}
-{{ exportTraitUse }}
+{{ useFormRequestsImports }}                       
+{{ exportImport }}
 use Illuminate\Support\Facades\Log;
 
-class {{ controllerClass }} extends Controller
+class {{ model }}Controller extends Controller
 {
-    {{ exportTraitApply }}
-    {{ exportModelProperty }}
+    {{ exportTraitBlock }}  
 
     public function index()
     {
         $query = {{ modelName }}::query();
         // You can add filtering or sorting logic here
-        ${{ modelPluralLower }} = $query->latest()->paginate(10);
+        ${{ modelPluralVar }} = $query->latest()->paginate(10);
 
         return Inertia::render('{{ modelPlural }}/Index', [
-            '{{ modelPluralLower }}' => new {{ resourceCollectionName }}(${{ modelPluralLower }})
+            '{{ modelPluralVar }}' => new {{ model }}Collection(${{ modelPluralVar }})
         ]);
     }
 
@@ -54,14 +53,14 @@ class {{ controllerClass }} extends Controller
     public function show({{ modelName }} ${{ modelVar }})
     {
         return Inertia::render('{{ modelPlural }}/Show', [
-            '{{ modelVar }}' => new {{ resourceName }}(${{ modelVar }})
+            '{{ modelVar }}' => new {{ model }}Resource(${{ modelVar }})
         ]);
     }
 
     public function edit({{ modelName }} ${{ modelVar }})
     {
         return Inertia::render('{{ modelPlural }}/Edit', [
-            '{{ modelVar }}' => new {{ resourceName }}(${{ modelVar }})
+            '{{ modelVar }}' => new {{ model }}Resource(${{ modelVar }})
         ]);
     }
 

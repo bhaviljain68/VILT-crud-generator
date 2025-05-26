@@ -29,6 +29,9 @@ class CrudContext
     /** @var array<string,string> Paths for each generated artifact (model, controller, views, etc.) */
     public array $paths;
 
+    /** @var array<string,string> Namespace Declaration for various files */
+    public array $namespaces;
+
     /** @var array<string,mixed> All CLI options and flags (force, form-request, export, etc.) */
     public array $options;
 
@@ -40,6 +43,7 @@ class CrudContext
         string $tableName,
         array $fields,
         array $paths,
+        array $namespaces,
         array $options
     ) {
         $this->modelName       = $modelName;
@@ -49,6 +53,7 @@ class CrudContext
         $this->tableName       = $tableName;
         $this->fields          = $fields;
         $this->paths           = $paths;
+        $this->namespaces      = $namespaces;
         $this->options         = $options;
     }
 }
