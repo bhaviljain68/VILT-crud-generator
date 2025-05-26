@@ -30,8 +30,8 @@ class ModelGenerator implements GeneratorInterface
         }
 
         $stub = $this->renderer->render('model.stub', [
-            'namespace'   => $context->paths['model_namespace'],
-            'class'       => $context->modelName,
+            
+            'model'       => $context->modelName,
             'table'       => $context->tableName,
             'fillable'    => $this->buildFillable($context->fields),
             'casts'       => $this->buildCasts($context->fields),

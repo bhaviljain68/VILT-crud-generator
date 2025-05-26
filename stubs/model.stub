@@ -4,10 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class {{ modelName }} extends Model
+class {{ model }} extends Model
 {
     // * Config
-    protected $table = '{{ tableName }}';
+    protected $table = '{{ table }}';
     protected $primaryKey = "id";
 
     // * Mass Assignment
@@ -17,7 +17,9 @@ class {{ modelName }} extends Model
     protected $hidden = [];
 
     // * Data Formatting
-    protected $casts = [];
+    protected $casts = [
+        {{ casts }}
+    ];
 
     // * Accessors
 
