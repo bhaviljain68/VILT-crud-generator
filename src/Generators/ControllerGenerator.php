@@ -71,12 +71,11 @@ class ControllerGenerator implements GeneratorInterface
         $replacements = [
             'namespace'         => $context->paths['controllerNamespace'],
             'model'             => $context->modelName,
-            'model_var'         => $context->modelVar,
+            'modelVar'          => $context->modelVar,
             'modelPlural'       => $context->modelPlural,
             'modelPluralVar'    => $context->modelPluralVar,
             'exportImport'      => $exportImport,
             'exportTraitBlock'  => $exportTraitBlock,
-            'request_namespace' => $context->paths['requestNamespace'],
             'table'             => $context->tableName,
             'validationStore'   => $validationStore,
             'validationUpdate'  => $validationUpdate,
@@ -89,14 +88,14 @@ class ControllerGenerator implements GeneratorInterface
                 ? "Store{$context->modelName}Request \$request"
                 : "Request \$request",
             'updateRequestParam'       => $context->options['formRequest']
-                ? "Update{$context->modelName}Request \$request, "
-                : "Request \$request, ",
+                ? "Update{$context->modelName}Request \$request"
+                : "Request \$request",
             'validateStoreData'        => $context->options['formRequest']
                 ? '$request->validated()'
-                : '$request->validate(' . $storeConfig['rules'] . ',' . $messagesConfig . ');',
+                : '$request->validate(' . $storeConfig['rules'] . ',' . $messagesConfig . ')',
             'validateUpdateData'       => $context->options['formRequest']
                 ? '$request->validated()'
-                : '$request->validate(' . $updateConfig['rules'] . ',' . $messagesConfig . ');',
+                : '$request->validate(' . $updateConfig['rules'] . ',' . $messagesConfig . ')',
         ];
 
         $stub = $this->renderer->render('controller.stub', $replacements);

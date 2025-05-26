@@ -1,24 +1,23 @@
 <?php
 
 namespace {{ namespace }};
-
 use App\Models\{{ model }};
 use App\Http\Resources\{{ model }}Resource;       
 use App\Http\Resources\{{ model }}Collection; 
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-{{ useFormRequestsImports }}                       
-{{ exportImport }}
 use Illuminate\Support\Facades\Log;
+{{ useFormRequestsImports }}
+{{ exportImport }}
 
 class {{ model }}Controller extends Controller
 {
-    {{ exportTraitBlock }}  
+    {{ exportTraitBlock }}
 
     public function index()
     {
-        $query = {{ modelName }}::query();
+        $query = {{ model }}::query();
         // You can add filtering or sorting logic here
         ${{ modelPluralVar }} = $query->latest()->paginate(10);
 
@@ -36,66 +35,66 @@ class {{ model }}Controller extends Controller
     {
         try {
             $validatedData = {{ validateStoreData }};
-            ${{ modelVar }} = {{ modelName }}::create($validatedData);
+            ${{ modelVar }} = {{ model }}::create($validatedData);
 
             return redirect()
-                ->route('{{ routeName }}.index')
-                ->with('success', '{{ modelName }} created successfully.');
+                ->route('{{ route }}.index')
+                ->with('success', '{{ model }} created successfully.');
         } catch (\Exception $e) {
-            Log::error("Failed to create {{ modelName }}: {$e->getMessage()}", ['exception' => $e]);
+            Log::error("Failed to create {{ model }}: {$e->getMessage()}", ['exception' => $e]);
 
             return redirect()
-                ->route('{{ routeName }}.create')
-                ->with('error', 'Failed to create {{ modelName }}. Please try again.');
+                ->route('{{ route }}.create')
+                ->with('error', 'Failed to create {{ model }}. Please try again.');
         }
     }
 
-    public function show({{ modelName }} ${{ modelVar }})
+    public function show({{ model }} ${{ modelVar }})
     {
         return Inertia::render('{{ modelPlural }}/Show', [
             '{{ modelVar }}' => new {{ model }}Resource(${{ modelVar }})
         ]);
     }
 
-    public function edit({{ modelName }} ${{ modelVar }})
+    public function edit({{ model }} ${{ modelVar }})
     {
         return Inertia::render('{{ modelPlural }}/Edit', [
             '{{ modelVar }}' => new {{ model }}Resource(${{ modelVar }})
         ]);
     }
 
-     public function update({{ updateRequestParam }}, {{ modelName }} ${{ modelVar }})
+    public function update({{ updateRequestParam }}, {{ model }} ${{ modelVar }})
     {
         try {
             $validatedData = {{ validateUpdateData }};
             ${{ modelVar }}->update($validatedData);
 
             return redirect()
-                ->route('{{ routeName }}.index')
-                ->with('success', '{{ modelName }} updated successfully.');
+                ->route('{{ route }}.index')
+                ->with('success', '{{ model }} updated successfully.');
         } catch (\Exception $e) {
-            Log::error("Failed to update {{ modelName }} [ID: {{modelVar}}]: {$e->getMessage()}", ['exception' => $e]);
+            Log::error("Failed to update {{ model }} [ID: {{modelVar}}]: {$e->getMessage()}", ['exception' => $e]);
 
             return redirect()
-                ->route('{{ routeName }}.edit', ${{ modelVar }})
-                ->with('error', 'Failed to update {{ modelName }}. Please try again.');
+                ->route('{{ route }}.edit', ${{ modelVar }})
+                ->with('error', 'Failed to update {{ model }}. Please try again.');
         }
     }
 
-    public function destroy({{ modelName }} ${{ modelVar }})
+    public function destroy({{ model }} ${{ modelVar }})
     {
         try {
             ${{ modelVar }}->delete();
 
             return redirect()
-                ->route('{{ routeName }}.index')
-                ->with('success', '{{ modelName }} deleted successfully.');
+                ->route('{{ route }}.index')
+                ->with('success', '{{ model }} deleted successfully.');
         } catch (\Exception $e) {
-            Log::error("Failed to delete {{ modelName }} [ID: {{modelVar}}]: {$e->getMessage()}", ['exception' => $e]);
+            Log::error("Failed to delete {{ model }} [ID: {{modelVar}}]: {$e->getMessage()}", ['exception' => $e]);
 
             return redirect()
-                ->route('{{ routeName }}.index')
-                ->with('error', 'Failed to delete {{ modelName }}. Please try again.');
+                ->route('{{ route }}.index')
+                ->with('error', 'Failed to delete {{ model }}. Please try again.');
         }
     }
 }

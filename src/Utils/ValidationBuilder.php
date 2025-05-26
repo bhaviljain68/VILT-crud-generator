@@ -64,16 +64,15 @@ class ValidationBuilder
         // format arrays
         $rulesStr = "[\n";
         foreach ($rules as $f => $r) {
-            $rulesStr .= "    '{$f}' => '{$r}',\n";
+            $rulesStr .= "            '{$f}' => '{$r}',\n";
         }
-        $rulesStr .= "]";
+        $rulesStr .= "            ]";
 
         $attrStr = "[\n";
         foreach ($attrs as $f => $l) {
-            $attrStr .= "    '{$f}' => '{$l}',\n";
+            $attrStr .= "            '{$f}' => '{$l}',\n";
         }
-        $attrStr .= "]";
-
+        $attrStr .= "            ]";
         return ['rules' => $rulesStr, 'attributes' => $attrStr];
     }
 
@@ -113,9 +112,9 @@ class ValidationBuilder
 
         $out = "[\n";
         foreach ($msgs as $m) {
-            $out .= "    {$m},\n";
+            $out .= "                {$m},\n";
         }
-        $out .= "]";
+        $out .= "            ]";
         return $out;
     }
 }
