@@ -20,9 +20,13 @@ class PathResolver
     public function resolve(string $model, string $modelPlural): array
     {
         // PSR-4 root namespaces
-        $modelNamespace      = "App\\Models\\{$model}";
-        $controllerNamespace = "App\\Http\\Controllers\\{$modelPlural}Controller";
-        $requestNamespace    = "App\\Http\\Requests\\{$model}Request";
+        // $modelNamespace      = "App\\Models\\{$model}";
+        // $controllerNamespace = "App\\Http\\Controllers\\{$modelPlural}Controller";
+        // $requestNamespace    = "App\\Http\\Requests\\{$model}Request";
+        $modelNamespace      = "App\\Models";
+        $controllerNamespace = "App\\Http\\Controllers";
+        $requestNamespace    = "App\\Http\\Requests";
+        $resourceNamespace   = "App\\Http\\Resources";
 
         // Filesystem paths
         $modelPath      = app_path("Models/{$model}.php");
@@ -38,6 +42,7 @@ class PathResolver
             'modelNamespace'      => $modelNamespace,
             'controllerNamespace' => $controllerNamespace,
             'requestNamespace'    => $requestNamespace,
+            'resourceNamespace'   => $resourceNamespace,
 
             // Paths
             'modelPath'           => $modelPath,

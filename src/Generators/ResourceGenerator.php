@@ -24,7 +24,7 @@ class ResourceGenerator implements GeneratorInterface
     {
         $force        = $context->options['force'];
         $modelName    = $context->modelName;
-        $namespace    = 'App\Http\Resources';
+        $namespace    = $context->paths['resourceNamespace'];
 
         // --- Resource class ---
         $resourceClass = $modelName . 'Resource';
@@ -35,8 +35,8 @@ class ResourceGenerator implements GeneratorInterface
 
             $stub = $this->renderer->render('resource.stub', [
                 'namespace'      => $namespace,
-                'resourceClass'  => $resourceClass,
-                'resourceFields' => $fieldsCode,
+                'class'  => $resourceClass,
+                'fields' => $fieldsCode,
             ]);
             $this->files->ensureDirectoryExists(dirname($resourcePath));
             $this->files->put($resourcePath, $stub);
@@ -49,7 +49,7 @@ class ResourceGenerator implements GeneratorInterface
         if ($force || ! $this->files->exists($collectionPath)) {
             $stub = $this->renderer->render('resource-collection.stub', [
                 'namespace'       => $namespace,
-                'collectionClass' => $collectionClass,
+                'class' => $collectionClass,
                 'resourceClass'   => $resourceClass,
             ]);
             $this->files->ensureDirectoryExists(dirname($collectionPath));

@@ -65,18 +65,18 @@ class ControllerGenerator implements GeneratorInterface
             ? 'use App\\Http\\Traits\\HasExport;'
             : '';
         $exportTraitBlock = $context->options['export']
-            ? "    use HasExport;\n    protected string \$modelClass = {$context->namespaces['model']}\\{$context->modelName}::class;\n"
+            ? "    use HasExport;\n    protected string \$modelClass = {$context->paths['model_namespace']}\\{$context->modelName}::class;\n"
             : '';
 
         $replacements = [
-            'namespace'         => $context->namespaces['controller'],
+            'namespace'         => $context->paths['controller_namespace'],
             'model'             => $context->modelName,
             'model_var'         => $context->modelVar,
             'modelPlural'       => $context->modelPlural,
             'modelPluralVar'    => $context->modelPluralVar,
             'exportImport'      => $exportImport,
             'exportTraitBlock'  => $exportTraitBlock,
-            'request_namespace' => $context->namespaces['request'],
+            'request_namespace' => $context->paths['request_namespace'],
             'table'             => $context->tableName,
             'validationStore'   => $validationStore,
             'validationUpdate'  => $validationUpdate,
@@ -84,8 +84,8 @@ class ControllerGenerator implements GeneratorInterface
             'resource'          => "", 
 
             'useFormRequestsImports'   => $context->options['formRequest']
-                ? "use {$context->namespaces['request']}\\Store{$context->modelName}Request;\n"
-                . "use {$context->namespaces['request']}\\Update{$context->modelName}Request;"
+                ? "use {$context->paths['request_namespace']}\\Store{$context->modelName}Request;\n"
+                . "use {$context->paths['request_namespace']}\\Update{$context->modelName}Request;"
                 : '',
             'storeRequestParam'        => $context->options['formRequest']
                 ? "Store{$context->modelName}Request \$request"
