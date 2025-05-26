@@ -27,24 +27,26 @@ class PathResolver
         // Filesystem paths
         $modelPath      = app_path("Models/{$model}.php");
         $controllerPath = app_path("Http/Controllers/{$modelPlural}Controller.php");
-        $requestPath    = app_path("Http/Requests/{$model}Request.php");
+        $storeRequestPath    = app_path("Http/Requests/{$model}StoreRequest.php");
+        $updateRequestPath    = app_path("Http/Requests/{$model}UpdateRequest.php");
 
         // Inertia/Vue pages directory
         $vueDir = resource_path('js/Pages/' . Str::studly($modelPlural));
 
         return [
             // Namespaces
-            'model_namespace'      => $modelNamespace,
-            'controller_namespace' => $controllerNamespace,
-            'request_namespace'    => $requestNamespace,
+            'modelNamespace'      => $modelNamespace,
+            'controllerNamespace' => $controllerNamespace,
+            'requestNamespace'    => $requestNamespace,
 
             // Paths
-            'model_path'      => $modelPath,
-            'controller_path' => $controllerPath,
-            'request_path'    => $requestPath,
+            'modelPath'           => $modelPath,
+            'controllerPath'      => $controllerPath,
+            'storeRequestPath'     => $storeRequestPath,
+            'updateRequestPath'    => $updateRequestPath,
 
             // View directory (Inertia Vue)
-            'vue_directory'   => $vueDir,
+            'vueDirectory'   => $vueDir,
         ];
     }
 }

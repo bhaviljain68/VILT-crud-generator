@@ -26,7 +26,7 @@ class CrudContextBuilder
     public function build(InputInterface $input): CrudContext
     {
         // Read CLI arguments & options
-        $name        = $input->getArgument('name');
+        $name        = (string) $input->getArgument('name');
         $force       = (bool) $input->getOption('force');
         $formRequest = (bool) $input->getOption('form-request');
         $export      = (bool) $input->getOption('export');
@@ -47,12 +47,6 @@ class CrudContextBuilder
             modelPlural: $modelPlural
         );
 
-        $namespaces = [
-            'model' => 'App\\Models',
-            'controller' => 'App\\Http\\Controllers',
-            'request' => "App\\Http\\Requests",
-        ];
-
         // Collect options
         $options = [
             'force'       => $force,
@@ -69,7 +63,6 @@ class CrudContextBuilder
             tableName: $tableName,
             fields: $fields,
             paths: $paths,
-            namespaces: $namespaces,
             options: $options,
         );
     }
