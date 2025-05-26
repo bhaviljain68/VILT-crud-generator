@@ -10,6 +10,7 @@ use artisanalbyte\VILTCrudGenerator\Generators\ViewGenerator;
 use artisanalbyte\VILTCrudGenerator\Generators\FormRequestGenerator;
 use artisanalbyte\VILTCrudGenerator\Generators\ExportGenerator;
 use artisanalbyte\VILTCrudGenerator\Generators\RouteGenerator;
+use artisanalbyte\VILTCrudGenerator\Generators\ResourceGenerator;
 
 class CrudGeneratorCommand extends Command
 {
@@ -40,9 +41,10 @@ class CrudGeneratorCommand extends Command
         $generators = [
             ModelGenerator::class,
             ControllerGenerator::class,
-            RouteGenerator::class,
-            ViewGenerator::class,
+            ResourceGenerator::class,
             FormRequestGenerator::class,
+            ViewGenerator::class,
+            RouteGenerator::class,
         ];
 
         // Optional export support
