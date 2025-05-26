@@ -30,7 +30,7 @@ class ViewGenerator implements GeneratorInterface
         $modelPluralVar = $context->modelPluralVar;
         $tableName      = $context->tableName;
         $routeName      = Str::kebab($modelPluralVar);
-        $dir            = $context->paths['vue_directory'];
+        $dir            = $context->paths['vueDirectory'];
 
         // ensure page directory exists
         $this->files->ensureDirectoryExists($dir);

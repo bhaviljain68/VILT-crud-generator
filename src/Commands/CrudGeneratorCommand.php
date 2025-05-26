@@ -30,7 +30,7 @@ class CrudGeneratorCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Generate Inertia/Vue CRUD scaffold (Model, Controller, Vue pages, FormRequests, optional Export)';
+    protected $description = 'Generate VILT CRUD scaffold (Model, Controller, Vue pages, FormRequests, optional Export)';
 
     public function handle()
     {

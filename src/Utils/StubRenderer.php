@@ -33,7 +33,19 @@ class StubRenderer
      */
     public function render(string $stubName, array $replacements): string
     {
-        $path = rtrim($this->stubPath, '/\\') . DIRECTORY_SEPARATOR . $stubName;
+        // $path = rtrim($this->stubPath, '/\\') . DIRECTORY_SEPARATOR . $stubName;
+        //
+        // 1) Check for a published override in the app’s stubs folder:
+        //
+        $custom = base_path('stubs/vilt-crud-generator/' . str_replace('\\', '/', $stubName));
+        if ($this->files->exists($custom)) {
+            $path = $custom;
+        } else {
+            //
+            // 2) Fall back to the package’s bundled stubs:
+            //
+            $path = rtrim($this->stubPath, '/\\') . DIRECTORY_SEPARATOR . $stubName;
+        }
         if (! $this->files->exists($path)) {
             throw new \InvalidArgumentException("Stub file not found: {$path}");
         }

@@ -37,27 +37,29 @@ class SchemaIntrospector
                     'column'   => $row->Field,
                     'type'     => $baseType,
                     'nullable' => $row->Null === 'YES',
+                    'required' => $row->Null !== 'YES',
                     'length'   => $length,
                     'comment'  => $row->Comment ?: null,
                 ];
             }
         } elseif ($driver === 'pgsql') {
             $sql = <<<'SQL'
-SELECT
-  column_name,
-  data_type,
-  is_nullable,
-  character_maximum_length,
-  pg_catalog.col_description((format('%s.%s', table_schema, table_name))::regclass::oid, ordinal_position) AS comment
-FROM information_schema.columns
-WHERE table_name = ?
-SQL;
+                    SELECT
+                    column_name,
+                    data_type,
+                    is_nullable,
+                    character_maximum_length,
+                    pg_catalog.col_description((format('%s.%s', table_schema, table_name))::regclass::oid, ordinal_position) AS comment
+                    FROM information_schema.columns
+                    WHERE table_name = ?
+                    SQL;
             $rows = $conn->select($sql, [$tableName]);
             foreach ($rows as $row) {
                 $fields[] = [
                     'column'   => $row->column_name,
                     'type'     => Str::lower($row->data_type),
                     'nullable' => $row->is_nullable === 'YES',
+                    'required' => $row->is_nullable !== 'YES',
                     'length'   => $row->character_maximum_length,
                     'comment'  => $row->comment,
                 ];
@@ -69,6 +71,7 @@ SQL;
                     'column'   => $row->name,
                     'type'     => Str::lower($row->type),
                     'nullable' => $row->notnull == 0,
+                    'required' => $row->notnull != 0,
                     'length'   => null,
                     'comment'  => $this->extractCommentFromMigration($tableName, $row->name),
                 ];

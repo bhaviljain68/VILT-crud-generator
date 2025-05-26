@@ -26,7 +26,7 @@ class ControllerGenerator implements GeneratorInterface
 
     public function generate(CrudContext $context): void
     {
-        $path = $context->paths['controller_path'];
+        $path = $context->paths['controllerPath'];
 
         if ($this->files->exists($path) && ! $context->options['force']) {
             return;
@@ -65,25 +65,25 @@ class ControllerGenerator implements GeneratorInterface
             ? 'use App\\Http\\Traits\\HasExport;'
             : '';
         $exportTraitBlock = $context->options['export']
-            ? "    use HasExport;\n    protected string \$modelClass = {$context->paths['model_namespace']}\\{$context->modelName}::class;\n"
+            ? "    use HasExport;\n    protected string \$modelClass = {$context->paths['modelNamespace']}\\{$context->modelName}::class;\n"
             : '';
 
         $replacements = [
-            'namespace'         => $context->paths['controller_namespace'],
+            'namespace'         => $context->paths['controllerNamespace'],
             'model'             => $context->modelName,
             'model_var'         => $context->modelVar,
             'modelPlural'       => $context->modelPlural,
             'modelPluralVar'    => $context->modelPluralVar,
             'exportImport'      => $exportImport,
             'exportTraitBlock'  => $exportTraitBlock,
-            'request_namespace' => $context->paths['request_namespace'],
+            'request_namespace' => $context->paths['requestNamespace'],
             'table'             => $context->tableName,
             'validationStore'   => $validationStore,
             'validationUpdate'  => $validationUpdate,
             'route'             => $context->modelPluralVar,
             'useFormRequestsImports'   => $context->options['formRequest']
-                ? "use {$context->paths['request_namespace']}\\Store{$context->modelName}Request;\n"
-                . "use {$context->paths['request_namespace']}\\Update{$context->modelName}Request;"
+                ? "use {$context->paths['requestNamespace']}\\Store{$context->modelName}Request;\n"
+                . "use {$context->paths['requestNamespace']}\\Update{$context->modelName}Request;"
                 : '',
             'storeRequestParam'        => $context->options['formRequest']
                 ? "Store{$context->modelName}Request \$request"

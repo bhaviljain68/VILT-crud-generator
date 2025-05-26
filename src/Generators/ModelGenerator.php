@@ -22,7 +22,7 @@ class ModelGenerator implements GeneratorInterface
 
     public function generate(CrudContext $context): void
     {
-        $path = $context->paths['model_path'];
+        $path = $context->paths['modelPath'];
 
         // Don't overwrite unless --force
         if ($this->files->exists($path) && ! $context->options['force']) {

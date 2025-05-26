@@ -4,7 +4,7 @@ namespace artisanalbyte\VILTCrudGenerator\Commands;
 
 use Illuminate\Console\Command;
 
-class InstallInertiaCrudCommand extends Command
+class InstallViltCrudCommand extends Command
 {
     protected $signature   = 'inertia-crud:install';
     protected $description = 'Publish config, PHP stubs, and Vue components for Inertia CRUD Generator';
