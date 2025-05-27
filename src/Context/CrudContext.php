@@ -2,6 +2,8 @@
 
 namespace artisanalbyte\VILTCrudGenerator\Context;
 
+use artisanalbyte\VILTCrudGenerator\Utils\ColumnFilter;
+
 /**
  * Data Transfer Object holding all context information
  * required to generate a full CRUD set.
@@ -32,6 +34,9 @@ class CrudContext
     /** @var array<string,mixed> All CLI options and flags (force, form-request, export, etc.) */
     public array $options;
 
+    /** @var ColumnFilter */
+    public ColumnFilter $columnFilter;
+
     public function __construct(
         string $modelName,
         string $modelPlural,
@@ -40,7 +45,8 @@ class CrudContext
         string $tableName,
         array $fields,
         array $paths,
-        array $options
+        array $options,
+        ColumnFilter $columnFilter
     ) {
         $this->modelName       = $modelName;
         $this->modelPlural     = $modelPlural;
@@ -50,5 +56,6 @@ class CrudContext
         $this->fields          = $fields;
         $this->paths           = $paths;
         $this->options         = $options;
+        $this->columnFilter    = $columnFilter;
     }
 }

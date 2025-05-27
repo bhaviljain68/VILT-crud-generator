@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use Symfony\Component\Console\Input\InputInterface;
 use artisanalbyte\VILTCrudGenerator\Utils\SchemaIntrospector;
 use artisanalbyte\VILTCrudGenerator\Utils\PathResolver;
+use artisanalbyte\VILTCrudGenerator\Utils\ColumnFilter;
 
 /**
  * Builds the CrudContext DTO from console input.
@@ -55,6 +56,7 @@ class CrudContextBuilder
         ];
 
         // Construct and return the context
+        $columnFilter = new ColumnFilter();
         return new CrudContext(
             modelName: $modelName,
             modelPlural: $modelPlural,
@@ -64,6 +66,7 @@ class CrudContextBuilder
             fields: $fields,
             paths: $paths,
             options: $options,
+            columnFilter: $columnFilter,
         );
     }
 }

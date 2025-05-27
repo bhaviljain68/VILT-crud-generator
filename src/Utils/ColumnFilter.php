@@ -1,0 +1,88 @@
+<?php
+
+namespace artisanalbyte\VILTCrudGenerator\Utils;
+
+class ColumnFilter
+{
+    /**
+     * @var array
+     */
+    protected array $sensitive;
+
+    /**
+     * @var array
+     */
+    protected array $system;
+
+    /**
+     * ColumnFilter constructor.
+     * @param array $sensitive
+     * @param array $system
+     */
+    public function __construct(array $sensitive = [], array $system = [])
+    {
+        $defaultSensitive = [
+            'password',
+            'token',
+            'auth_token',
+            'access_token',
+            'remember_token',
+            'api_token',
+            'api_key',
+            'secret',
+            'credit_card',
+            'card_number',
+            'cvv',
+            'card',
+            'ssn',
+            'social_security_number',
+        ];
+        $defaultSystem = ['id', 'created_at', 'updated_at', 'deleted_at'];
+        $this->sensitive = array_unique(array_merge($defaultSensitive, $sensitive));
+        $this->system = array_unique(array_merge($defaultSystem, $system));
+    }
+
+    /**
+     * Prepare an array of associative arrays (with 'column' keys) by filtering out sensitive/system fields.
+     *
+     * @param array $fields Array of associative arrays, each with a 'column' key
+     * @param array $filterAgainst Array of field names to filter out
+     * @return array Filtered array of associative arrays
+     */
+    protected function filter(array $fields, array $filterAgainst): array
+    {
+        $fieldNames = array_map(fn($col) => $col['column'], $fields);
+        $filtered = array_diff($fieldNames, $filterAgainst);
+        return array_values(array_filter($fields, fn($col) => in_array($col['column'], $filtered, true)));
+    }
+
+    /**
+     * Filter out sensitive fields.
+     * @param array $fields
+     * @return array
+     */
+    public function filterSensitive(array $fields): array
+    {
+        return $this->filter($fields, $this->sensitive);
+    }
+
+    /**
+     * Filter out system fields.
+     * @param array $fields
+     * @return array
+     */
+    public function filterSystem(array $fields): array
+    {
+        return $this->filter($fields, $this->system);
+    }
+
+    /**
+     * Filter out both sensitive and system fields.
+     * @param array $fields
+     * @return array
+     */
+    public function filterAll(array $fields): array
+    {
+        return $this->filter($fields, array_merge($this->sensitive, $this->system));
+    }
+}
