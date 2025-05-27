@@ -54,10 +54,10 @@ class ControllerGenerator implements GeneratorInterface
                 $context->fields
             );
 
-            $validationStore  = "        \$request->validate({$storeConfig['rules']}, {$messagesConfig});\n" .
-                (empty($storeConfig['attributes']) ? '' : "        // custom attributes\n        ");
-            $validationUpdate = "        \$request->validate({$updateConfig['rules']}, {$messagesConfig});\n" .
-                (empty($updateConfig['attributes']) ? '' : "        // custom attributes\n        ");
+            $validationStore  = "\t\t\$request->validate({$storeConfig['rules']}, {$messagesConfig});\n" .
+                (empty($storeConfig['attributes']) ? '' : "\t\t// custom attributes\n\t\t");
+            $validationUpdate = "\t\t\$request->validate({$updateConfig['rules']}, {$messagesConfig});\n" .
+                (empty($updateConfig['attributes']) ? '' : "\t\t// custom attributes\n\t\t");
         }
 
         // Optional export trait application
@@ -65,7 +65,7 @@ class ControllerGenerator implements GeneratorInterface
             ? 'use App\\Http\\Traits\\HasExport;'
             : '';
         $exportTraitBlock = $context->options['export']
-            ? "    use HasExport;\n    protected string \$modelClass = {$context->paths['modelNamespace']}\\{$context->modelName}::class;\n"
+            ? "    use HasExport;\n\tprotected string \$modelClass = {$context->paths['modelNamespace']}\\{$context->modelName}::class;\n"
             : '';
 
         $replacements = [

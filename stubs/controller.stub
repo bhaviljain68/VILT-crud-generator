@@ -1,6 +1,7 @@
 <?php
 
 namespace {{ namespace }};
+
 use App\Models\{{ model }};
 use App\Http\Resources\{{ model }}Resource;       
 use App\Http\Resources\{{ model }}Collection; 
@@ -73,7 +74,7 @@ class {{ model }}Controller extends Controller
                 ->route('{{ route }}.index')
                 ->with('success', '{{ model }} updated successfully.');
         } catch (\Exception $e) {
-            Log::error("Failed to update {{ model }} [ID: {{modelVar}}]: {$e->getMessage()}", ['exception' => $e]);
+            Log::error("Failed to update {{ model }} [ID: ${{ modelVar }}->id]: {$e->getMessage()}", ['exception' => $e]);
 
             return redirect()
                 ->route('{{ route }}.edit', ${{ modelVar }})
@@ -90,7 +91,7 @@ class {{ model }}Controller extends Controller
                 ->route('{{ route }}.index')
                 ->with('success', '{{ model }} deleted successfully.');
         } catch (\Exception $e) {
-            Log::error("Failed to delete {{ model }} [ID: {{modelVar}}]: {$e->getMessage()}", ['exception' => $e]);
+            Log::error("Failed to delete {{ model }} [ID: ${{ modelVar }}->id]: {$e->getMessage()}", ['exception' => $e]);
 
             return redirect()
                 ->route('{{ route }}.index')
