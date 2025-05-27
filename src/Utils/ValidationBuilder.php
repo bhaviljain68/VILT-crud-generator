@@ -26,7 +26,6 @@ class ValidationBuilder
 
         foreach ($fields as $meta) {
             $name = $meta['column'];
-
             $line = [];
             // required or nullable
             $line[] = $meta['required'] ? 'required' : 'nullable';
