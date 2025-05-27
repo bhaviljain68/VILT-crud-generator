@@ -30,7 +30,7 @@ class PathResolver
 
         // Filesystem paths
         $modelPath      = app_path("Models/{$model}.php");
-        $controllerPath = app_path("Http/Controllers/{$modelPlural}Controller.php");
+        $controllerPath = app_path("Http/Controllers/{$model}Controller.php");
         $storeRequestPath    = app_path("Http/Requests/{$model}StoreRequest.php");
         $updateRequestPath    = app_path("Http/Requests/{$model}UpdateRequest.php");
 
