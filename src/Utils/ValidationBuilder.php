@@ -56,13 +56,11 @@ class ValidationBuilder
         $rulesStr = "[\n";
         foreach ($rules as $field => $rule) {
             // Email-on-update needs the “, $id” concatenation
-            if (
-                $field === 'email'
-                && $action === 'update'
-                && ! $useFormRequest
-            ) {
+            if ($field === 'email' && $action === 'update') {
+
                 $baseRule = rtrim($rule, "'"); // strip trailing quote
-                $value    = "'{$baseRule},'.\${$modelVar}->id";
+                $append = $useFormRequest ? "\$this->id" : "\${$modelVar}->id";
+                $value    = "'{$baseRule},'.$append";
             } else {
                 $value = "'{$rule}'";
             }
