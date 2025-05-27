@@ -24,11 +24,11 @@ class RouteGenerator implements GeneratorInterface
         $routesFile       = base_path('routes/web.php');
 
         $groupStart = "\nRoute::middleware(['auth','verified'])->group(function () {\n";
-        $resourceRoute = "    Route::resource('{$routeName}', {$controllerClass}::class);\n";
+        $resourceRoute = "\tRoute::resource('{$routeName}', {$controllerClass}::class);\n";
         $exportRoute   = '';
         if ($context->options['export']) {
-            $exportRoute = "    Route::get('{$routeName}/export', [{$controllerClass}::class, 'export'])\n"
-                . "        ->name('{$routeName}.export');\n";
+            $exportRoute = "\tRoute::get('{$routeName}/export', [{$controllerClass}::class, 'export'])\n"
+                . "\t\t->name('{$routeName}.export');\n";
         }
         $groupEnd = "});\n";
 

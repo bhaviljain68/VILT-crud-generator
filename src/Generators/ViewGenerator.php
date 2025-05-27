@@ -143,7 +143,7 @@ class ViewGenerator implements GeneratorInterface
             }
             $defaultType = Schema::getColumnType($tableName, $name);
             $default     = ($defaultType === 'boolean') ? 'false' : "''";
-            $out .= "    {$name}: {$default},\n";
+            $out .= "\t{$name}: {$default},\n";
         }
         return $out;
     }
@@ -157,7 +157,7 @@ class ViewGenerator implements GeneratorInterface
             if (in_array($name, $skip, true)) {
                 continue;
             }
-            $out .= "    {$name}: props.{$modelVar}.{$name} ?? null,\n";
+            $out .= "\t{$name}: props.{$modelVar}.{$name} ?? null,\n";
         }
         return $out;
     }

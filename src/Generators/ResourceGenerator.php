@@ -34,7 +34,7 @@ class ResourceGenerator implements GeneratorInterface
             $fieldsCode = $this->generateResourceFields($context->fields);
 
             $stub = $this->renderer->render('resource.stub', [
-                'namespace'      => $namespace,
+                'namespace'  => $namespace,
                 'class'  => $resourceClass,
                 'fields' => $fieldsCode,
             ]);
@@ -48,9 +48,9 @@ class ResourceGenerator implements GeneratorInterface
 
         if ($force || ! $this->files->exists($collectionPath)) {
             $stub = $this->renderer->render('resource-collection.stub', [
-                'namespace'       => $namespace,
+                'namespace' => $namespace,
                 'class' => $collectionClass,
-                'resourceClass'   => $resourceClass,
+                'resourceClass' => $resourceClass,
             ]);
             $this->files->ensureDirectoryExists(dirname($collectionPath));
             $this->files->put($collectionPath, $stub);
@@ -70,7 +70,7 @@ class ResourceGenerator implements GeneratorInterface
             if (in_array($name, $skip, true)) {
                 continue;
             }
-            $lines[] = "            '{$name}' => \$model->{$name},";
+            $lines[] = "\t\t\t'{$name}' => \$model->{$name},";
         }
 
         return implode("\n", $lines);

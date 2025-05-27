@@ -46,8 +46,8 @@ class ModelGenerator implements GeneratorInterface
     {
         // Filter out fields that are not fillable
         $fields = array_filter($fields, fn($f) => !in_array($f['column'], ['id', 'created_at', 'updated_at', 'deleted_at'], true));
-        $cols = array_map(fn($f) => "\n            '{$f['column']}'", $fields);
-        return '[' . implode(', ', $cols) . "\n        ]";
+        $cols = array_map(fn($f) => "\n\t\t\t'{$f['column']}'", $fields);
+        return '[' . implode(', ', $cols) . "\n\t\t]";
     }
 
     protected function buildCasts(array $fields): string
@@ -82,8 +82,8 @@ class ModelGenerator implements GeneratorInterface
             }
         }
 
-        $pairs = array_map(fn($col, $cast) => "\n            '{$col}' => '{$cast}'", array_keys($casts), $casts);
-        return '[' . implode(', ', $pairs) . "\n        ]";
+        $pairs = array_map(fn($col, $cast) => "\n\t\t\t'{$col}' => '{$cast}'", array_keys($casts), $casts);
+        return '[' . implode(', ', $pairs) . "\n\t\t]";
     }
     /**
      * Build the $hidden array for the model by filtering out common sensitive fields.
@@ -124,9 +124,9 @@ class ModelGenerator implements GeneratorInterface
         // Build a nicely indented PHP array string
         $out = "[";
         foreach ($hidden as $column) {
-            $out .= "\n            '{$column}',\n";
+            $out .= "\n\t\t\t'{$column}',\n";
         }
-        $out .= "        ]";
+        $out .= "\t\t]";
 
         return $out;
     }

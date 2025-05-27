@@ -50,8 +50,8 @@ class ValidationBuilder
             // unique email
             if ($name === 'email') {
                 if ($action === 'update') {
-                    $idToken = $useFormRequest ? '$this->id' : "{\${$modelVar}->id}";
-                    $line[] = "unique:{$table},email,{$idToken}";
+                    $idToken = $useFormRequest ? '$this->id' : "\${$modelVar}->id";
+                    $line[] = "unique:{$table},email," . $idToken;
                 } elseif ($action === 'store') {
                     $line[] = "unique:{$table},email";
                 }
@@ -64,15 +64,25 @@ class ValidationBuilder
         // format arrays
         $rulesStr = "[\n";
         foreach ($rules as $f => $r) {
-            $rulesStr .= "            '{$f}' => '{$r}',\n";
+            // $rulesStr .= "\t\t\t\t'{$f}' => '{$r}',\n";
+            // Special case: email on update without FormRequest => use concatenation
+            if (
+                $f === 'email'
+                && $action === 'update'
+                && ! $useFormRequest
+            ) {
+                $rulesStr .= "\t\t\t\t'{$f}' => 'nullable|unique:{$table},email,'. \${$modelVar}->id,\n";
+            } else {
+                $rulesStr .= "\t\t\t\t'{$f}' => '{$r}',\n";
+            }
         }
-        $rulesStr .= "            ]";
+        $rulesStr .= "\t\t\t]";
 
         $attrStr = "[\n";
         foreach ($attrs as $f => $l) {
-            $attrStr .= "            '{$f}' => '{$l}',\n";
+            $attrStr .= "\t\t\t\t'{$f}' => '{$l}',\n";
         }
-        $attrStr .= "            ]";
+        $attrStr .= "\t\t\t]";
         return ['rules' => $rulesStr, 'attributes' => $attrStr];
     }
 
@@ -112,9 +122,9 @@ class ValidationBuilder
 
         $out = "[\n";
         foreach ($msgs as $m) {
-            $out .= "                {$m},\n";
+            $out .= "\t\t\t\t{$m},\n";
         }
-        $out .= "            ]";
+        $out .= "\t\t\t]";
         return $out;
     }
 }

@@ -65,7 +65,7 @@ class ControllerGenerator implements GeneratorInterface
             ? 'use App\\Http\\Traits\\HasExport;'
             : '';
         $exportTraitBlock = $context->options['export']
-            ? "    use HasExport;\n\tprotected string \$modelClass = {$context->paths['modelNamespace']}\\{$context->modelName}::class;\n"
+            ? "\tuse HasExport;\n\tprotected string \$modelClass = {$context->paths['modelNamespace']}\\{$context->modelName}::class;\n"
             : '';
 
         $replacements = [
