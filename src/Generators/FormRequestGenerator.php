@@ -51,15 +51,14 @@ class FormRequestGenerator implements GeneratorInterface
                 $context->modelName,
                 $action
             );
-
             $replacements = [
-                'namespace'        => $context->paths['request_namespace'],
-                'class'            => $context->modelName . 'Request',
+                'namespace'        => $context->paths['requestNamespace'],
+                'class'            => $context->modelName . ucwords($action) . 'Request',
                 'rules'            => $config['rules'],
                 'attributes'       => $config['attributes'],
-                'messagesStore'    => $messages,
+                'messages'    => $messages,
             ];
-            
+
             $stub = $this->renderer->render('form-request.stub', $replacements);
             $this->files->ensureDirectoryExists(dirname($path));
             $this->files->put($path, $stub);
