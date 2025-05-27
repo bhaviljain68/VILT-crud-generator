@@ -19,25 +19,76 @@ class RouteGenerator implements GeneratorInterface
 
     public function generate(CrudContext $context): void
     {
-        $routeName        = strtolower($context->modelPluralVar);
-        $controllerClass  = class_basename($context->paths['controllerNamespace']);
-        $routesFile       = base_path('routes/web.php');
+        $routeName = strtolower($context->modelPluralVar);
+        $controllerClass = $context->modelName . 'Controller';
+        $controllerFQCN = 'App\\Http\\Controllers\\' . $controllerClass;
+        $routesFile = base_path('routes/web.php');
 
-        $groupStart = "\nRoute::middleware(['auth','verified'])->group(function () {\n";
+        // Read the existing routes file
+        $existing = $this->files->exists($routesFile) ? $this->files->get($routesFile) : '';
+
+        // --- Insert use statement after last use ---
+        $useStatement = "use {$controllerFQCN};";
+        if (!str_contains($existing, $useStatement)) {
+            // Find all use statements
+            $matches = [];
+            preg_match_all('/^use [^;]+;/m', $existing, $matches, PREG_OFFSET_CAPTURE);
+            if (!empty($matches[0])) {
+                $lastUse = end($matches[0]);
+                $insertPos = $lastUse[1] + strlen($lastUse[0]);
+                // Insert without extra newline
+                $existing = substr_replace($existing, "\n" . $useStatement, $insertPos, 0);
+            } else {
+                // Fallback: after <?php
+                if (str_starts_with($existing, '<?php')) {
+                    $pos = strpos($existing, "\n");
+                    if ($pos !== false) {
+                        $existing = substr_replace($existing, "\n" . $useStatement, $pos + 1, 0);
+                    } else {
+                        $existing = "<?php\n" . $useStatement . substr($existing, 5);
+                    }
+                } else {
+                    $existing = $useStatement . "\n" . $existing;
+                }
+            }
+            $this->files->put($routesFile, $existing);
+        }
+
+        // --- VILT Generator Route Block ---
+        $blockStart = "// VILT Generator Routes START";
+        $blockEnd = "// VILT Generator Routes END";
         $resourceRoute = "\tRoute::resource('{$routeName}', {$controllerClass}::class);\n";
-        $exportRoute   = '';
+        $exportRoute = '';
         if ($context->options['export']) {
             $exportRoute = "\tRoute::get('{$routeName}/export', [{$controllerClass}::class, 'export'])\n"
                 . "\t\t->name('{$routeName}.export');\n";
         }
-        $groupEnd = "});\n";
+        $routeBlock = $resourceRoute . $exportRoute;
 
-        $block = $groupStart . $resourceRoute . $exportRoute . $groupEnd;
-
-        $existing = $this->files->get($routesFile);
-        // Only append if resource route not already registered
-        if (! str_contains($existing, "Route::resource('{$routeName}'")) {
-            $this->files->append($routesFile, $block);
+        // Find or create the VILT block
+        $pattern = "/Route::middleware\\(\\['auth','verified'\\]\\)->group\\(function \\(\\) \\{\\s*\\/\\/ VILT Generator Routes START(.*?)\\/\\/ VILT Generator Routes END\\s*\\}\\);/s";
+        if (preg_match($pattern, $existing, $matches, PREG_OFFSET_CAPTURE)) {
+            // Block exists: insert before END if not already present
+            $blockContent = $matches[1][0];
+            if (!str_contains($blockContent, $resourceRoute)) {
+                $newBlockContent = rtrim($blockContent) . "\n" . $routeBlock;
+                $newBlock = "Route::middleware(['auth','verified'])->group(function () {\n    // VILT Generator Routes START" . $newBlockContent . "    // VILT Generator Routes END\n});";
+                $existing = substr_replace($existing, $newBlock, $matches[0][1], strlen($matches[0][0]));
+                $this->files->put($routesFile, $existing);
+            }
+        } else {
+            // Block does not exist: insert BEFORE require __DIR__.'/settings.php';
+            $insertPattern = "/^\s*require __DIR__\/['\"]settings.php['\"];.*$/m";
+            if (preg_match($insertPattern, $existing, $reqMatch, PREG_OFFSET_CAPTURE)) {
+                $insertPos = $reqMatch[0][1];
+                $block = "Route::middleware(['auth','verified'])->group(function () {\n    // VILT Generator Routes START\n" . $routeBlock . "    // VILT Generator Routes END\n});\n\n";
+                $existing = substr_replace($existing, $block, $insertPos, 0);
+                $this->files->put($routesFile, $existing);
+            } else {
+                // Fallback: append at end
+                $block = "\nRoute::middleware(['auth','verified'])->group(function () {\n    // VILT Generator Routes START\n" . $routeBlock . "    // VILT Generator Routes END\n});\n";
+                $this->files->put($routesFile, $existing . $block);
+            }
         }
     }
 }
