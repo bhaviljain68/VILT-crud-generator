@@ -28,6 +28,7 @@ class ViewGenerator implements GeneratorInterface
         $cols           = $context->columnFilter->filterAll($context->fields);
         $modelName      = $context->modelName;
         $modelVar       = $context->modelVar;
+        $modelVar       = $context->modelVar;
         $modelPluralVar = $context->modelPluralVar;
         $tableName      = $context->tableName;
         $routeName      = Str::kebab($modelPluralVar);
@@ -38,7 +39,7 @@ class ViewGenerator implements GeneratorInterface
         $this->files->ensureDirectoryExists($dir);
 
         // build dynamic pieces
-        [$tableHeaders, $tableCells] = $this->buildTableColumns($cols);
+        [$tableHeaders, $tableCells] = $this->buildTableColumns($cols, $modelVar);
         $formDataDefaults            = $this->buildFormDataDefaults($cols, $tableName);
         $formFields                  = $this->buildFormFields($cols, $tableName);
         $formDataWithValues          = $this->buildFormDataWithValues($cols, $modelVar);
@@ -55,6 +56,7 @@ class ViewGenerator implements GeneratorInterface
                     '{{ modelPluralLower }}' => $modelPluralVar,
                     '{{ routeName }}'        => $routeName,
                     '{{ modelName }}'        => $modelName,
+                    '{{ modelVar }}'         => $modelVar,
                     '{{ tableHeaders }}'     => $tableHeaders,
                     '{{ tableCells }}'       => $tableCells,
                 ],
@@ -118,14 +120,22 @@ class ViewGenerator implements GeneratorInterface
         $this->files->put("{$typesDir}/inertia.d.ts", $tsStub);
     }
 
-    protected function buildTableColumns(array $columns): array
+    protected function buildTableColumns(array $columns, string $modelVar): array
     {
         $headers = $cells = '';
+        $first = true;
         foreach ($columns as $col) {
             $name = $col['column'];
             $label   = Str::headline($name);
-            $headers .= "<th class=\"px-4 py-2 text-left\">{{ '{\$label}' }}</th>\n";
-            $cells   .= "<td class=\"px-4 py-2\">{{ item.{$name} }}</td>\n";
+            if ($first) {
+                // first iteration
+                $first = false;
+                $headers .= "<th class=\"px-4 py-2 text-left\">{$label}</th>\n";
+                $cells   .= "<td class=\"px-4 py-2\">{{ {$modelVar}.{$name} }}</td>\n";
+            }
+
+            $headers .= "\t\t\t\t\t\t<th class=\"px-4 py-2 text-left\">{$label}</th>\n";
+            $cells   .= "\t\t\t\t\t\t<td class=\"px-4 py-2\">{{ {$modelVar}.{$name} }}</td>\n";
         }
         return [$headers, $cells];
     }

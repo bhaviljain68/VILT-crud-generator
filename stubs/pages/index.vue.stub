@@ -44,26 +44,26 @@ function destroy(id: number) {
         </thead>
         <tbody>
           <tr
-            v-for="item in {{ modelPluralLower }}.data"
-            :key="item.id"
+            v-for="{{ modelVar }} in {{ modelPluralLower }}.data"
+            :key="{{ modelVar }}.id"
             class="border-t"
           >
             {{ tableCells }}
             <td class="px-4 py-2 space-x-2">
               <Link
-                :href="route('{{ routeName }}.edit', item.id)"
+                :href="route('{{ routeName }}.edit', {{ modelVar }}.id)"
                 class="text-blue-600"
               >
                 Edit
               </Link>
               <Link
-                :href="route('{{ routeName }}.show', item.id)"
+                :href="route('{{ routeName }}.show', {{ modelVar }}.id)"
                 class="text-gray-600"
               >
                 View
               </Link>
               <button
-                @click="destroy(item.id)"
+                @click="destroy({{ modelVar }}.id)"
                 class="text-red-600"
               >
                 Delete
