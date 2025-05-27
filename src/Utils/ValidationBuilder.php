@@ -26,10 +26,7 @@ class ValidationBuilder
 
         foreach ($fields as $meta) {
             $name = $meta['column'];
-            if (in_array($name, ['id', 'created_at', 'updated_at', 'deleted_at'], true)) {
-                continue;
-            }
-
+            
             $line = [];
             // required or nullable
             $line[] = $meta['required'] ? 'required' : 'nullable';
@@ -64,7 +61,6 @@ class ValidationBuilder
         // format arrays
         $rulesStr = "[\n";
         foreach ($rules as $f => $r) {
-            // $rulesStr .= "\t\t\t\t'{$f}' => '{$r}',\n";
             // Special case: email on update without FormRequest => use concatenation
             if (
                 $f === 'email'

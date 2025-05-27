@@ -49,7 +49,7 @@ class ColumnFilter
      * @param array $filterAgainst Array of field names to filter out
      * @return array Filtered array of associative arrays
      */
-    protected function filter(array $fields, array $filterAgainst): array
+    public function filter(array $fields, array $filterAgainst): array
     {
         $fieldNames = array_map(fn($col) => $col['column'], $fields);
         $filtered = array_diff($fieldNames, $filterAgainst);

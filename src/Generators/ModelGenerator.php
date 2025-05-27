@@ -3,6 +3,7 @@
 namespace artisanalbyte\VILTCrudGenerator\Generators;
 
 use artisanalbyte\VILTCrudGenerator\Context\CrudContext;
+use artisanalbyte\VILTCrudGenerator\Utils\ColumnFilter;
 use artisanalbyte\VILTCrudGenerator\Utils\StubRenderer;
 use Illuminate\Filesystem\Filesystem;
 
@@ -33,27 +34,28 @@ class ModelGenerator implements GeneratorInterface
 
             'model'       => $context->modelName,
             'table'       => $context->tableName,
-            'fillable'    => $this->buildFillable($context->fields),
-            'casts'       => $this->buildCasts($context->fields),
-            'hidden'      => $this->buildHidden($context->fields),
+            'fillable'    => $this->buildFillable($context->fields, $context->columnFilter),
+            'casts'       => $this->buildCasts($context->fields, $context->columnFilter),
+            'hidden'      => $this->buildHidden($context->fields, $context->columnFilter),
         ]);
 
         $this->files->ensureDirectoryExists(dirname($path));
         $this->files->put($path, $stub);
     }
 
-    protected function buildFillable(array $fields): string
+    protected function buildFillable(array $fields, ColumnFilter $columnFilter): string
     {
         // Filter out fields that are not fillable
-        $fields = array_filter($fields, fn($f) => !in_array($f['column'], ['id', 'created_at', 'updated_at', 'deleted_at'], true));
+        $fields = $fields = $columnFilter->filterSystem($fields);
         $cols = array_map(fn($f) => "\n\t\t\t'{$f['column']}'", $fields);
         return '[' . implode(', ', $cols) . "\n\t\t]";
     }
 
-    protected function buildCasts(array $fields): string
+    protected function buildCasts(array $fields, ColumnFilter $columnFilter): string
     {
         $casts = [];
-        $fields = array_filter($fields, fn($f) => !in_array($f['column'], ['id'], true));
+        // $fields = array_filter($fields, fn($f) => !in_array($f['column'], ['id'], true));
+        $fields = $fields = $columnFilter->filter($fields, ['id']);
         foreach ($fields as $f) {
             switch ($f['type']) {
                 case 'integer':
@@ -91,37 +93,14 @@ class ModelGenerator implements GeneratorInterface
      * @param  array  $fields  The array of field metadata from the context.
      * @return string          PHP array syntax for the $hidden property.
      */
-    protected function buildHidden(array $fields): string
+    protected function buildHidden(array $fields, ColumnFilter $columnFilter): string
     {
-        // List any columns you consider sensitive
-        $sensitive = [
-            'password',
-            'remember_token',
-            'api_token',
-            'api_key',
-            'secret',
-            'credit_card',
-            'card_number',
-            'cvv',
-            'card',
-            'ssn',
-            'social_security_number',
-            // add more as needed…
-        ];
+        $hidden = array_map(fn($f) => $f['column'], $columnFilter->filterSensitive($fields));
 
-        $hidden = [];
-        foreach ($fields as $f) {
-            if (in_array($f['column'], $sensitive, true)) {
-                $hidden[] = $f['column'];
-            }
-        }
-
-        // If nothing sensitive, return an empty array
         if (empty($hidden)) {
             return '[]';
         }
 
-        // Build a nicely indented PHP array string
         $out = "[";
         foreach ($hidden as $column) {
             $out .= "\n\t\t\t'{$column}',\n";
