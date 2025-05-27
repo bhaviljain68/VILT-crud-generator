@@ -26,9 +26,6 @@ class ValidationBuilder
 
         foreach ($fields as $meta) {
             $name = $meta['column'];
-            if (in_array($name, ['id', 'created_at', 'updated_at', 'deleted_at'], true)) {
-                continue;
-            }
 
             $line = [];
             // required or nullable
@@ -49,12 +46,7 @@ class ValidationBuilder
 
             // unique email
             if ($name === 'email') {
-                if ($action === 'update') {
-                    $idToken = $useFormRequest ? '$this->id' : "\${$modelVar}->id";
-                    $line[] = "unique:{$table},email," . $idToken;
-                } elseif ($action === 'store') {
-                    $line[] = "unique:{$table},email";
-                }
+                $line[] = "email|unique:{$table},email";
             }
 
             $rules[$name]  = implode('|', array_filter($line));
@@ -63,19 +55,22 @@ class ValidationBuilder
 
         // format arrays
         $rulesStr = "[\n";
-        foreach ($rules as $f => $r) {
-            // $rulesStr .= "\t\t\t\t'{$f}' => '{$r}',\n";
-            // Special case: email on update without FormRequest => use concatenation
+        foreach ($rules as $field => $rule) {
+            // Email-on-update needs the “, $id” concatenation
             if (
-                $f === 'email'
+                $field === 'email'
                 && $action === 'update'
                 && ! $useFormRequest
             ) {
-                $rulesStr .= "\t\t\t\t'{$f}' => 'nullable|unique:{$table},email,'. \${$modelVar}->id,\n";
+                $baseRule = rtrim($rule, "'"); // strip trailing quote
+                $value    = "'{$baseRule},'.\${$modelVar}->id";
             } else {
-                $rulesStr .= "\t\t\t\t'{$f}' => '{$r}',\n";
+                $value = "'{$rule}'";
             }
+
+            $rulesStr .= "\t\t\t\t'{$field}' => {$value},\n";
         }
+
         $rulesStr .= "\t\t\t]";
 
         $attrStr = "[\n";

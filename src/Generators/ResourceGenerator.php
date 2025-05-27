@@ -31,7 +31,7 @@ class ResourceGenerator implements GeneratorInterface
         $resourcePath  = app_path("Http/Resources/{$resourceClass}.php");
 
         if ($force || ! $this->files->exists($resourcePath)) {
-            $fieldsCode = $this->generateResourceFields($context->fields);
+            $fieldsCode = $this->generateResourceFields($context->fields, $context->columnFilter);
 
             $stub = $this->renderer->render('resource.stub', [
                 'namespace'  => $namespace,
@@ -60,16 +60,15 @@ class ResourceGenerator implements GeneratorInterface
     /**
      * Build each field line for the toArray() method.
      */
-    protected function generateResourceFields(array $fields): string
+    protected function generateResourceFields(array $fields, $columnFilter): string
     {
-        $skip  = ['id', 'created_at', 'updated_at', 'deleted_at'];
-        $lines = [];
 
+        // Filter system & sensitive Columns
+        $fields = $columnFilter->filterAll($fields);
+
+        $lines = [];
         foreach ($fields as $col) {
             $name = $col['column'];
-            if (in_array($name, $skip, true)) {
-                continue;
-            }
             $lines[] = "\t\t\t'{$name}' => \$model->{$name},";
         }
 

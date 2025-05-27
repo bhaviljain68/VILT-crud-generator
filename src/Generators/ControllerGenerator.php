@@ -32,26 +32,28 @@ class ControllerGenerator implements GeneratorInterface
             return;
         }
 
+        $fields = $fields = $context->columnFilter->filterSystem($context->fields);
+
         // Prepare inline validation for store and update
         $validationStore  = '';
         $validationUpdate = '';
         if (! $context->options['formRequest']) {
             $storeConfig  = ValidationBuilder::buildRules(
-                $context->fields,
+                $fields,
                 $context->tableName,
                 $context->modelVar,
                 false,
                 'store'
             );
             $updateConfig = ValidationBuilder::buildRules(
-                $context->fields,
+                $fields,
                 $context->tableName,
                 $context->modelVar,
                 false,
                 'update'
             );
             $messagesConfig = ValidationBuilder::buildMessages(
-                $context->fields
+                $fields,
             );
 
             $validationStore  = "\t\t\$request->validate({$storeConfig['rules']}, {$messagesConfig});\n" .

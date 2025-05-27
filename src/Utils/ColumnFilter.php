@@ -49,7 +49,7 @@ class ColumnFilter
      * @param array $filterAgainst Array of field names to filter out
      * @return array Filtered array of associative arrays
      */
-    protected function filter(array $fields, array $filterAgainst): array
+    public function filter(array $fields, array $filterAgainst): array
     {
         $fieldNames = array_map(fn($col) => $col['column'], $fields);
         $filtered = array_diff($fieldNames, $filterAgainst);
@@ -84,5 +84,16 @@ class ColumnFilter
     public function filterAll(array $fields): array
     {
         return $this->filter($fields, array_merge($this->sensitive, $this->system));
+    }
+
+    /**
+     * Return only the sensitive fields present in the input array.
+     *
+     * @param array $fields
+     * @return array
+     */
+    public function onlySensitive(array $fields): array
+    {
+        return array_values(array_filter($fields, fn($col) => in_array($col['column'], $this->sensitive, true)));
     }
 }

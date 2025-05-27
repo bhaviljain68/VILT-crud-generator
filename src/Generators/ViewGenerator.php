@@ -3,6 +3,7 @@
 namespace artisanalbyte\VILTCrudGenerator\Generators;
 
 use artisanalbyte\VILTCrudGenerator\Context\CrudContext;
+use artisanalbyte\VILTCrudGenerator\Utils\ColumnFilter;
 use artisanalbyte\VILTCrudGenerator\Utils\StubRenderer;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Schema;
@@ -24,13 +25,14 @@ class ViewGenerator implements GeneratorInterface
 
     public function generate(CrudContext $context): void
     {
-        $cols           = $context->fields;
+        $cols           = $context->columnFilter->filterAll($context->fields);
         $modelName      = $context->modelName;
         $modelVar       = $context->modelVar;
         $modelPluralVar = $context->modelPluralVar;
         $tableName      = $context->tableName;
         $routeName      = Str::kebab($modelPluralVar);
         $dir            = $context->paths['vueDirectory'];
+        $columnFilter   = $context->columnFilter;
 
         // ensure page directory exists
         $this->files->ensureDirectoryExists($dir);
@@ -118,13 +120,9 @@ class ViewGenerator implements GeneratorInterface
 
     protected function buildTableColumns(array $columns): array
     {
-        $skip    = ['password', 'remember_token', 'api_token', 'secret', 'token', 'client_secret'];
         $headers = $cells = '';
         foreach ($columns as $col) {
             $name = $col['column'];
-            if (in_array($name, $skip, true)) {
-                continue;
-            }
             $label   = Str::headline($name);
             $headers .= "<th class=\"px-4 py-2 text-left\">{{ '{\$label}' }}</th>\n";
             $cells   .= "<td class=\"px-4 py-2\">{{ item.{$name} }}</td>\n";
@@ -134,13 +132,9 @@ class ViewGenerator implements GeneratorInterface
 
     protected function buildFormDataDefaults(array $columns, string $tableName): string
     {
-        $skip = ['password', 'remember_token', 'api_token', 'secret', 'token', 'client_secret'];
         $out  = '';
         foreach ($columns as $col) {
             $name = $col['column'];
-            if (in_array($name, $skip, true)) {
-                continue;
-            }
             $defaultType = Schema::getColumnType($tableName, $name);
             $default     = ($defaultType === 'boolean') ? 'false' : "''";
             $out .= "\t{$name}: {$default},\n";
@@ -150,13 +144,9 @@ class ViewGenerator implements GeneratorInterface
 
     protected function buildFormDataWithValues(array $columns, string $modelVar): string
     {
-        $skip = ['password', 'remember_token', 'api_token', 'secret', 'token', 'client_secret'];
         $out  = '';
         foreach ($columns as $col) {
             $name = $col['column'];
-            if (in_array($name, $skip, true)) {
-                continue;
-            }
             $out .= "\t{$name}: props.{$modelVar}.{$name} ?? null,\n";
         }
         return $out;
@@ -164,13 +154,9 @@ class ViewGenerator implements GeneratorInterface
 
     protected function buildFormFields(array $columns, string $tableName): string
     {
-        $skip = ['password', 'remember_token', 'api_token', 'secret', 'token', 'client_secret'];
         $out  = '';
         foreach ($columns as $col) {
             $name = $col['column'];
-            if (in_array($name, $skip, true)) {
-                continue;
-            }
             $label     = Str::headline($name);
             $type      = Schema::getColumnType($tableName, $name);
             $component = match ($type) {
@@ -195,13 +181,9 @@ class ViewGenerator implements GeneratorInterface
 
     protected function buildShowFields(array $columns, string $modelVar): string
     {
-        $skip = ['password', 'remember_token', 'api_token', 'secret', 'token', 'client_secret'];
         $out  = '';
         foreach ($columns as $col) {
             $name = $col['column'];
-            if (in_array($name, $skip, true)) {
-                continue;
-            }
             $label = Str::headline($name);
             $out .= <<<HTML
                         <div>
