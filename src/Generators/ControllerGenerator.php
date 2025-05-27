@@ -83,14 +83,14 @@ class ControllerGenerator implements GeneratorInterface
             'validationUpdate'  => $validationUpdate,
             'route'             => $context->modelPluralVar,
             'useFormRequestsImports'   => $context->options['formRequest']
-                ? "use {$context->paths['requestNamespace']}\\{$context->modelName}StoreRequest;\n"
-                . "use {$context->paths['requestNamespace']}\\{$context->modelName}UpdateRequest;"
+                ? "use {$context->paths['requestNamespace']}\\Store{$context->modelName}Request;\n"
+                . "use {$context->paths['requestNamespace']}\\Update{$context->modelName}Request;"
                 : '',
             'storeRequestParam'        => $context->options['formRequest']
-                ? "{$context->modelName}StoreRequest \$request"
+                ? "Store{$context->modelName}Request \$request"
                 : "Request \$request",
             'updateRequestParam'       => $context->options['formRequest']
-                ? "{$context->modelName}UpdateRequest \$request"
+                ? "Update{$context->modelName}Request \$request"
                 : "Request \$request",
             'validateStoreData'        => $context->options['formRequest']
                 ? '$request->validated()'

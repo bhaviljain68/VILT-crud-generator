@@ -53,7 +53,7 @@ class FormRequestGenerator implements GeneratorInterface
             );
             $replacements = [
                 'namespace'        => $context->paths['requestNamespace'],
-                'class'            => $context->modelName . ucwords($action) . 'Request',
+                'class'            => ucwords($action) . $context->modelName . 'Request',
                 'rules'            => $config['rules'],
                 'attributes'       => $config['attributes'],
                 'messages'    => $messages,
