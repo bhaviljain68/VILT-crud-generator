@@ -64,12 +64,6 @@ class RouteGenerator implements GeneratorInterface
                 . "\t\t->name('{$routeName}.export');\n";
         }
         $routeBlock = $resourceRoute . $exportRoute;
-        $lines = explode("\n", $existing);
-        foreach ($lines as $i => $line) {
-            if (str_contains($line, "require __DIR__.'/settings.php';")) {
-                var_dump("Found at line: " . $i, $line);
-            }
-        }
         // Find or create the VILT block
         $pattern = "/Route::middleware\\(\\['auth','verified'\\]\)\\->group\\(function \(\) \{\\s*\/\/ VILT Generator Routes START \(<-DO NOT REMOVE THIS COMMENT\)(.*?)\/\/ VILT Generator Routes END\(<-DO NOT REMOVE THIS COMMENT\)\\s*\}\);/s";
         if (preg_match($pattern, $existing, $matches, PREG_OFFSET_CAPTURE)) {
