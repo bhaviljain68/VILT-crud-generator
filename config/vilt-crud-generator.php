@@ -33,4 +33,75 @@ return [
     | the --form-request option is explicitly used.
     */
     'generate_form_requests_by_default' => false,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Column Type to Vue Component Map
+    |--------------------------------------------------------------------------
+    | This array maps database column types to Vue component names. You can
+    | customize this to use your own components for specific types. The default
+    | covers all common types for MySQL, PostgreSQL, and SQLite.
+    */
+    // ! NOTE : COMPONENTS NEED TO BE PLACED UNDER @/components/
+    'type_component_map' => [
+        // Boolean
+        'boolean'  => 'ui/input/Checkbox.vue',
+        'bool'     => 'ui/input/Checkbox.vue',
+        // Numeric (MySQL, PostgreSQL, SQLite)
+        'int'      => 'ui/input/NumberInput.vue',
+        'integer'  => 'ui/input/NumberInput.vue',
+        'tinyint'  => 'ui/input/NumberInput.vue',
+        'smallint' => 'ui/input/NumberInput.vue',
+        'mediumint' => 'ui/input/NumberInput.vue',
+        'bigint'   => 'ui/input/NumberInput.vue',
+        'float'    => 'ui/input/NumberInput.vue',
+        'double'   => 'ui/input/NumberInput.vue',
+        'real'     => 'ui/input/NumberInput.vue',
+        'decimal'  => 'ui/input/NumberInput.vue',
+        'dec'      => 'ui/input/NumberInput.vue',
+        'numeric'  => 'ui/input/NumberInput.vue',
+        'fixed'    => 'ui/input/NumberInput.vue',
+        'bit'      => 'ui/input/NumberInput.vue',
+        'serial'   => 'ui/input/NumberInput.vue',
+        'money'    => 'ui/input/NumberInput.vue',
+        // Date/Time (MySQL, PostgreSQL, SQLite)
+        'date'         => 'ui/input/DateInput.vue',
+        'datetime'     => 'ui/input/DateInput.vue',
+        'datetimetz'   => 'ui/input/DateInput.vue',
+        'timestamp'    => 'ui/input/DateInput.vue',
+        'timestamptz'  => 'ui/input/DateInput.vue',
+        'time'         => 'ui/input/DateInput.vue',
+        'timetz'       => 'ui/input/DateInput.vue',
+        'year'         => 'ui/input/DateInput.vue',
+        'interval'     => 'ui/input/DateInput.vue',
+        // String/Text (MySQL, PostgreSQL, SQLite)
+        'string'   => 'ui/input/Input.vue',
+        'varchar'  => 'ui/input/Input.vue',
+        'char'     => 'ui/input/Input.vue',
+        'text'     => 'ui/input/Input.vue',
+        'tinytext' => 'ui/input/Input.vue',
+        'mediumtext' => 'ui/input/Input.vue',
+        'longtext' => 'ui/input/Input.vue',
+        'character varying' => 'ui/input/Input.vue',
+        'character' => 'ui/input/Input.vue',
+        'enum'     => 'ui/input/Input.vue',
+        'set'      => 'ui/input/Input.vue',
+        'json'     => 'ui/input/Input.vue',
+        'jsonb'    => 'ui/input/Input.vue',
+        'xml'      => 'ui/input/Input.vue',
+        'uuid'     => 'ui/input/Input.vue',
+        'bytea'    => 'ui/input/Input.vue',
+        'binary'   => 'ui/input/Input.vue',
+        'varbinary' => 'ui/input/Input.vue',
+        'blob'     => 'ui/input/Input.vue',
+        'tinyblob' => 'ui/input/Input.vue',
+        'mediumblob' => 'ui/input/Input.vue',
+        'longblob' => 'ui/input/Input.vue',
+        // SQLite
+        'nvarchar' => 'ui/input/Input.vue',
+        'nchar' => 'ui/input/Input.vue',
+        'clob' => 'ui/input/Input.vue',
+        'native character' => 'ui/input/Input.vue',
+        'varying character' => 'ui/input/Input.vue',
+    ],
 ];

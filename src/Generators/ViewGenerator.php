@@ -207,29 +207,22 @@ class ViewGenerator implements GeneratorInterface
 
     protected function buildComponentImports(array $columns, string $tableName): string
     {
-        $map    = [
-            'boolean'  => 'Checkbox',
-            'integer'  => 'NumberInput',
-            'bigint'   => 'NumberInput',
-            'float'    => 'NumberInput',
-            'decimal'  => 'NumberInput',
-            'date'     => 'DateInput',
-            'datetime' => 'DateInput',
-            'datetimetz' => 'DateInput',
-            'time'     => 'DateInput',
-            'string'   => 'Input',
-            'text'     => 'Input',
-        ];
+        // Load the type-component map from config
+        $map = config('vilt-crud-generator.type_component_map');
         $needed = [];
         foreach ($columns as $col) {
             $type = Schema::getColumnType($tableName, $col['column']);
             if (isset($map[$type])) {
                 $needed[$map[$type]] = true;
+            } else {
+                // Fallback: treat unknown types as Input
+                $needed['Input'] = true;
             }
         }
         $imports = [];
-        foreach (array_keys($needed) as $component) {
-            $imports[] = "import {$component} from '@/components/ui/input/{$component}.vue'";
+        foreach (array_keys($needed) as $componentPath) {
+            $componentName = Str::beforeLast(Str::afterLast($componentPath, '/'), ".");
+            $imports[] = "import {$componentName} from '@/components/{$componentPath}'";
         }
         return implode("\n", $imports);
     }
