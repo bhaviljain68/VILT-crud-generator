@@ -48,6 +48,8 @@ class VILTCrudGeneratorServiceProvider extends ServiceProvider
             => resource_path('js/components/ui/input/NumberInput.vue'),
             __DIR__ . '/../vue-components/ui/input/DateInput.vue'
             => resource_path('js/components/ui/input/DateInput.vue'),
+            __DIR__ . '/../vue-components/ui/button/BackButton.vue'
+            => resource_path('js/components/ui/button/BackButton.vue'),
             // Publish Export Trait
             __DIR__ . '/../stubs/traits/has-export.stub' => app_path('Http/Traits/HasExport.php'),
         ], 'vilt-crud-generator');

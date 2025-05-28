@@ -2,6 +2,8 @@
 import { Head, Link, usePage, PageProps } from '@inertiajs/vue3'
 import AppLayout from '@/layouts/AppLayout.vue'
 import { router } from '@inertiajs/vue3'
+import BackButton from '@/components/ui/button/BackButton.vue'
+import Button from '@/components/ui/button/Button.vue'
 
 const props = defineProps<{
   {{ modelPluralLower }}: { data: any[] }
@@ -21,25 +23,27 @@ function destroy(id: number) {
     <Head title="{{ modelPlural }}" />
 
     <div class="p-4">
-      <div class="flex justify-between mb-4">
+      <div class="flex justify-between items-center">
         <h1 class="text-2xl font-semibold">{{ modelPlural }}</h1>
-        <Link
-          :href="route('{{ routeName }}.create')"
-          class="inline-block bg-blue-600 text-white px-4 py-2 rounded"
-        >
+        <Button asChild class="inline-block flex items-center gap-2" variant="default">
+          <Link :href="route('{{ routeName }}.create')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M20 14h-6v6h-4v-6H4v-4h6V4h4v6h6z" />
+          </svg>
           New {{ modelName }}
-        </Link>
+          </Link>
+        </Button>
       </div>
 
       <div v-if="page?.props?.flash?.success" class="mb-4 p-2 bg-green-100 text-green-800 rounded">
         {{ page.props.flash.success }}
       </div>
 
-      <table class="min-w-full bg-white">
-        <thead class="bg-gray-100">
+      <table class="min-w-full mt-8">
+        <thead class="text-lg">
           <tr>
             {{ tableHeaders }}
-            <th class="px-4 py-2">Actions</th>
+            <th class="px-4 py-2 text-right">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -49,24 +53,24 @@ function destroy(id: number) {
             class="border-t"
           >
             {{ tableCells }}
-            <td class="px-4 py-2 space-x-2">
-              <Link
-                :href="route('{{ routeName }}.edit', {{ modelVar }}.id)"
-                class="text-blue-600"
-              >
-                Edit
+            <td class="px-4 py-2 space-x-2 flex items-center justify-end gap-x-2 text-center">
+              <Link :href="route('{{ routeName }}.edit', {{ modelVar }}.id)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <path fill="currentColor"
+                  d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83l3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75z" />
+              </svg>
               </Link>
-              <Link
-                :href="route('{{ routeName }}.show', {{ modelVar }}.id)"
-                class="text-gray-600"
-              >
-                View
+              <Link :href="route('{{ routeName }}.show', {{ modelVar }}.id)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <path fill="currentColor"
+                  d="M12 9a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3m0 8a5 5 0 0 1-5-5a5 5 0 0 1 5-5a5 5 0 0 1 5 5a5 5 0 0 1-5 5m0-12.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5" />
+              </svg>
               </Link>
-              <button
-                @click="destroy({{ modelVar }}.id)"
-                class="text-red-600"
-              >
-                Delete
+              <button @click="destroy({{ modelVar }}.id)" class="text-red-600">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                  <path fill="currentColor"
+                    d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6z" />
+                </svg>
               </button>
             </td>
           </tr>

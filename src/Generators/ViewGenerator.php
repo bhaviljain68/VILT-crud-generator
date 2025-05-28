@@ -176,12 +176,12 @@ class ViewGenerator implements GeneratorInterface
             };
             $out .= <<<HTML
                         <div class="mt-4">
-                            <label class="block font-medium">{{ '{$label}' }}</label>
+                            <Label class="mb-2">{{ '{$label}' }}</Label>
                             <{$component}
                                 v-model="form.{$name}"
                                 name="{$name}"
-                                :error="form.errors.{$name}"
                             />
+                            <InputError :message="form.errors.{$name}" class="mt-2" />
                         </div>\n
             HTML;
         }
@@ -195,10 +195,10 @@ class ViewGenerator implements GeneratorInterface
             $name = $col['column'];
             $label = Str::headline($name);
             $out .= <<<HTML
-                        <div>
-                            <dt class="font-medium">{{ '{$label}' }}</dt>
-                            <dd>{{ {$modelVar}.{$name} }}</dd>
-                        </div>\n
+                    <div class="mt-4">
+                        <Label class="font-bold mb-1 text-lg">{{ '{$label}' }}</Label>
+                        <p>{{ {$modelVar}.{$name} }}</p>
+                    </div>\n
             HTML;
         }
         return $out;
