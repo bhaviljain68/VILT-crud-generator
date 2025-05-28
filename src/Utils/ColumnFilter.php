@@ -81,8 +81,9 @@ class ColumnFilter
      * @param array $fields
      * @return array
      */
-    public function filterAll(array $fields): array
+    public function filterAll(array $fields, bool $filterId=false): array
     {
+        $filteredFields = $filterId ? $this->filterId($fields) : $fields;
         return $this->filter($fields, array_merge($this->sensitive, $this->system));
     }
 
