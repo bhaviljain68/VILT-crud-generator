@@ -128,14 +128,13 @@ class ViewGenerator implements GeneratorInterface
             $name = $col['column'];
             $label   = Str::headline($name);
             if ($first) {
-                // first iteration
                 $first = false;
                 $headers .= "<th class=\"px-4 py-2 text-left\">{$label}</th>\n";
                 $cells   .= "<td class=\"px-4 py-2\">{{ {$modelVar}.{$name} }}</td>\n";
+            } else {
+                $headers .= "\t\t\t\t\t\t<th class=\"px-4 py-2 text-left\">{$label}</th>\n";
+                $cells   .= "\t\t\t\t\t\t<td class=\"px-4 py-2\">{{ {$modelVar}.{$name} }}</td>\n";
             }
-
-            $headers .= "\t\t\t\t\t\t<th class=\"px-4 py-2 text-left\">{$label}</th>\n";
-            $cells   .= "\t\t\t\t\t\t<td class=\"px-4 py-2\">{{ {$modelVar}.{$name} }}</td>\n";
         }
         return [$headers, $cells];
     }
