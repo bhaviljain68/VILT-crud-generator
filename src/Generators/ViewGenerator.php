@@ -41,7 +41,7 @@ class ViewGenerator implements GeneratorInterface
         // build dynamic pieces
         [$tableHeaders, $tableCells] = $this->buildTableColumns($cols, $modelVar);
         $formDataDefaults            = $this->buildFormDataDefaults($cols, $tableName);
-        $formFields                  = $this->buildFormFields($cols, $tableName);
+        $formFields                  = $this->buildFormFields($context->columnFilter->filterId($cols), $tableName);
         $formDataWithValues          = $this->buildFormDataWithValues($cols, $modelVar);
         $showFieldsMarkup            = $this->buildShowFields($cols, $modelVar);
         $componentImports            = $this->buildComponentImports($cols, $tableName);
