@@ -37,7 +37,7 @@ class ColumnFilter
             'ssn',
             'social_security_number',
         ];
-        $defaultSystem = ['id', 'created_at', 'updated_at', 'deleted_at'];
+        $defaultSystem = ['created_at', 'updated_at', 'deleted_at'];
         $this->sensitive = array_unique(array_merge($defaultSensitive, $sensitive));
         $this->system = array_unique(array_merge($defaultSystem, $system));
     }
@@ -86,6 +86,10 @@ class ColumnFilter
         return $this->filter($fields, array_merge($this->sensitive, $this->system));
     }
 
+    public function filterId(array $fields): array
+    {
+        return $this->filter($fields, ['id']);
+    }
     /**
      * Return only the sensitive fields present in the input array.
      *
