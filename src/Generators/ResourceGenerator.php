@@ -3,6 +3,7 @@
 namespace artisanalbyte\VILTCrudGenerator\Generators;
 
 use artisanalbyte\VILTCrudGenerator\Context\CrudContext;
+use artisanalbyte\VILTCrudGenerator\Utils\ColumnFilter;
 use artisanalbyte\VILTCrudGenerator\Utils\StubRenderer;
 use Illuminate\Filesystem\Filesystem;
 
@@ -31,7 +32,7 @@ class ResourceGenerator implements GeneratorInterface
         $resourcePath  = app_path("Http/Resources/{$resourceClass}.php");
 
         if ($force || ! $this->files->exists($resourcePath)) {
-            $fieldsCode = $this->generateResourceFields($context->fields, $context->columnFilter);
+            $fieldsCode = $this->generateResourceFields($context->columnFilter->filterAll($context->fields));
 
             $stub = $this->renderer->render('resource.stub', [
                 'namespace'  => $namespace,
@@ -60,11 +61,10 @@ class ResourceGenerator implements GeneratorInterface
     /**
      * Build each field line for the toArray() method.
      */
-    protected function generateResourceFields(array $fields, $columnFilter): string
+    protected function generateResourceFields(array $fields): string
     {
 
         // Filter system & sensitive Columns
-        $fields = $columnFilter->filterAll($fields);
 
         $lines = [];
         foreach ($fields as $col) {
