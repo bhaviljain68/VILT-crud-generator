@@ -1,10 +1,31 @@
 <?php
 namespace {{ namespace }};
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class {{ class }} extends JsonResource
 {
+    /**
+     * Customize the HTTP response.
+     * If it's an Inertia visit, unwrap the "data" envelope.
+     */
+    public function toResponse($request): JsonResponse
+    {
+        // Let the parent build the normal JSON response
+        $response = parent::toResponse($request);
+
+        // Detect Inertia by its header
+        if ($request->header('X-Inertia') || ! $request->expectsJson()) {
+            // Grab the entire payload object
+            $payload = $response->getData();
+
+            // Replace the response data with the inner data
+            $response->setData($payload->data);
+        }
+
+        return $response;
+    }
     public function toArray($request): array
     {
         $model = $this->resource;
