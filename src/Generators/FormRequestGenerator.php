@@ -36,7 +36,7 @@ class FormRequestGenerator implements GeneratorInterface
             }
 
             // Filter out system fields
-            $fields = $fields = $context->columnFilter->filterSystem($context->fields);
+            $fields = $context->columnFilter->filterSystem($context->columnFilter->filterId($context->fields));
 
             // Rules and attributes for store
             $config    = ValidationBuilder::buildRules(
