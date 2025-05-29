@@ -23,7 +23,8 @@ class CrudGeneratorCommand extends Command
                             {name : The model/table name}
                             {--force : Overwrite existing files}
                             {--form-request : Generate FormRequest classes}
-                            {--export : Include export trait and utility}';
+                            {--export : Include export trait and utility}
+                            {--resource-collection : Generate Resource and ResourceCollection classes}';
 
     /**
      * The console command description.
@@ -41,11 +42,17 @@ class CrudGeneratorCommand extends Command
         $generators = [
             ModelGenerator::class,
             ControllerGenerator::class,
-            ResourceGenerator::class,
-            FormRequestGenerator::class,
             ViewGenerator::class,
             RouteGenerator::class,
         ];
+
+        if ($ctx->options['formRequest']) {
+            $generators[] = FormRequestGenerator::class;
+        }
+        // Resource/Collection generation (optional)
+        if ($ctx->options['resourceCollection']) {
+            $generators[] = ResourceGenerator::class;
+        }
 
         // Optional export support
         if ($ctx->options['export']) {

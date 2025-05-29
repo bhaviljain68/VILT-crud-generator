@@ -23,6 +23,10 @@ class ResourceGenerator implements GeneratorInterface
 
     public function generate(CrudContext $context): void
     {
+        if (! $context->options['resourceCollection']) {
+            return;
+        }
+        
         $force        = $context->options['force'];
         $modelName    = $context->modelName;
         $namespace    = $context->paths['resourceNamespace'];

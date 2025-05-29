@@ -70,6 +70,17 @@ class ControllerGenerator implements GeneratorInterface
             ? "\tuse HasExport;\n\tprotected string \$modelClass = {$context->paths['modelNamespace']}\\{$context->modelName}::class;\n"
             : '';
 
+        $resourceImports = $context->options['resourceCollection']
+            ? "use App\\Http\\Resources\\{$context->modelName}Resource;\nuse App\\Http\\Resources\\{$context->modelName}Collection;"
+            : '';
+        $indexResourceCollection = $context->options['resourceCollection']
+            ? "new {$context->modelName}Collection($" . $context->modelPluralVar . ")"
+            : "$" . $context->modelPluralVar;
+        $showResource = $context->options['resourceCollection']
+            ? "new {$context->modelName}Resource($" . $context->modelVar . ")"
+            : "$" . $context->modelVar;
+        $editResource = $showResource;
+
         $replacements = [
             'namespace'         => $context->paths['controllerNamespace'],
             'model'             => $context->modelName,
@@ -98,7 +109,12 @@ class ControllerGenerator implements GeneratorInterface
             'validateUpdateData'       => $context->options['formRequest']
                 ? '$request->validated()'
                 : '$request->validate(' . $updateConfig['rules'] . ',' . $messagesConfig . ')',
+            'resourceImports' => $resourceImports,
+            'indexResourceCollection' => $indexResourceCollection,
+            'showResource' => $showResource,
+            'editResource' => $editResource,
         ];
+
 
         $stub = $this->renderer->render('controller.stub', $replacements);
         $this->files->ensureDirectoryExists(dirname($path));

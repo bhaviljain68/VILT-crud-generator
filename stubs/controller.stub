@@ -3,8 +3,7 @@
 namespace {{ namespace }};
 
 use App\Models\{{ model }};
-use App\Http\Resources\{{ model }}Resource;       
-use App\Http\Resources\{{ model }}Collection; 
+{{ resourceImports }}
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -23,7 +22,7 @@ class {{ model }}Controller extends Controller
         ${{ modelPluralVar }} = $query->latest()->paginate(10);
 
         return Inertia::render('{{ modelPlural }}/Index', [
-            '{{ modelPluralVar }}' => new {{ model }}Collection(${{ modelPluralVar }})
+            '{{ modelPluralVar }}' => {{ indexResourceCollection }}
         ]);
     }
 
@@ -53,14 +52,14 @@ class {{ model }}Controller extends Controller
     public function show({{ model }} ${{ modelVar }})
     {
         return Inertia::render('{{ modelPlural }}/Show', [
-            '{{ modelVar }}' => new {{ model }}Resource(${{ modelVar }})
+            '{{ modelVar }}' => {{ showResource }}
         ]);
     }
 
     public function edit({{ model }} ${{ modelVar }})
     {
         return Inertia::render('{{ modelPlural }}/Edit', [
-            '{{ modelVar }}' => new {{ model }}Resource(${{ modelVar }})
+            '{{ modelVar }}' => {{ editResource }}
         ]);
     }
 

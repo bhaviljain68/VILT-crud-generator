@@ -31,7 +31,7 @@ class CrudContext
     /** @var array<string,string> Paths for each generated artifact (model, controller, views, etc.) */
     public array $paths;
 
-    /** @var array<string,mixed> All CLI options and flags (force, form-request, export, etc.) */
+    /** @var array<string,mixed> All CLI options and flags (force, form-request, export, resourceCollection, etc.) */
     public array $options;
 
     /** @var ColumnFilter */

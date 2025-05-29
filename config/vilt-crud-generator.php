@@ -34,6 +34,16 @@ return [
     */
     'generate_form_requests_by_default' => false,
 
+    /*
+    |--------------------------------------------------------------------------
+    | Generate Resource & Collection by default
+    |--------------------------------------------------------------------------
+    | If true, running the vilt:crud command will generate Resource and
+    | ResourceCollection classes for the model by default (no need to pass --resource-collection).
+    | If false, these will only be generated if the --resource-collection flag is passed.
+    */
+    'generate_resource_and_collection_by_default' => false,
+
     
     /*
     |--------------------------------------------------------------------------

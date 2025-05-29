@@ -30,7 +30,13 @@ class CrudContextBuilder
         $name        = (string) $input->getArgument('name');
         $force       = (bool) $input->getOption('force');
         $formRequest = (bool) $input->getOption('form-request');
+        $formRequest = $input->hasParameterOption('--form-request')
+            ? (bool) $input->getOption('form-request')
+            : config('vilt-crud-generator.generate_form_requests_by_default', false);;
         $export      = (bool) $input->getOption('export');
+        $resourceCollection = $input->hasParameterOption('--resource-collection')
+            ? (bool) $input->getOption('resource-collection')
+            : config('vilt-crud-generator.generate_resource_and_collection_by_default', false);
 
         // Compute naming conventions
         $modelName      = Str::studly(Str::singular($name));
@@ -53,6 +59,7 @@ class CrudContextBuilder
             'force'       => $force,
             'formRequest' => $formRequest,
             'export'      => $export,
+            'resourceCollection' => $resourceCollection,
         ];
 
         // Construct and return the context
