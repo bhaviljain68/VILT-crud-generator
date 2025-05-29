@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     /*
     |--------------------------------------------------------------------------
     | Use TypeScript in Vue stubs
@@ -10,7 +9,7 @@ return [
     | and include minimal TypeScript types where applicable.
     | If false, stubs will use plain JavaScript (<script setup>).
     */
-    'useTypescript' => false,
+    'useTypescript' => true,
 
     /*
     |--------------------------------------------------------------------------

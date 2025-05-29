@@ -24,7 +24,8 @@ class CrudGeneratorCommand extends Command
                             {--force : Overwrite existing files}
                             {--form-request : Generate FormRequest classes}
                             {--export : Include export trait and utility}
-                            {--resource-collection : Generate Resource and ResourceCollection classes}';
+                            {--resource-collection : Generate Resource and ResourceCollection classes}
+                            {--no-ts : Generate Vue pages without TypeScript}';
 
     /**
      * The console command description.

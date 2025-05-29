@@ -46,10 +46,13 @@ class ViewGenerator implements GeneratorInterface
         $showFieldsMarkup            = $this->buildShowFields($cols, $modelVar);
         $componentImports            = $this->buildComponentImports($cols, $tableName);
 
+        // Choose stub folder based on TS option
+        $stubFolder = $context->options['useTypeScript'] ? 'pages-ts' : 'pages-no-ts';
+
         // pages
         $pages = [
             'Index' => [
-                'stub'    => 'pages/index.vue.stub',
+                'stub'    => "$stubFolder/index.vue.stub",
                 'target'  => "{$dir}/Index.vue",
                 'replace' => [
                     '{{ modelPlural }}'      => $context->modelPlural,
@@ -62,7 +65,7 @@ class ViewGenerator implements GeneratorInterface
                 ],
             ],
             'Create' => [
-                'stub'    => 'pages/create.vue.stub',
+                'stub'    => "$stubFolder/create.vue.stub",
                 'target'  => "{$dir}/Create.vue",
                 'replace' => [
                     '{{ componentImports }}' => $componentImports,
@@ -73,7 +76,7 @@ class ViewGenerator implements GeneratorInterface
                 ],
             ],
             'Edit' => [
-                'stub'    => 'pages/edit.vue.stub',
+                'stub'    => "$stubFolder/edit.vue.stub",
                 'target'  => "{$dir}/Edit.vue",
                 'replace' => [
                     '{{ componentImports }}'          => $componentImports,
@@ -85,7 +88,7 @@ class ViewGenerator implements GeneratorInterface
                 ],
             ],
             'Show' => [
-                'stub'    => 'pages/show.vue.stub',
+                'stub'    => "$stubFolder/show.vue.stub",
                 'target'  => "{$dir}/Show.vue",
                 'replace' => [
                     '{{ modelName }}'   => $modelName,

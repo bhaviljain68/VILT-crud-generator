@@ -1,0 +1,45 @@
+<script setup>
+import { useForm } from '@inertiajs/vue3'
+import { Head, Link } from '@inertiajs/vue3'
+import AppLayout from '@/layouts/AppLayout.vue'
+import Label from '@/components/ui/label/Label.vue'
+import InputError from '@/components/InputError.vue'
+import BackButton from '@/components/ui/button/BackButton.vue'
+import Button from '@/components/ui/button/Button.vue'
+{{ componentImports }}
+
+const props = defineProps(['{{ modelVar }}'])
+
+const form = useForm({
+    {{ formDataDefaultsWithValues }}
+})
+
+function submit() {
+  form.put(route('{{ routeName }}.update', props.{{ modelVar }}.id))
+}
+</script>
+
+
+<template>
+  <AppLayout>
+    <Head title="Edit {{ modelName }}" />
+
+    <div class="py-4 px-12 mx-auto w-full">
+      <BackButton :route="route('{{ routeName }}.index')"/>
+      <h1 class="text-2xl font-semibold mb-4 text-center mt-4">Edit {{ modelName }}</h1>
+      <form @submit.prevent="submit">
+        {{ formFields }}
+        <div class="mt-8 flex gap-x-8">
+          <Button :disabled="form.processing" class="flex-1" type="submit">
+            Update {{ modelName }}
+          </Button>
+          <Button asChild class="flex-1" variant="destructive">
+            <button type="button" @click="form.reset()" class="w-full">
+              Reset Form
+            </button>
+          </Button>
+        </div>
+      </form>
+    </div>
+  </AppLayout>
+</template>

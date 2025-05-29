@@ -29,14 +29,17 @@ class CrudContextBuilder
         // Read CLI arguments & options
         $name        = (string) $input->getArgument('name');
         $force       = (bool) $input->getOption('force');
-        $formRequest = (bool) $input->getOption('form-request');
+        $export      = (bool) $input->getOption('export');
+        
         $formRequest = $input->hasParameterOption('--form-request')
             ? (bool) $input->getOption('form-request')
             : config('ViltCrudGenerator.generateFormRequestsByDefault', false);;
-        $export      = (bool) $input->getOption('export');
         $resourceCollection = $input->hasParameterOption('--resource-collection')
             ? (bool) $input->getOption('resource-collection')
             : config('ViltCrudGenerator.generateResourceAndCollectionByDefault', false);
+        $useTypescript = $input->hasParameterOption('--no-ts')
+            ? (bool) !$input->getOption('no-ts')
+            : config('ViltCrudGenerator.useTypescript', true);
 
         // Compute naming conventions
         $modelName      = Str::studly(Str::singular($name));
@@ -60,6 +63,7 @@ class CrudContextBuilder
             'formRequest' => $formRequest,
             'export'      => $export,
             'resourceCollection' => $resourceCollection,
+            'useTypescript'      => $useTypescript,
         ];
 
         // Construct and return the context
