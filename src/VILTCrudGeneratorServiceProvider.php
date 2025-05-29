@@ -14,7 +14,7 @@ class VILTCrudGeneratorServiceProvider extends ServiceProvider
     public function register()
     {
         // Merge package configuration with application config
-        $this->mergeConfigFrom(__DIR__ . '/../config/ViltCrudGenerator.php', 'vilt-crud-generator');
+        $this->mergeConfigFrom(__DIR__ . '/../config/vilt-crud-generator.php', 'vilt-crud-generator');
     }
 
     /**
@@ -31,7 +31,7 @@ class VILTCrudGeneratorServiceProvider extends ServiceProvider
 
         // Config + Vue Components
         $this->publishes([
-            __DIR__ . '/../config/ViltCrudGenerator.php' => config_path('ViltCrudGenerator.php'),
+            __DIR__ . '/../config/vilt-crud-generator.php' => config_path('vilt-crud-generator.php'),
             __DIR__ . '/../vue-components/ui/input/NumberInput.vue' => resource_path('js/components/ui/input/NumberInput.vue'),
             __DIR__ . '/../vue-components/ui/input/DateInput.vue' => resource_path('js/components/ui/input/DateInput.vue'),
             __DIR__ . '/../vue-components/ui/button/BackButton.vue' => resource_path('js/components/ui/button/BackButton.vue'),
@@ -49,7 +49,7 @@ class VILTCrudGeneratorServiceProvider extends ServiceProvider
 
         // All (everything)
         $this->publishes([
-            __DIR__ . '/../config/ViltCrudGenerator.php' => config_path('ViltCrudGenerator.php'),
+            __DIR__ . '/../config/vilt-crud-generator.php' => config_path('vilt-crud-generator.php'),
             __DIR__ . '/../stubs' => resource_path('stubs/vilt-crud-generator'),
             __DIR__ . '/../vue-components/ui/input/NumberInput.vue' => resource_path('js/components/ui/input/NumberInput.vue'),
             __DIR__ . '/../vue-components/ui/input/DateInput.vue' => resource_path('js/components/ui/input/DateInput.vue'),
