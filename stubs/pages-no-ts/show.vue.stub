@@ -20,26 +20,28 @@ function destroy(id) {
 
     <div class="py-4 px-12 mx-auto w-full">
     <BackButton :route="route('{{ routeName }}.index')"/>
+    <div  class="shadow-md shadow-sidebar-accent-foreground/25 border border-sidebar-foreground/25 px-8 pb-8 pt-2 rounded-md">
 {{ showFields }}
-      <div class="mt-8 flex gap-x-8">
-        <Button asChild class="flex-1" variant="default">
-          <Link :href="route('{{ routeName }}.edit', {{ modelVar }}.id)">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-            <path fill="currentColor"
-              d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83l3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75z" />
-          </svg>
-          Edit {{ modelName }}
-          </Link>
-        </Button>
-        <Button asChild class="flex-1 flex justify-center gap-1" variant="destructive">
-          <button type="button" @click="destroy({{ modelVar }}.id)" class="w-full">
+        <div class="mt-8 flex gap-x-8">
+          <Button asChild class="flex-1" variant="default">
+            <Link :href="route('{{ routeName }}.edit', {{ modelVar }}.id)">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
               <path fill="currentColor"
-                d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6z" />
+                d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83l3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75z" />
             </svg>
-            Delete {{ modelName }}
-          </button>
-        </Button>
+            Edit {{ modelName }}
+            </Link>
+          </Button>
+          <Button asChild class="flex-1 flex justify-center gap-1" variant="destructive">
+            <button type="button" @click="destroy({{ modelVar }}.id)" class="w-full">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                <path fill="currentColor"
+                  d="M19 4h-3.5l-1-1h-5l-1 1H5v2h14M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6z" />
+              </svg>
+              Delete {{ modelName }}
+            </button>
+          </Button>
+        </div>
       </div>
     </div>
   </AppLayout>
