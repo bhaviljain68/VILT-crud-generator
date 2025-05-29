@@ -21,8 +21,8 @@ class ColumnFilter
      */
     public function __construct(array $sensitive = [], array $system = [])
     {
-        $defaultSensitive = config('vilt-crud-generator.sensitiveColumns');
-        $defaultSystem = config('vilt-crud-generator.systemColumns');
+        $defaultSensitive = config('ViltCrudGenerator.sensitiveColumns');
+        $defaultSystem = config('ViltCrudGenerator.systemColumns');
         $this->sensitive = array_unique(array_merge($defaultSensitive, $sensitive));
         $this->system = array_unique(array_merge($defaultSystem, $system));
     }

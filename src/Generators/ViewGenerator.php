@@ -207,7 +207,7 @@ class ViewGenerator implements GeneratorInterface
     protected function buildComponentImports(array $columns, string $tableName): string
     {
         // Load the type-component map from config
-        $map = config('vilt-crud-generator.type_component_map');
+        $map = config('ViltCrudGenerator.columnTypeComponentMap');
         $needed = [];
         foreach ($columns as $col) {
             $type = Schema::getColumnType($tableName, $col['column']);

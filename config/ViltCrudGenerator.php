@@ -10,18 +10,7 @@ return [
     | and include minimal TypeScript types where applicable.
     | If false, stubs will use plain JavaScript (<script setup>).
     */
-    'use_typescript' => false,
-
-    /*
-    |--------------------------------------------------------------------------
-    | Default Component Namespace for Vue imports
-    |--------------------------------------------------------------------------
-    | This value will be used in Vue stub files when importing common components 
-    | like inputs, buttons, etc. 
-    | e.g. '@components/' or '@/Components/' depending on your setup.
-    | Ensure to include trailing slash if needed.
-    */
-    'default_component_namespace' => '@/Components/',
+    'useTypescript' => false,
 
     /*
     |--------------------------------------------------------------------------
@@ -32,7 +21,7 @@ return [
     | If false, validation logic will be inline in the controller unless 
     | the --form-request option is explicitly used.
     */
-    'generate_form_requests_by_default' => false,
+    'generateFormRequestsByDefault' => false,
 
     /*
     |--------------------------------------------------------------------------
@@ -42,9 +31,9 @@ return [
     | ResourceCollection classes for the model by default (no need to pass --resource-collection).
     | If false, these will only be generated if the --resource-collection flag is passed.
     */
-    'generate_resource_and_collection_by_default' => false,
+    'generateResourceAndCollectionByDefault' => false,
 
-    
+
     /*
     |--------------------------------------------------------------------------
     | Sensitive Columns
@@ -56,21 +45,21 @@ return [
     | application's specific requirements.
     |--------------------------------------------------------------------------
     */
-    $sensitiveColumns = [
-            'password',
-            'token',
-            'auth_token',
-            'access_token',
-            'remember_token',
-            'api_token',
-            'api_key',
-            'secret',
-            'credit_card',
-            'card_number',
-            'cvv',
-            'card',
-            'ssn',
-            'social_security_number',
+    'sensitiveColumns' => [
+        'password',
+        'token',
+        'auth_token',
+        'access_token',
+        'remember_token',
+        'api_token',
+        'api_key',
+        'secret',
+        'credit_card',
+        'card_number',
+        'cvv',
+        'card',
+        'ssn',
+        'social_security_number',
     ],
 
     /*
@@ -83,7 +72,7 @@ return [
     | Common examples include timestamps and soft delete fields.
     |--------------------------------------------------------------------------
     */
-    $systemColumns = ['created_at', 'updated_at', 'deleted_at'],
+    'systemColumns' => ['created_at', 'updated_at', 'deleted_at'],
 
 
     /*
@@ -95,7 +84,7 @@ return [
     | covers all common types for MySQL, PostgreSQL, and SQLite.
     */
     // ! NOTE : COMPONENTS NEED TO BE PLACED UNDER @/components/
-    'type_component_map' => [
+    'columnTypeComponentMap' => [
         // Boolean
         'boolean'  => 'ui/input/Checkbox.vue',
         'bool'     => 'ui/input/Checkbox.vue',
