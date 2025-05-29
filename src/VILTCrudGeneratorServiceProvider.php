@@ -37,12 +37,12 @@ class VILTCrudGeneratorServiceProvider extends ServiceProvider
             __DIR__ . '/../vue-components/ui/button/BackButton.vue' => resource_path('js/components/ui/button/BackButton.vue'),
         ], 'vilt-crud-default');
 
-        // Stubs (excluding traits/has-export.stub)
+        // Stubs
         $this->publishes([
             __DIR__ . '/../stubs' => resource_path('stubs/vilt-crud-generator'),
         ], 'vilt-crud-stubs');
 
-        // Export Trait only
+        // Export Trait
         $this->publishes([
             __DIR__ . '/Export/HasExport.php' => app_path('Http/Traits/HasExport.php'),
         ], 'vilt-crud-export');
