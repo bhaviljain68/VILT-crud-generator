@@ -34,6 +34,48 @@ return [
     */
     'generate_form_requests_by_default' => false,
 
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Sensitive Columns
+    |--------------------------------------------------------------------------
+    | This array defines column names that should be treated as sensitive data.
+    | When generating forms, these columns will be excluded from the form fields.
+    | You can customize this list based on your application's needs.
+    | Note: This is a basic list and may need to be extended based on your
+    | application's specific requirements.
+    |--------------------------------------------------------------------------
+    */
+    $sensitiveColumns = [
+            'password',
+            'token',
+            'auth_token',
+            'access_token',
+            'remember_token',
+            'api_token',
+            'api_key',
+            'secret',
+            'credit_card',
+            'card_number',
+            'cvv',
+            'card',
+            'ssn',
+            'social_security_number',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | System Columns
+    |--------------------------------------------------------------------------
+    | This array defines column names that are considered system fields.
+    | These fields will be excluded from the form fields and are typically
+    | used for internal tracking or management purposes.
+    | Common examples include timestamps and soft delete fields.
+    |--------------------------------------------------------------------------
+    */
+    $systemColumns = ['created_at', 'updated_at', 'deleted_at'],
+
+
     /*
     |--------------------------------------------------------------------------
     | Column Type to Vue Component Map

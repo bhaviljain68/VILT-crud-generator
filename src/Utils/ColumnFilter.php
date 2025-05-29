@@ -21,23 +21,8 @@ class ColumnFilter
      */
     public function __construct(array $sensitive = [], array $system = [])
     {
-        $defaultSensitive = [
-            'password',
-            'token',
-            'auth_token',
-            'access_token',
-            'remember_token',
-            'api_token',
-            'api_key',
-            'secret',
-            'credit_card',
-            'card_number',
-            'cvv',
-            'card',
-            'ssn',
-            'social_security_number',
-        ];
-        $defaultSystem = ['created_at', 'updated_at', 'deleted_at'];
+        $defaultSensitive = config('vilt-crud-generator.sensitiveColumns');
+        $defaultSystem = config('vilt-crud-generator.systemColumns');
         $this->sensitive = array_unique(array_merge($defaultSensitive, $sensitive));
         $this->system = array_unique(array_merge($defaultSystem, $system));
     }
@@ -81,7 +66,7 @@ class ColumnFilter
      * @param array $fields
      * @return array
      */
-    public function filterAll(array $fields, bool $filterId=false): array
+    public function filterAll(array $fields, bool $filterId = false): array
     {
         $filteredFields = $filterId ? $this->filterId($fields) : $fields;
         return $this->filter($fields, array_merge($this->sensitive, $this->system));
