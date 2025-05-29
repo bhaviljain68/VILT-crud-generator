@@ -22,7 +22,7 @@ function destroy(id: number) {
 
     <div class="py-4 px-12 mx-auto w-full">
     <BackButton :route="route('{{ routeName }}.index')"/>
-    <div class="min-w-full mt-8" class="shadow-md shadow-sidebar-accent-foreground/25 border border-sidebar-foreground/25 px-8 pb-8 pt-2 rounded-md" >
+    <div class="min-w-full mt-8 shadow-md shadow-sidebar-accent-foreground/25 border border-sidebar-foreground/25 px-8 pb-8 pt-2">
 {{ showFields }}
         <div class="mt-8 flex gap-x-8">
           <Button asChild class="flex-1" variant="default">
