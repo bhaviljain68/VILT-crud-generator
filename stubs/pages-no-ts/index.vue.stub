@@ -37,7 +37,7 @@ function destroy(id) {
         {{ page.props.flash.success }}
       </div>
 
-      <table class="min-w-full mt-8"  class="shadow-md shadow-sidebar-accent-foreground/25 border border-sidebar-foreground/25 px-8 pb-8 pt-2">
+      <table class="min-w-full mt-8 shadow-md shadow-sidebar-accent-foreground/25 border border-sidebar-foreground/25 px-8 pb-8 pt-2">
         <thead class="text-lg">
           <tr>
             {{ tableHeaders }}
