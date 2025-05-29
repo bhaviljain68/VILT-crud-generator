@@ -47,7 +47,7 @@ class ViewGenerator implements GeneratorInterface
         $componentImports            = $this->buildComponentImports($cols, $tableName);
 
         // Choose stub folder based on TS option
-        $stubFolder = $context->options['useTypeScript'] ? 'pages-ts' : 'pages-no-ts';
+        $stubFolder = $context->options['useTypescript'] ? 'pages-ts' : 'pages-no-ts';
 
         // pages
         $pages = [
