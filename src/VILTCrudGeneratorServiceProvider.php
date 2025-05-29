@@ -15,16 +15,6 @@ class VILTCrudGeneratorServiceProvider extends ServiceProvider
     {
         // Merge package configuration with application config
         $this->mergeConfigFrom(__DIR__ . '/../config/vilt-crud-generator.php', 'vilt-crud-generator');
-
-        // $this->app->bind(\Doctrine\DBAL\Connection::class, function ($app) {
-        //     return $app['db']->connection()->getDoctrineConnection();
-        // });
-
-        // Register the console command for Artisan
-        // $this->commands([
-        //     CrudGeneratorCommand::class, // Generate Command
-        //     InstallInertiaCrudCommand::class, // install command
-        // ]);
     }
 
     /**
@@ -35,23 +25,35 @@ class VILTCrudGeneratorServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 CrudGeneratorCommand::class,
-                InstallViltCrudCommand::class,  // ensure this is present
+                InstallViltCrudCommand::class,
             ]);
         }
+
+        // Config + Vue Components
         $this->publishes([
-            // Publish the config file to the application's config directory
             __DIR__ . '/../config/vilt-crud-generator.php' => config_path('vilt-crud-generator.php'),
-            // Publish stub templates to allow user customization
+            __DIR__ . '/../vue-components/ui/input/NumberInput.vue' => resource_path('js/components/ui/input/NumberInput.vue'),
+            __DIR__ . '/../vue-components/ui/input/DateInput.vue' => resource_path('js/components/ui/input/DateInput.vue'),
+            __DIR__ . '/../vue-components/ui/button/BackButton.vue' => resource_path('js/components/ui/button/BackButton.vue'),
+        ], 'vilt-crud-default');
+
+        // Stubs (excluding traits/has-export.stub)
+        $this->publishes([
             __DIR__ . '/../stubs' => resource_path('stubs/vilt-crud-generator'),
-            // Publish our wrapper Vue components:
-            __DIR__ . '/../vue-components/ui/input/NumberInput.vue'
-            => resource_path('js/components/ui/input/NumberInput.vue'),
-            __DIR__ . '/../vue-components/ui/input/DateInput.vue'
-            => resource_path('js/components/ui/input/DateInput.vue'),
-            __DIR__ . '/../vue-components/ui/button/BackButton.vue'
-            => resource_path('js/components/ui/button/BackButton.vue'),
-            // Publish Export Trait
-            __DIR__ . '/../stubs/traits/has-export.stub' => app_path('Http/Traits/HasExport.php'),
-        ], 'vilt-crud-generator');
+        ], 'vilt-crud-stubs');
+
+        // Export Trait only
+        $this->publishes([
+            __DIR__ . '/Export/HasExport.php' => app_path('Http/Traits/HasExport.php'),
+        ], 'vilt-crud-export');
+
+        // All (everything)
+        $this->publishes([
+            __DIR__ . '/../config/vilt-crud-generator.php' => config_path('vilt-crud-generator.php'),
+            __DIR__ . '/../stubs' => resource_path('stubs/vilt-crud-generator'),
+            __DIR__ . '/../vue-components/ui/input/NumberInput.vue' => resource_path('js/components/ui/input/NumberInput.vue'),
+            __DIR__ . '/../vue-components/ui/input/DateInput.vue' => resource_path('js/components/ui/input/DateInput.vue'),
+            __DIR__ . '/../vue-components/ui/button/BackButton.vue' => resource_path('js/components/ui/button/BackButton.vue'),
+        ], 'vilt-crud-all');
     }
 }
