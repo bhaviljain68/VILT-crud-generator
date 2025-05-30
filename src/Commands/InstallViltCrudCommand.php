@@ -6,7 +6,7 @@ use Illuminate\Console\Command;
 
 class InstallViltCrudCommand extends Command
 {
-    protected $signature   = 'vilt-crud:publish {--stubs} {--export} {--all}';
+    protected $signature   = 'vilt-crud:publish {--stubs} {--all}';
     protected $description = 'Publish config, PHP stubs, and Vue components for Inertia CRUD Generator';
 
     public function handle()
@@ -29,13 +29,6 @@ class InstallViltCrudCommand extends Command
         if ($this->option('stubs')) {
             $this->call('vendor:publish', [
                 '--tag'   => 'vilt-crud-stubs',
-                '--force' => true,
-            ]);
-        }
-
-        if ($this->option('export')) {
-            $this->call('vendor:publish', [
-                '--tag'   => 'vilt-crud-export',
                 '--force' => true,
             ]);
         }

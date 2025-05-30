@@ -29,8 +29,7 @@ class CrudContextBuilder
         // Read CLI arguments & options
         $name        = (string) $input->getArgument('name');
         $force       = (bool) $input->getOption('force');
-        $export      = (bool) $input->getOption('export');
-        
+
         $formRequest = $input->hasParameterOption('--form-request')
             ? (bool) $input->getOption('form-request')
             : config('vilt-crud-generator.generateFormRequestsByDefault', false);;
@@ -61,7 +60,6 @@ class CrudContextBuilder
         $options = [
             'force'       => $force,
             'formRequest' => $formRequest,
-            'export'      => $export,
             'resourceCollection' => $resourceCollection,
             'useTypescript'      => $useTypescript,
         ];

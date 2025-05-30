@@ -9,12 +9,9 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Log;
 {{ useFormRequestsImports }}
-{{ exportImport }}
 
 class {{ model }}Controller extends Controller
 {
-    {{ exportTraitBlock }}
-
     public function index()
     {
         $query = {{ model }}::query();

@@ -58,12 +58,7 @@ class RouteGenerator implements GeneratorInterface
         $blockStart = "// VILT Generator Routes START";
         $blockEnd = "// VILT Generator Routes END";
         $resourceRoute = "\tRoute::resource('{$routeName}', {$controllerClass}::class);\n";
-        $exportRoute = '';
-        if ($context->options['export']) {
-            $exportRoute = "\tRoute::get('{$routeName}/export', [{$controllerClass}::class, 'export'])\n"
-                . "\t\t->name('{$routeName}.export');\n";
-        }
-        $routeBlock = $resourceRoute . $exportRoute;
+        $routeBlock = $resourceRoute;
         // Find or create the VILT block
         $pattern = "/Route::middleware\\(\\['auth','verified'\\]\)\\->group\\(function \(\) \{\\s*\/\/ VILT Generator Routes START \(<-DO NOT REMOVE THIS COMMENT\)(.*?)\/\/ VILT Generator Routes END\(<-DO NOT REMOVE THIS COMMENT\)\\s*\}\);/s";
         if (preg_match($pattern, $existing, $matches, PREG_OFFSET_CAPTURE)) {

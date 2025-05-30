@@ -8,7 +8,6 @@ use artisanalbyte\VILTCrudGenerator\Generators\ModelGenerator;
 use artisanalbyte\VILTCrudGenerator\Generators\ControllerGenerator;
 use artisanalbyte\VILTCrudGenerator\Generators\ViewGenerator;
 use artisanalbyte\VILTCrudGenerator\Generators\FormRequestGenerator;
-use artisanalbyte\VILTCrudGenerator\Generators\ExportGenerator;
 use artisanalbyte\VILTCrudGenerator\Generators\RouteGenerator;
 use artisanalbyte\VILTCrudGenerator\Generators\ResourceGenerator;
 
@@ -23,7 +22,6 @@ class CrudGeneratorCommand extends Command
                             {name : The model/table name}
                             {--force : Overwrite existing files}
                             {--form-request : Generate FormRequest classes}
-                            {--export : Include export trait and utility}
                             {--resource-collection : Generate Resource and ResourceCollection classes}
                             {--no-ts : Generate Vue pages without TypeScript}';
 
@@ -32,7 +30,7 @@ class CrudGeneratorCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Generate VILT CRUD scaffold (Model, Controller, Vue pages, FormRequests, optional Export)';
+    protected $description = 'Generate VILT CRUD scaffold (Model, Controller, Vue pages, FormRequests)';
 
     public function handle()
     {
@@ -53,11 +51,6 @@ class CrudGeneratorCommand extends Command
         // Resource/Collection generation (optional)
         if ($ctx->options['resourceCollection']) {
             $generators[] = ResourceGenerator::class;
-        }
-
-        // Optional export support
-        if ($ctx->options['export']) {
-            $generators[] = ExportGenerator::class;
         }
 
         // Execute each generator

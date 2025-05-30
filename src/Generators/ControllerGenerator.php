@@ -62,13 +62,7 @@ class ControllerGenerator implements GeneratorInterface
                 (empty($updateConfig['attributes']) ? '' : "\t\t// custom attributes\n\t\t");
         }
 
-        // Optional export trait application
-        $exportImport     = $context->options['export']
-            ? 'use App\\Http\\Traits\\HasExport;'
-            : '';
-        $exportTraitBlock = $context->options['export']
-            ? "\tuse HasExport;\n\tprotected string \$modelClass = {$context->paths['modelNamespace']}\\{$context->modelName}::class;\n"
-            : '';
+        // Remove export trait application
 
         $resourceImports = $context->options['resourceCollection']
             ? "use App\\Http\\Resources\\{$context->modelName}Resource;\nuse App\\Http\\Resources\\{$context->modelName}Collection;"
@@ -87,8 +81,6 @@ class ControllerGenerator implements GeneratorInterface
             'modelVar'          => $context->modelVar,
             'modelPlural'       => $context->modelPlural,
             'modelPluralVar'    => $context->modelPluralVar,
-            'exportImport'      => $exportImport,
-            'exportTraitBlock'  => $exportTraitBlock,
             'table'             => $context->tableName,
             'validationStore'   => $validationStore,
             'validationUpdate'  => $validationUpdate,
