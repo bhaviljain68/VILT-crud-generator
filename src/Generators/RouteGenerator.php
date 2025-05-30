@@ -55,17 +55,14 @@ class RouteGenerator implements GeneratorInterface
         }
 
         // --- VILT Generator Route Block ---
-        $blockStart = "// VILT Generator Routes START";
-        $blockEnd = "// VILT Generator Routes END";
         $resourceRoute = "\tRoute::resource('{$routeName}', {$controllerClass}::class);\n";
-        $routeBlock = $resourceRoute;
         // Find or create the VILT block
-        $pattern = "/Route::middleware\\(\\['auth','verified'\\]\)\\->group\\(function \(\) \{\\s*\/\/ VILT Generator Routes START \(<-DO NOT REMOVE THIS COMMENT\)(.*?)\/\/ VILT Generator Routes END\(<-DO NOT REMOVE THIS COMMENT\)\\s*\}\);/s";
+        $pattern = "/Route::middleware\\(\\['auth','verified'\\]\\)\\->group\\(function \(\) \{\\s*\/\/ VILT Generator Routes START \(<-DO NOT REMOVE THIS COMMENT\)(.*?)\/\/ VILT Generator Routes END\(<-DO NOT REMOVE THIS COMMENT\)\\s*\}\);/s";
         if (preg_match($pattern, $existing, $matches, PREG_OFFSET_CAPTURE)) {
             // Block exists: insert before END if not already present
             $blockContent = $matches[1][0];
             if (!str_contains($blockContent, $resourceRoute)) {
-                $newBlockContent = rtrim($blockContent) . "\n" . $routeBlock;
+                $newBlockContent = rtrim($blockContent) . "\n" . $resourceRoute;
                 $newBlock = "Route::middleware(['auth','verified'])->group(function () {\n    // VILT Generator Routes START (<-DO NOT REMOVE THIS COMMENT) " . $newBlockContent . "\n    // VILT Generator Routes END(<-DO NOT REMOVE THIS COMMENT)\n});";
                 $existing = substr_replace($existing, $newBlock, $matches[0][1], strlen($matches[0][0]));
                 $this->files->put($routesFile, $existing);
@@ -75,12 +72,12 @@ class RouteGenerator implements GeneratorInterface
             $needle = "require __DIR__.'/settings.php';";
             $insertPos = strpos($existing, $needle);
             if ($insertPos !== false) {
-                $block = "Route::middleware(['auth','verified'])->group(function () {\n    // VILT Generator Routes START (<-DO NOT REMOVE THIS COMMENT) \n\n" . $routeBlock . "\n    // VILT Generator Routes END(<-DO NOT REMOVE THIS COMMENT)\n});\n\n";
+                $block = "Route::middleware(['auth','verified'])->group(function () {\n    // VILT Generator Routes START (<-DO NOT REMOVE THIS COMMENT) \n\n" . $resourceRoute . "\n    // VILT Generator Routes END(<-DO NOT REMOVE THIS COMMENT)\n});\n\n";
                 $existing = substr($existing, 0, $insertPos) . $block . substr($existing, $insertPos);
                 $this->files->put($routesFile, $existing);
             } else {
                 // Fallback: append at end
-                $block = "\nRoute::middleware(['auth','verified'])->group(function () {\n    // VILT Generator Routes START (<-DO NOT REMOVE THIS COMMENT) \n\n" . $routeBlock . "\n    // VILT Generator Routes END(<-DO NOT REMOVE THIS COMMENT)\n});\n";
+                $block = "\nRoute::middleware(['auth','verified'])->group(function () {\n    // VILT Generator Routes START (<-DO NOT REMOVE THIS COMMENT) \n\n" . $resourceRoute . "\n    // VILT Generator Routes END(<-DO NOT REMOVE THIS COMMENT)\n});\n";
                 $this->files->put($routesFile, $existing . $block);
             }
         }
