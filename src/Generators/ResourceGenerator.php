@@ -21,12 +21,12 @@ class ResourceGenerator implements GeneratorInterface
         $this->renderer = $renderer;
     }
 
-    public function generate(CrudContext $context): void
+    public function generate(CrudContext $context): array
     {
+        $generated = [];
         if (! $context->options['resourceCollection']) {
-            return;
+            return $generated;
         }
-        
         $force        = $context->options['force'];
         $modelName    = $context->modelName;
         $namespace    = $context->paths['resourceNamespace'];
@@ -45,6 +45,7 @@ class ResourceGenerator implements GeneratorInterface
             ]);
             $this->files->ensureDirectoryExists(dirname($resourcePath));
             $this->files->put($resourcePath, $stub);
+            $generated[] = $resourcePath;
         }
 
         // --- Collection class ---
@@ -59,7 +60,9 @@ class ResourceGenerator implements GeneratorInterface
             ]);
             $this->files->ensureDirectoryExists(dirname($collectionPath));
             $this->files->put($collectionPath, $stub);
+            $generated[] = $collectionPath;
         }
+        return $generated;
     }
 
     /**

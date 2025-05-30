@@ -21,26 +21,25 @@ class ModelGenerator implements GeneratorInterface
         $this->renderer = $renderer;
     }
 
-    public function generate(CrudContext $context): void
+    public function generate(CrudContext $context): array
     {
         $path = $context->paths['modelPath'];
-
+        $generated = [];
         // Don't overwrite unless --force
         if ($this->files->exists($path) && ! $context->options['force']) {
-            return;
+            return $generated;
         }
-
         $stub = $this->renderer->render('model.stub', [
-
             'model'       => $context->modelName,
             'table'       => $context->tableName,
             'fillable'    => $this->buildFillable($context->fields, $context->columnFilter),
             'casts'       => $this->buildCasts($context->fields, $context->columnFilter),
             'hidden'      => $this->buildHidden($context->fields, $context->columnFilter),
         ]);
-
         $this->files->ensureDirectoryExists(dirname($path));
         $this->files->put($path, $stub);
+        $generated[] = $path;
+        return $generated;
     }
 
     protected function buildFillable(array $fields, ColumnFilter $columnFilter): string

@@ -17,8 +17,9 @@ class RouteGenerator implements GeneratorInterface
         $this->files = $files;
     }
 
-    public function generate(CrudContext $context): void
+    public function generate(CrudContext $context): array
     {
+        $generated = [];
         $routeName = strtolower($context->modelPluralVar);
         $controllerClass = $context->modelName . 'Controller';
         $controllerFQCN = 'App\\Http\\Controllers\\' . $controllerClass;
@@ -58,6 +59,7 @@ class RouteGenerator implements GeneratorInterface
         $resourceRoute = "\tRoute::resource('{$routeName}', {$controllerClass}::class);\n";
         // Find or create the VILT block
         $pattern = "/Route::middleware\\(\\['auth','verified'\\]\\)\\->group\\(function \(\) \{\\s*\/\/ VILT Generator Routes START \(<-DO NOT REMOVE THIS COMMENT\)(.*?)\/\/ VILT Generator Routes END\(<-DO NOT REMOVE THIS COMMENT\)\\s*\}\);/s";
+        $wrote = false;
         if (preg_match($pattern, $existing, $matches, PREG_OFFSET_CAPTURE)) {
             // Block exists: insert before END if not already present
             $blockContent = $matches[1][0];
@@ -66,6 +68,7 @@ class RouteGenerator implements GeneratorInterface
                 $newBlock = "Route::middleware(['auth','verified'])->group(function () {\n    // VILT Generator Routes START (<-DO NOT REMOVE THIS COMMENT) " . $newBlockContent . "\n    // VILT Generator Routes END(<-DO NOT REMOVE THIS COMMENT)\n});";
                 $existing = substr_replace($existing, $newBlock, $matches[0][1], strlen($matches[0][0]));
                 $this->files->put($routesFile, $existing);
+                $wrote = true;
             }
         } else {
             // Block does not exist: insert BEFORE require __DIR__.'/settings.php'; using strpos for reliability
@@ -75,11 +78,18 @@ class RouteGenerator implements GeneratorInterface
                 $block = "Route::middleware(['auth','verified'])->group(function () {\n    // VILT Generator Routes START (<-DO NOT REMOVE THIS COMMENT) \n\n" . $resourceRoute . "\n    // VILT Generator Routes END(<-DO NOT REMOVE THIS COMMENT)\n});\n\n";
                 $existing = substr($existing, 0, $insertPos) . $block . substr($existing, $insertPos);
                 $this->files->put($routesFile, $existing);
+                $wrote = true;
             } else {
                 // Fallback: append at end
                 $block = "\nRoute::middleware(['auth','verified'])->group(function () {\n    // VILT Generator Routes START (<-DO NOT REMOVE THIS COMMENT) \n\n" . $resourceRoute . "\n    // VILT Generator Routes END(<-DO NOT REMOVE THIS COMMENT)\n});\n";
                 $this->files->put($routesFile, $existing . $block);
+                $wrote = true;
             }
         }
+        if ($wrote) {
+            $relativePath = ltrim(str_replace(base_path(), '', $routesFile), DIRECTORY_SEPARATOR);
+            $generated[] = "Route::resource(...)->{$routeName} has been added to the {$relativePath} file";
+        }
+        return $generated;
     }
 }

@@ -24,14 +24,13 @@ class ControllerGenerator implements GeneratorInterface
         $this->renderer = $renderer;
     }
 
-    public function generate(CrudContext $context): void
+    public function generate(CrudContext $context): array
     {
         $path = $context->paths['controllerPath'];
-
+        $generated = [];
         if ($this->files->exists($path) && ! $context->options['force']) {
-            return;
+            return $generated;
         }
-
         $fields = $fields = $context->columnFilter->filterSystem($context->fields);
 
         // Prepare inline validation for store and update
@@ -111,5 +110,7 @@ class ControllerGenerator implements GeneratorInterface
         $stub = $this->renderer->render('controller.stub', $replacements);
         $this->files->ensureDirectoryExists(dirname($path));
         $this->files->put($path, $stub);
+        $generated[] = Str::replace("\\","/",$path);
+        return $generated;
     }
 }

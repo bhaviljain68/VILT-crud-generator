@@ -23,7 +23,7 @@ class ViewGenerator implements GeneratorInterface
         $this->renderer = $renderer;
     }
 
-    public function generate(CrudContext $context): void
+    public function generate(CrudContext $context): array
     {
         $cols           = $context->columnFilter->filterAll($context->fields);
         $modelName      = $context->modelName;
@@ -34,6 +34,7 @@ class ViewGenerator implements GeneratorInterface
         $routeName      = Str::kebab($modelPluralVar);
         $dir            = $context->paths['vueDirectory'];
         $columnFilter   = $context->columnFilter;
+        $generated = [];
 
         // ensure page directory exists
         $this->files->ensureDirectoryExists($dir);
@@ -111,16 +112,9 @@ class ViewGenerator implements GeneratorInterface
                 $stubContent
             );
             $this->files->put($page['target'], $content);
+            $generated[] = $page['target'];
         }
-
-        // generate Inertia TypeScript definitions
-        $typesDir = resource_path('js/types');
-        $this->files->ensureDirectoryExists($typesDir);
-        $tsStub = $this->renderer->render('inertia-types.ts.stub', [
-            'modelName' => $modelName,
-            'modelVar'  => $modelVar,
-        ]);
-        $this->files->put("{$typesDir}/inertia.d.ts", $tsStub);
+        return $generated;
     }
 
     protected function buildTableColumns(array $columns, string $modelVar): array

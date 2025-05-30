@@ -22,17 +22,16 @@ class FormRequestGenerator implements GeneratorInterface
         $this->renderer = $renderer;
     }
 
-    public function generate(CrudContext $context): void
+    public function generate(CrudContext $context): array
     {
+        $generated = [];
         if (! $context->options['formRequest']) {
-            return;
+            return $generated;
         }
-
         foreach (['store', 'update'] as $action) {
             $path = $action === 'store' ? $context->paths['storeRequestPath'] : $context->paths['updateRequestPath'];
-            // $path = $context->paths['request_path'];
             if ($this->files->exists($path) && ! $context->options['force']) {
-                return;
+                continue;
             }
 
             // Filter out system fields
@@ -62,6 +61,8 @@ class FormRequestGenerator implements GeneratorInterface
             $stub = $this->renderer->render('form-request.stub', $replacements);
             $this->files->ensureDirectoryExists(dirname($path));
             $this->files->put($path, $stub);
+            $generated[] = $path;
         }
+        return $generated;
     }
 }
