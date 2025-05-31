@@ -3,7 +3,6 @@
 namespace artisanalbyte\VILTCrudGenerator\Generators;
 
 use artisanalbyte\VILTCrudGenerator\Context\CrudContext;
-use artisanalbyte\VILTCrudGenerator\Utils\ColumnFilter;
 use artisanalbyte\VILTCrudGenerator\Utils\StubRenderer;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Schema;
@@ -16,32 +15,14 @@ class ViewGenerator implements GeneratorInterface
 {
   protected Filesystem $files;
   protected StubRenderer $renderer;
-  protected Filesystem $files;
-  protected StubRenderer $renderer;
 
   public function __construct(Filesystem $files, StubRenderer $renderer)
   {
     $this->files    = $files;
     $this->renderer = $renderer;
   }
-  public function __construct(Filesystem $files, StubRenderer $renderer)
-  {
-    $this->files    = $files;
-    $this->renderer = $renderer;
-  }
 
-  public function generate(CrudContext $context): array
-  {
-    $cols           = $context->columnFilter->filterAll($context->fields);
-    $modelName      = $context->modelName;
-    $modelVar       = $context->modelVar;
-    $modelVar       = $context->modelVar;
-    $modelPluralVar = $context->modelPluralVar;
-    $tableName      = $context->tableName;
-    $routeName      = Str::kebab($modelPluralVar);
-    $dir            = $context->paths['vueDirectory'];
-    $columnFilter   = $context->columnFilter;
-    $generated = [];
+
   public function generate(CrudContext $context): array
   {
     $cols           = $context->columnFilter->filterAll($context->fields);
@@ -192,29 +173,17 @@ class ViewGenerator implements GeneratorInterface
       );
       $this->files->put($page['target'], $content);
       $pageName = Str::beforeLast((Str::afterLast($page['target'], '/')), ".");
-      $generated[] = "✅ {$pageName} View Generated : " . Str::replace("\\", "/", $page['target']) . " 😎";
+      $path = Str::of($page['target'])
+        ->replace('\\', '/')
+        ->after('/resources')
+        ->prepend('resources')
+        ->toString();
+      $generated[] = "✅ {$pageName} View Generated : " . $path . " 😎";
     }
     return $generated;
   }
 
-  protected function buildTableColumns(array $columns, string $modelVar): array
-  {
-    $headers = $cells = '';
-    $first = true;
-    foreach ($columns as $col) {
-      $name = $col['column'];
-      $label   = Str::headline($name);
-      if ($first) {
-        $first = false;
-        $headers .= "<th class=\"px-4 py-2 text-left\">{$label}</th>\n";
-        $cells   .= "<td class=\"px-4 py-2\">{{ {$modelVar}.{$name} }}</td>\n";
-      } else {
-        $headers .= "\t\t\t\t\t\t<th class=\"px-4 py-2 text-left\">{$label}</th>\n";
-        $cells   .= "\t\t\t\t\t\t<td class=\"px-4 py-2\">{{ {$modelVar}.{$name} }}</td>\n";
-      }
-    }
-    return [$headers, $cells];
-  }
+
   protected function buildTableColumns(array $columns, string $modelVar): array
   {
     $headers = $cells = '';
@@ -245,17 +214,6 @@ class ViewGenerator implements GeneratorInterface
     }
     return $out;
   }
-  protected function buildFormDataDefaults(array $columns, string $tableName): string
-  {
-    $out  = '';
-    foreach ($columns as $col) {
-      $name = $col['column'];
-      $defaultType = Schema::getColumnType($tableName, $name);
-      $default     = ($defaultType === 'boolean') ? 'false' : "''";
-      $out .= "\t{$name}: {$default},\n";
-    }
-    return $out;
-  }
 
   protected function buildFormDataWithValues(array $columns, string $modelVar): string
   {
@@ -266,30 +224,7 @@ class ViewGenerator implements GeneratorInterface
     }
     return $out;
   }
-  protected function buildFormDataWithValues(array $columns, string $modelVar): string
-  {
-    $out  = '';
-    foreach ($columns as $col) {
-      $name = $col['column'];
-      $out .= "\t{$name}: props.{$modelVar}.{$name} ?? null,\n";
-    }
-    return $out;
-  }
 
-  protected function buildFormFields(array $columns, string $tableName): string
-  {
-    $out  = '';
-    foreach ($columns as $col) {
-      $name = $col['column'];
-      $label     = Str::headline($name);
-      $type      = Schema::getColumnType($tableName, $name);
-      $component = match ($type) {
-        'boolean'                            => 'Checkbox',
-        'integer', 'bigint', 'float', 'decimal' => 'NumberInput',
-        'date', 'datetime', 'datetimetz', 'time' => 'DateInput',
-        default                               => 'Input',
-      };
-      $out .= <<<HTML
   protected function buildFormFields(array $columns, string $tableName): string
   {
     $out  = '';
@@ -316,17 +251,7 @@ class ViewGenerator implements GeneratorInterface
     }
     return $out;
   }
-    }
-    return $out;
-  }
 
-  protected function buildShowFields(array $columns, string $modelVar): string
-  {
-    $out  = '';
-    foreach ($columns as $col) {
-      $name = $col['column'];
-      $label = Str::headline($name);
-      $out .= <<<HTML
   protected function buildShowFields(array $columns, string $modelVar): string
   {
     $out  = '';
@@ -342,31 +267,7 @@ class ViewGenerator implements GeneratorInterface
     }
     return $out;
   }
-    }
-    return $out;
-  }
 
-  protected function buildComponentImports(array $columns, string $tableName): string
-  {
-    // Load the type-component map from config
-    $map = config('vilt-crud-generator.columnTypeComponentMap');
-    $needed = [];
-    foreach ($columns as $col) {
-      $type = Schema::getColumnType($tableName, $col['column']);
-      if (isset($map[$type])) {
-        $needed[$map[$type]] = true;
-      } else {
-        // Fallback: treat unknown types as Input
-        $needed['Input'] = true;
-      }
-    }
-    $imports = [];
-    foreach (array_keys($needed) as $componentPath) {
-      $componentName = Str::beforeLast(Str::afterLast($componentPath, '/'), ".");
-      $imports[] = "import {$componentName} from '@/components/{$componentPath}'";
-    }
-    return implode("\n", $imports);
-  }
   protected function buildComponentImports(array $columns, string $tableName): string
   {
     // Load the type-component map from config

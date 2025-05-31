@@ -13,56 +13,61 @@ use Illuminate\Support\Str;
  */
 class FormRequestGenerator implements GeneratorInterface
 {
-    protected Filesystem $files;
-    protected StubRenderer $renderer;
+  protected Filesystem $files;
+  protected StubRenderer $renderer;
 
-    public function __construct(Filesystem $files, StubRenderer $renderer)
-    {
-        $this->files    = $files;
-        $this->renderer = $renderer;
+  public function __construct(Filesystem $files, StubRenderer $renderer)
+  {
+    $this->files    = $files;
+    $this->renderer = $renderer;
+  }
+
+  public function generate(CrudContext $context): array
+  {
+    $generated = [];
+    if (! $context->options['formRequest']) {
+      return $generated;
     }
+    foreach (['store', 'update'] as $action) {
+      $path = $action === 'store' ? $context->paths['storeRequestPath'] : $context->paths['updateRequestPath'];
+      if ($this->files->exists($path) && ! $context->options['force']) {
+        continue;
+      }
 
-    public function generate(CrudContext $context): array
-    {
-        $generated = [];
-        if (! $context->options['formRequest']) {
-            return $generated;
-        }
-        foreach (['store', 'update'] as $action) {
-            $path = $action === 'store' ? $context->paths['storeRequestPath'] : $context->paths['updateRequestPath'];
-            if ($this->files->exists($path) && ! $context->options['force']) {
-                continue;
-            }
+      // Filter out system fields
+      $fields = $context->columnFilter->filterSystem($context->columnFilter->filterId($context->fields));
 
-            // Filter out system fields
-            $fields = $context->columnFilter->filterSystem($context->columnFilter->filterId($context->fields));
+      // Rules and attributes for store
+      $config    = ValidationBuilder::buildRules(
+        $fields,
+        $context->tableName,
+        $context->modelVar,
+        true,
+        $action
+      );
+      $messages  = ValidationBuilder::buildMessages(
+        $fields,
+        $context->modelName,
+        $action
+      );
+      $replacements = [
+        'namespace'        => $context->paths['requestNamespace'],
+        'class'            => $context->modelName . ucwords($action) . 'Request',
+        'rules'            => $config['rules'],
+        'attributes'       => $config['attributes'],
+        'messages'    => $messages,
+      ];
 
-            // Rules and attributes for store
-            $config    = ValidationBuilder::buildRules(
-                $fields,
-                $context->tableName,
-                $context->modelVar,
-                true,
-                $action
-            );
-            $messages  = ValidationBuilder::buildMessages(
-                $fields,
-                $context->modelName,
-                $action
-            );
-            $replacements = [
-                'namespace'        => $context->paths['requestNamespace'],
-                'class'            => $context->modelName . ucwords($action) . 'Request',
-                'rules'            => $config['rules'],
-                'attributes'       => $config['attributes'],
-                'messages'    => $messages,
-            ];
-
-            $stub = $this->renderer->render('form-request.stub', $replacements);
-            $this->files->ensureDirectoryExists(dirname($path));
-            $this->files->put($path, $stub);
-            $generated[] = "✅ $replacements[class] Generated : ".(Str::replace("\\","/",$path)). " 😎";
-        }
-        return $generated;
+      $stub = $this->renderer->render('form-request.stub', $replacements);
+      $this->files->ensureDirectoryExists(dirname($path));
+      $this->files->put($path, $stub);
+      $path = Str::of($path)
+        ->replace('\\', '/')
+        ->after('/app')
+        ->prepend('app')
+        ->toString();
+      $generated[] = "✅ $replacements[class] Generated : $path 😎";
     }
+    return $generated;
+  }
 }

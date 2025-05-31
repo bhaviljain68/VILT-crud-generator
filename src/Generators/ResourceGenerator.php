@@ -12,74 +12,84 @@ use Illuminate\Support\Str;
  */
 class ResourceGenerator implements GeneratorInterface
 {
-    protected Filesystem $files;
-    protected StubRenderer $renderer;
+  protected Filesystem $files;
+  protected StubRenderer $renderer;
 
-    public function __construct(Filesystem $files, StubRenderer $renderer)
-    {
-        $this->files    = $files;
-        $this->renderer = $renderer;
+  public function __construct(Filesystem $files, StubRenderer $renderer)
+  {
+    $this->files    = $files;
+    $this->renderer = $renderer;
+  }
+
+  public function generate(CrudContext $context): array
+  {
+    $generated = [];
+    if (! $context->options['resourceCollection']) {
+      return $generated;
+    }
+    $force        = $context->options['force'];
+    $modelName    = $context->modelName;
+    $namespace    = $context->paths['resourceNamespace'];
+
+    // --- Resource class ---
+    $resourceClass = $modelName . 'Resource';
+    $resourcePath  = app_path("Http/Resources/{$resourceClass}.php");
+
+    if ($force || ! $this->files->exists($resourcePath)) {
+      $fieldsCode = $this->generateResourceFields($context->columnFilter->filterAll($context->fields));
+
+      $stub = $this->renderer->render('resource.stub', [
+        'namespace'  => $namespace,
+        'class'  => $resourceClass,
+        'fields' => $fieldsCode,
+      ]);
+      $this->files->ensureDirectoryExists(dirname($resourcePath));
+      $this->files->put($resourcePath, $stub);
+      $resourcePath = Str::of($resourcePath)
+        ->replace('\\', '/')
+        ->after('/app')
+        ->prepend('app')
+        ->toString();
+      $generated[] = "✅ $resourcePath Generated : $resourcePath 😎";
     }
 
-    public function generate(CrudContext $context): array
-    {
-        $generated = [];
-        if (! $context->options['resourceCollection']) {
-            return $generated;
-        }
-        $force        = $context->options['force'];
-        $modelName    = $context->modelName;
-        $namespace    = $context->paths['resourceNamespace'];
+    // --- Collection class ---
+    $collectionClass = $modelName . 'Collection';
+    $collectionPath  = app_path("Http/Resources/{$collectionClass}.php");
 
-        // --- Resource class ---
-        $resourceClass = $modelName . 'Resource';
-        $resourcePath  = app_path("Http/Resources/{$resourceClass}.php");
+    if ($force || ! $this->files->exists($collectionPath)) {
+      $stub = $this->renderer->render('resource-collection.stub', [
+        'namespace' => $namespace,
+        'class' => $collectionClass,
+        'resourceClass' => $resourceClass,
+      ]);
+      $this->files->ensureDirectoryExists(dirname($collectionPath));
+      $this->files->put($collectionPath, $stub);
+      // $generated[] = $collectionPath;
+      $collectionPath = Str::of($collectionPath)
+        ->replace('\\', '/')
+        ->after('/app')
+        ->prepend('app')
+        ->toString();
+      $generated[] = "✅ $collectionClass Generated : $collectionPath 😎";
+    }
+    return $generated;
+  }
 
-        if ($force || ! $this->files->exists($resourcePath)) {
-            $fieldsCode = $this->generateResourceFields($context->columnFilter->filterAll($context->fields));
+  /**
+   * Build each field line for the toArray() method.
+   */
+  protected function generateResourceFields(array $fields): string
+  {
 
-            $stub = $this->renderer->render('resource.stub', [
-                'namespace'  => $namespace,
-                'class'  => $resourceClass,
-                'fields' => $fieldsCode,
-            ]);
-            $this->files->ensureDirectoryExists(dirname($resourcePath));
-            $this->files->put($resourcePath, $stub);
-            $generated[] = "✅ Resource Generated : ".(Str::replace("\\","/",$resourcePath)). " 😎";
-        }
+    // Filter system & sensitive Columns
 
-        // --- Collection class ---
-        $collectionClass = $modelName . 'Collection';
-        $collectionPath  = app_path("Http/Resources/{$collectionClass}.php");
-
-        if ($force || ! $this->files->exists($collectionPath)) {
-            $stub = $this->renderer->render('resource-collection.stub', [
-                'namespace' => $namespace,
-                'class' => $collectionClass,
-                'resourceClass' => $resourceClass,
-            ]);
-            $this->files->ensureDirectoryExists(dirname($collectionPath));
-            $this->files->put($collectionPath, $stub);
-            $generated[] = $collectionPath;
-            $generated[] = "✅ Collection Generated : ".(Str::replace("\\","/",$collectionPath)). " 😎";
-        }
-        return $generated;
+    $lines = [];
+    foreach ($fields as $col) {
+      $name = $col['column'];
+      $lines[] = "\t\t\t'{$name}' => \$model->{$name},";
     }
 
-    /**
-     * Build each field line for the toArray() method.
-     */
-    protected function generateResourceFields(array $fields): string
-    {
-
-        // Filter system & sensitive Columns
-
-        $lines = [];
-        foreach ($fields as $col) {
-            $name = $col['column'];
-            $lines[] = "\t\t\t'{$name}' => \$model->{$name},";
-        }
-
-        return implode("\n", $lines);
-    }
+    return implode("\n", $lines);
+  }
 }
