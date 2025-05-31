@@ -3,9 +3,9 @@
 namespace artisanalbyte\VILTCrudGenerator\Generators;
 
 use artisanalbyte\VILTCrudGenerator\Context\CrudContext;
-use artisanalbyte\VILTCrudGenerator\Utils\ColumnFilter;
 use artisanalbyte\VILTCrudGenerator\Utils\StubRenderer;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Str;
 
 /**
  * Generates an API Resource and Resource Collection for the model.
@@ -45,7 +45,7 @@ class ResourceGenerator implements GeneratorInterface
             ]);
             $this->files->ensureDirectoryExists(dirname($resourcePath));
             $this->files->put($resourcePath, $stub);
-            $generated[] = $resourcePath;
+            $generated[] = "✅ Resource Generated : ".(Str::replace("\\","/",$resourcePath)). " 😎";
         }
 
         // --- Collection class ---
@@ -61,6 +61,7 @@ class ResourceGenerator implements GeneratorInterface
             $this->files->ensureDirectoryExists(dirname($collectionPath));
             $this->files->put($collectionPath, $stub);
             $generated[] = $collectionPath;
+            $generated[] = "✅ Collection Generated : ".(Str::replace("\\","/",$collectionPath)). " 😎";
         }
         return $generated;
     }

@@ -110,7 +110,7 @@ class ControllerGenerator implements GeneratorInterface
         $stub = $this->renderer->render('controller.stub', $replacements);
         $this->files->ensureDirectoryExists(dirname($path));
         $this->files->put($path, $stub);
-        $generated[] = Str::replace("\\","/",$path);
+        $generated[] = "✅ Controller Generated : ".(Str::replace("\\","/",$path)). " 😎";
         return $generated;
     }
 }
