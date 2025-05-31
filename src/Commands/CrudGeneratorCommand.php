@@ -83,13 +83,13 @@ class CrudGeneratorCommand extends Command
         return ltrim(str_replace(base_path(), '', $path), DIRECTORY_SEPARATOR);
       }, $allGeneratedFiles);
 
-      $this->info("🎉 VILT CRUD scaffolding generated successfully for {$name}.");
       if (!empty($allGeneratedFiles)) {
         $this->info("Generated files:");
         foreach ($allGeneratedFiles as $file) {
           $this->line(" - {$file}");
         }
       }
+      $this->info("🎉 VILT CRUD scaffolding generated successfully for {$name}.");
     }
   }
 }
