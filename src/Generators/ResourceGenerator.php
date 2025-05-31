@@ -50,7 +50,7 @@ class ResourceGenerator implements GeneratorInterface
         ->after('/app')
         ->prepend('app')
         ->toString();
-      $generated[] = "✅ $resourcePath Generated : $resourcePath 😎";
+      $generated[] = "✅ $resourceClass Generated : $resourcePath 😎";
     }
 
     // --- Collection class ---
