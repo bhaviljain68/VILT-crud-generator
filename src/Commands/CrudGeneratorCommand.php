@@ -19,7 +19,7 @@ class CrudGeneratorCommand extends Command
    * @var string
    */
   protected $signature = 'vilt-crud:generate
-                            {name* : The model/table name(s) to generate. Separate multiple names with a space or comma (e.g. User Project or User,Project)}
+                            {name?* : The model/table name(s) to generate. Separate multiple names with a space or comma (e.g. User Project or User,Project)}
                             {--force : Overwrite existing files}
                             {--form-request : Generate FormRequest classes}
                             {--resource-collection : Generate Resource and ResourceCollection classes}
@@ -36,7 +36,48 @@ class CrudGeneratorCommand extends Command
 
   public function handle()
   {
-    // Support multiple names (space or comma separated)
+    // Try to get the argument, but if not present, call gatherArgs
+    try {
+      $rawNames = $this->argument('name');
+      if (empty($rawNames) || (is_array($rawNames) && count($rawNames) === 1 && trim($rawNames[0]) === '')) {
+        return $this->gatherArgs();
+      }
+    } catch (\Exception $e) {
+      return $this->gatherArgs();
+    }
+    // If we have args, run generate
+    $this->generate();
+  }
+
+  protected function gatherArgs()
+  {
+    // Prompt for model/table name(s)
+    $modelInput = $this->ask('Enter model/table name(s) (comma or space separated)');
+    $rawNames = [$modelInput];
+    $this->input->setArgument('name', $rawNames);
+    // Prompt for options using choice for better UX
+    $options = [
+      'force' => $this->choice('Overwrite existing files?', ['No', 'Yes'], 0) === 'Yes',
+      'form-request' => $this->choice('Generate FormRequest classes?', ['No', 'Yes'], 1) === 'Yes',
+      'resource-collection' => $this->choice('Generate Resource and ResourceCollection classes?', ['No', 'Yes'], 0) === 'Yes',
+      'no-ts' => $this->choice('Generate Vue pages without TypeScript?', ['No', 'Yes'], 0) === 'Yes',
+    ];
+    $separateRequestFiles = config('vilt-crud-generator.separateRequestFiles', false);
+    if (!$separateRequestFiles) {
+      $options['separate-form-requests'] = $this->choice('Generate separate Store/Update request files?', ['No', 'Yes'], 0) === 'Yes';
+      $options['single-form-request'] = false;
+    } else {
+      $options['single-form-request'] = $this->choice('Generate a single request file for both store/update?', ['No', 'Yes'], 0) === 'Yes';
+      $options['separate-form-requests'] = false;
+    }
+    foreach ($options as $key => $value) {
+      $this->input->setOption($key, $value);
+    }
+    $this->generate();
+  }
+
+  protected function generate()
+  {
     $rawNames = $this->argument('name');
     $names = [];
     foreach ($rawNames as $raw) {
@@ -48,7 +89,6 @@ class CrudGeneratorCommand extends Command
       }
     }
     foreach ($names as $name) {
-
       // Build the context DTO from input, but override the name argument
       $input = clone $this->input;
       $input->setArgument('name', $name);

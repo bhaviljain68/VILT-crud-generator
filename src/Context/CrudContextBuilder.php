@@ -30,20 +30,20 @@ class CrudContextBuilder
         $name        = (string) $input->getArgument('name');
         $force       = (bool) $input->getOption('force');
 
-        $formRequest = $input->hasParameterOption('--form-request')
+        $formRequest = $input->getOption('form-request') !== null
             ? (bool) $input->getOption('form-request')
             : config('vilt-crud-generator.generateFormRequestsByDefault', false);
-        $resourceCollection = $input->hasParameterOption('--resource-collection')
+        $resourceCollection = $input->getOption('resource-collection') !== null
             ? (bool) $input->getOption('resource-collection')
             : config('vilt-crud-generator.generateResourceAndCollectionByDefault', false);
-        $useTypescript = $input->hasParameterOption('--no-ts')
+        $useTypescript = $input->getOption('no-ts') !== null
             ? (bool) !$input->getOption('no-ts')
             : config('vilt-crud-generator.useTypescript', true);
         // Determine separateRequestFiles option
         $separateRequestFiles = config('vilt-crud-generator.separateRequestFiles', false);
-        if ($input->hasParameterOption('--separate-form-requests')) {
+        if ($input->getOption('separate-form-requests') !== null && $input->getOption('separate-form-requests')) {
             $separateRequestFiles = true;
-        } elseif ($input->hasParameterOption('--single-form-request')) {
+        } elseif ($input->getOption('single-form-request') !== null && $input->getOption('single-form-request')) {
             $separateRequestFiles = false;
         }
 
