@@ -17,7 +17,16 @@
 - **Modern UI:** Vue pages use a clean, modern layout and leverage your own UI components.
 - **Safe by Default:** System and sensitive columns (timestamps, soft deletes, passwords, tokens, etc.) are excluded from forms and fillables.
 - **Multi-Model Support:** Generate scaffolding for multiple models/tables in a single command.
-- **Out-of-the-box for Laravel Vue Starter Kit:** Designed to work seamlessly with the [Laravel Vue Starter Kit](https://laravel.com/starter-kits#breeze-and-inertia), using its default layouts and UI components.
+- **Out-of-the-box for Laravel Vue Starter Kit:** Designed to work seamlessly with the [Laravel Vue Starter Kit](https://laravel.com/docs/12.x/starter-kits#vue), using its default layouts and UI components.
+- **Flash Message Support:** All generated pages display success/error flash messages using Inertia's shared props.
+- **TypeScript Types for Inertia:** Publishes a `resources/js/types/inertia.d.ts` file for improved TypeScript support.
+- **Advanced DB Type Mapping:** The config supports mapping a wide range of DB column types (MySQL, PostgreSQL, SQLite) to custom Vue components.
+- **Automatic Route Insertion:** Resource routes are automatically inserted into your routes file, inside a protected block.
+- **Support for Separate or Single FormRequest Files:** Can generate either separate Store/Update FormRequest files or a single file, based on config or CLI options (single file by default).
+- **Improved Error Handling:** Controller stubs include error catching and flash error messages for create, update, and delete actions.
+- **Consistent Use of Custom UI Components:** All generated pages use custom BackButton, NumberInput, DateInput, and Button components.
+- **Modern, Maintainable Vue Pages:** All Vue pages use `<script setup>` and a clean, modern layout.
+- **Interactive & Non-Interactive CLI:** The generator command can be run interactively (with prompts for model/table, options, etc.) or non-interactively by passing arguments and flags directly.
 
 ---
 
@@ -35,19 +44,27 @@ composer require artisanalbyte/vilt-crud-generator --dev
 php artisan vilt-crud:publish --all
 ```
 
-3. **Generate CRUD for a Model:**
+3. **Generate CRUD for a Model (Interactive):**
 
 ```sh
-php artisan vilt-crud:generate Post
+php artisan vilt-crud:generate
 ```
 
-4. **Generate for Multiple Models:**
+This will launch an interactive prompt to select the model/table and options.
+
+4. **Generate CRUD for a Model (Non-Interactive):**
+
+```sh
+php artisan vilt-crud:generate Post --form-request --resource-collection
+```
+
+5. **Generate for Multiple Models:**
 
 ```sh
 php artisan vilt-crud:generate User Project Comment
 ```
 
-5. **Options:**
+6. **Options:**
 - `--form-request` : Generate FormRequest classes for validation
 - `--resource-collection` : Generate Resource & Collection classes
 - `--no-ts` : Generate Vue pages in JavaScript instead of TypeScript
