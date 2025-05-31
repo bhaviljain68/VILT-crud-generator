@@ -22,10 +22,9 @@ class ViewGenerator implements GeneratorInterface
     $this->renderer = $renderer;
   }
 
-
   public function generate(CrudContext $context): array
   {
-    $cols           = $context->columnFilter->filterAll($context->fields);
+    $cols           = $context->columnFilter->filterAll($context->fields, true);
     $modelName      = $context->modelName;
     $modelVar       = $context->modelVar;
     $modelVar       = $context->modelVar;
@@ -33,7 +32,6 @@ class ViewGenerator implements GeneratorInterface
     $tableName      = $context->tableName;
     $routeName      = Str::kebab($modelPluralVar);
     $dir            = $context->paths['vueDirectory'];
-    $columnFilter   = $context->columnFilter;
     $generated = [];
 
     // ensure page directory exists
@@ -48,68 +46,10 @@ class ViewGenerator implements GeneratorInterface
     $formDataWithValues          = $this->buildFormDataWithValues($cols, $modelVar);
     $showFieldsMarkup            = $this->buildShowFields($cols, $modelVar);
     $componentImports            = $this->buildComponentImports($cols, $tableName);
-    // build dynamic pieces
-    [$tableHeaders, $tableCells] = $this->buildTableColumns($cols, $modelVar);
-    $formDataDefaults            = $this->buildFormDataDefaults($cols, $tableName);
-    $formFields                  = $this->buildFormFields($context->columnFilter->filterId($cols), $tableName);
-    $formDataWithValues          = $this->buildFormDataWithValues($cols, $modelVar);
-    $showFieldsMarkup            = $this->buildShowFields($cols, $modelVar);
-    $componentImports            = $this->buildComponentImports($cols, $tableName);
 
     // Choose stub folder based on TS option
     $stubFolder = $context->options['useTypescript'] ? 'pages-ts' : 'pages-no-ts';
-    // Choose stub folder based on TS option
-    $stubFolder = $context->options['useTypescript'] ? 'pages-ts' : 'pages-no-ts';
 
-    // pages
-    $pages = [
-      'Index' => [
-        'stub'    => "$stubFolder/index.vue.stub",
-        'target'  => "{$dir}/Index.vue",
-        'replace' => [
-          '{{ modelPlural }}'      => $context->modelPlural,
-          '{{ modelPluralLower }}' => $modelPluralVar,
-          '{{ routeName }}'        => $routeName,
-          '{{ modelName }}'        => $modelName,
-          '{{ modelVar }}'         => $modelVar,
-          '{{ tableHeaders }}'     => $tableHeaders,
-          '{{ tableCells }}'       => $tableCells,
-        ],
-      ],
-      'Create' => [
-        'stub'    => "$stubFolder/create.vue.stub",
-        'target'  => "{$dir}/Create.vue",
-        'replace' => [
-          '{{ componentImports }}' => $componentImports,
-          '{{ modelName }}'        => $modelName,
-          '{{ routeName }}'        => $routeName,
-          '{{ formDataDefaults }}' => $formDataDefaults,
-          '{{ formFields }}'       => $formFields,
-        ],
-      ],
-      'Edit' => [
-        'stub'    => "$stubFolder/edit.vue.stub",
-        'target'  => "{$dir}/Edit.vue",
-        'replace' => [
-          '{{ componentImports }}'          => $componentImports,
-          '{{ modelName }}'                 => $modelName,
-          '{{ modelVar }}'                  => $modelVar,
-          '{{ routeName }}'                 => $routeName,
-          '{{ formDataDefaultsWithValues }}' => $formDataWithValues,
-          '{{ formFields }}'                => $formFields,
-        ],
-      ],
-      'Show' => [
-        'stub'    => "$stubFolder/show.vue.stub",
-        'target'  => "{$dir}/Show.vue",
-        'replace' => [
-          '{{ modelName }}'   => $modelName,
-          '{{ modelVar }}'    => $modelVar,
-          '{{ routeName }}'   => $routeName,
-          '{{ showFields }}'  => $showFieldsMarkup,
-        ],
-      ],
-    ];
     // pages
     $pages = [
       'Index' => [
