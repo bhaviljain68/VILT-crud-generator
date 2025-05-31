@@ -93,6 +93,13 @@ class ControllerGenerator implements GeneratorInterface
       $storeRequestParam = $updateRequestParam = "Request \$request";
     }
 
+    $importRequestClass = '';
+    if ($context->options['formRequest']) {
+      $importRequestClass = $useFormRequestsImports;
+    } else {
+      $importRequestClass = 'use Illuminate\\Http\\Request;';
+    }
+
     $replacements = [
       'namespace'         => $context->paths['controllerNamespace'],
       'model'             => $context->modelName,
@@ -116,6 +123,7 @@ class ControllerGenerator implements GeneratorInterface
       'indexResourceCollection' => $indexResourceCollection,
       'showResource' => $showResource,
       'editResource' => $editResource,
+      'importRequestClass' => $importRequestClass,
     ];
 
 
