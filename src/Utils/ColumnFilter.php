@@ -69,7 +69,7 @@ class ColumnFilter
     public function filterAll(array $fields, bool $filterId = false): array
     {
         $filteredFields = $filterId ? $this->filterId($fields) : $fields;
-        return $this->filter($fields, array_merge($this->sensitive, $this->system));
+        return $this->filter($filteredFields, array_merge($this->sensitive, $this->system));
     }
 
     public function filterId(array $fields): array
