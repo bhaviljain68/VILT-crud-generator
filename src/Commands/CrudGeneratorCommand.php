@@ -59,9 +59,8 @@ class CrudGeneratorCommand extends Command
     $options = [
       'force' => $this->choice('Overwrite existing files?', ['No', 'Yes'], 0) === 'Yes',
       'form-request' => $this->choice('Generate FormRequest classes?', ['No', 'Yes'], 1) === 'Yes',
-      'resource-collection' => $this->choice('Generate Resource and ResourceCollection classes?', ['No', 'Yes'], 0) === 'Yes',
-      'no-ts' => $this->choice('Generate Vue pages without TypeScript?', ['No', 'Yes'], 0) === 'Yes',
     ];
+    // Ask separate-form-requests / single-form-request immediately after form-request
     $separateRequestFiles = config('vilt-crud-generator.separateRequestFiles', false);
     if (!$separateRequestFiles) {
       $options['separate-form-requests'] = $this->choice('Generate separate Store/Update request files?', ['No', 'Yes'], 0) === 'Yes';
@@ -70,6 +69,9 @@ class CrudGeneratorCommand extends Command
       $options['single-form-request'] = $this->choice('Generate a single request file for both store/update?', ['No', 'Yes'], 0) === 'Yes';
       $options['separate-form-requests'] = false;
     }
+    $options['resource-collection'] = $this->choice('Generate Resource and ResourceCollection classes?', ['No', 'Yes'], 0) === 'Yes';
+    // Ask for TypeScript (reverse logic for --no-ts)
+    $options['no-ts'] = !($this->choice('Generate Vue pages with TypeScript?', ['No', 'Yes'], 1) === 'Yes');
     foreach ($options as $key => $value) {
       $this->input->setOption($key, $value);
     }
@@ -125,13 +127,22 @@ class CrudGeneratorCommand extends Command
         return ltrim(str_replace(base_path(), '', $path), DIRECTORY_SEPARATOR);
       }, $allGeneratedFiles);
 
+      // Output results
+
+      $this->info("============================================================================");
+      $this->info("                   ⚙️ Generating CRUD for {$name} ⚙️       ");
+      $this->info("============================================================================");
+
       if (!empty($allGeneratedFiles)) {
         $this->info("Generated files:");
         foreach ($allGeneratedFiles as $file) {
           $this->line(" - {$file}");
         }
       }
-      $this->info("🎉 VILT CRUD scaffolding generated successfully for {$name}.");
+      $this->info("============================================================================");
+      $this->info("        🎉 CRUD scaffolding for {$name} generated successfully 🎉");
+      $this->info("============================================================================");
+      $this->info(" \n ");
     }
   }
 }
