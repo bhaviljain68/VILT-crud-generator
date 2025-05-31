@@ -69,6 +69,13 @@ php artisan vilt-crud:generate User Project Comment
 - `--resource-collection` : Generate Resource & Collection classes
 - `--no-ts` : Generate Vue pages in JavaScript instead of TypeScript
 - `--force` : Overwrite existing files
+- `--single-form-request` : Generate a single FormRequest file for both store and update actions (default if neither flag is provided)
+- `--separate-form-request` : Generate separate FormRequest files for store and update actions (useful if you want different validation rules for each)
+
+**Usage:**
+- By default, the generator creates a single FormRequest file for both store and update actions.
+- Use `--separate-form-request` if you want to generate two files: one for store and one for update, allowing you to customize validation rules for each action.
+- Use `--single-form-request` to explicitly generate only one FormRequest file for both actions.
 
 ---
 
