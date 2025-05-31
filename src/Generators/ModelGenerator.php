@@ -6,6 +6,7 @@ use artisanalbyte\VILTCrudGenerator\Context\CrudContext;
 use artisanalbyte\VILTCrudGenerator\Utils\ColumnFilter;
 use artisanalbyte\VILTCrudGenerator\Utils\StubRenderer;
 use Illuminate\Filesystem\Filesystem;
+use Illuminate\Support\Str;
 
 /**
  * Generates the Eloquent model for the CRUD.
@@ -38,7 +39,7 @@ class ModelGenerator implements GeneratorInterface
         ]);
         $this->files->ensureDirectoryExists(dirname($path));
         $this->files->put($path, $stub);
-        $generated[] = $path;
+        $generated[] = "✅ Model Generated : ".(Str::replace("\\","/",$path)). "😎";
         return $generated;
     }
 

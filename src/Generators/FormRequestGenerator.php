@@ -61,7 +61,7 @@ class FormRequestGenerator implements GeneratorInterface
             $stub = $this->renderer->render('form-request.stub', $replacements);
             $this->files->ensureDirectoryExists(dirname($path));
             $this->files->put($path, $stub);
-            $generated[] = $path;
+            $generated[] = "✅ $replacements[class] Generated : ".(Str::replace("\\","/",$path)). " 😎";
         }
         return $generated;
     }
