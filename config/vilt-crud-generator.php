@@ -15,9 +15,9 @@ return [
     |--------------------------------------------------------------------------
     | Generate Form Request by default
     |--------------------------------------------------------------------------
-    | If true, running the vilt:crud command will generate FormRequest 
+    | If true, running the vilt:crud command will generate FormRequest
     | classes for validation by default (no need to pass --form-request).
-    | If false, validation logic will be inline in the controller unless 
+    | If false, validation logic will be inline in the controller unless
     | the --form-request option is explicitly used.
     */
     'generateFormRequestsByDefault' => false,
@@ -144,4 +144,13 @@ return [
         'native character' => 'ui/input/Input.vue',
         'varying character' => 'ui/input/Input.vue',
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Generate Separate Store/Update Form Request Files
+    |--------------------------------------------------------------------------
+    | If true, generates StoreRequest and UpdateRequest separately.
+    | If false, generates a single Request file for both store/update actions.
+    */
+    'separateRequestFiles' => false,
 ];

@@ -74,6 +74,25 @@ class ControllerGenerator implements GeneratorInterface
       : "$" . $context->modelVar;
     $editResource = $showResource;
 
+    $separate = $context->options['separateRequestFiles'] ?? false;
+    $useFormRequestsImports = '';
+    $storeRequestParam = '';
+    $updateRequestParam = '';
+    if ($context->options['formRequest']) {
+      if ($separate) {
+        $useFormRequestsImports = "use {$context->paths['requestNamespace']}\\{$context->modelName}StoreRequest;\n"
+          . "use {$context->paths['requestNamespace']}\\{$context->modelName}UpdateRequest;";
+        $storeRequestParam = "{$context->modelName}StoreRequest \$request";
+        $updateRequestParam = "{$context->modelName}UpdateRequest \$request";
+      } else {
+        $useFormRequestsImports = "use {$context->paths['requestNamespace']}\\{$context->modelName}Request;";
+        $storeRequestParam = "{$context->modelName}Request \$request";
+        $updateRequestParam = "{$context->modelName}Request \$request";
+      }
+    } else {
+      $storeRequestParam = $updateRequestParam = "Request \$request";
+    }
+
     $replacements = [
       'namespace'         => $context->paths['controllerNamespace'],
       'model'             => $context->modelName,
@@ -84,16 +103,9 @@ class ControllerGenerator implements GeneratorInterface
       'validationStore'   => $validationStore,
       'validationUpdate'  => $validationUpdate,
       'route'             => $context->modelPluralVar,
-      'useFormRequestsImports'   => $context->options['formRequest']
-        ? "use {$context->paths['requestNamespace']}\\{$context->modelName}StoreRequest;\n"
-        . "use {$context->paths['requestNamespace']}\\{$context->modelName}UpdateRequest;"
-        : '',
-      'storeRequestParam'        => $context->options['formRequest']
-        ? "{$context->modelName}StoreRequest \$request"
-        : "Request \$request",
-      'updateRequestParam'       => $context->options['formRequest']
-        ? "{$context->modelName}UpdateRequest \$request"
-        : "Request \$request",
+      'useFormRequestsImports'   => $useFormRequestsImports,
+      'storeRequestParam'        => $storeRequestParam,
+      'updateRequestParam'       => $updateRequestParam,
       'validateStoreData'        => $context->options['formRequest']
         ? '$request->validated()'
         : '$request->validate(' . $storeConfig['rules'] . ',' . $messagesConfig . ')',

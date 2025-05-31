@@ -32,13 +32,20 @@ class CrudContextBuilder
 
         $formRequest = $input->hasParameterOption('--form-request')
             ? (bool) $input->getOption('form-request')
-            : config('vilt-crud-generator.generateFormRequestsByDefault', false);;
+            : config('vilt-crud-generator.generateFormRequestsByDefault', false);
         $resourceCollection = $input->hasParameterOption('--resource-collection')
             ? (bool) $input->getOption('resource-collection')
             : config('vilt-crud-generator.generateResourceAndCollectionByDefault', false);
         $useTypescript = $input->hasParameterOption('--no-ts')
             ? (bool) !$input->getOption('no-ts')
             : config('vilt-crud-generator.useTypescript', true);
+        // Determine separateRequestFiles option
+        $separateRequestFiles = config('vilt-crud-generator.separateRequestFiles', false);
+        if ($input->hasParameterOption('--separate-form-requests')) {
+            $separateRequestFiles = true;
+        } elseif ($input->hasParameterOption('--single-form-request')) {
+            $separateRequestFiles = false;
+        }
 
         // Compute naming conventions
         $modelName      = Str::studly(Str::singular($name));
@@ -62,6 +69,7 @@ class CrudContextBuilder
             'formRequest' => $formRequest,
             'resourceCollection' => $resourceCollection,
             'useTypescript'      => $useTypescript,
+            'separateRequestFiles' => $separateRequestFiles,
         ];
 
         // Construct and return the context
