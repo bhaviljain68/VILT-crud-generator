@@ -67,7 +67,7 @@ class FormRequestGenerator implements GeneratorInterface
             }
         } else {
             // Single request file for both store/update
-            $path = $context->paths['storeRequestPath'];
+            $path = $context->paths['requestPath'];
             if ($this->files->exists($path) && ! $context->options['force']) {
                 return $generated;
             }

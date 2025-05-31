@@ -33,6 +33,7 @@ class PathResolver
         $controllerPath = app_path("Http/Controllers/{$model}Controller.php");
         $storeRequestPath    = app_path("Http/Requests/{$model}StoreRequest.php");
         $updateRequestPath    = app_path("Http/Requests/{$model}UpdateRequest.php");
+        $requestPath = app_path("Http/Requests/{$model}Request.php");
 
         // Inertia/Vue pages directory
         $vueDir = resource_path('js/Pages/' . Str::studly($modelPlural));
@@ -49,6 +50,7 @@ class PathResolver
             'controllerPath'      => $controllerPath,
             'storeRequestPath'     => $storeRequestPath,
             'updateRequestPath'    => $updateRequestPath,
+            'requestPath'          => $requestPath,
 
             // View directory (Inertia Vue)
             'vueDirectory'   => $vueDir,
